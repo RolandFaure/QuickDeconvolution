@@ -43,6 +43,10 @@ void index_reads(int k, int w, string fileReads, unordered_map<Sequence, vector<
 				tagIDs[tag] = readClouds.size(); //from now on this tag ID will be associated to this tag
 				tagID = readClouds.size();
 				readClouds.push_back({sequenceID});
+
+                if (readClouds.size() % 100 == 0){
+                    cout << "Indexed " << readClouds.size() << " barcodes" << endl;
+                }
 			}
 			else{
 				tagID = tagIDs[tag];
