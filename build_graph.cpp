@@ -121,6 +121,9 @@ vector<int> build_graph(int k, int w, long int tagCloud, std::vector<long long i
 					}
 				}
 			}
+            else { // in this case, by trying to access index[sub] above we've created a useless key sub in index, which will take much space in memory
+                index.erase(sub);
+            }
 		}
 		//r++;
 	}
