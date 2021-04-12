@@ -6,7 +6,8 @@
 #include <fstream>
 #include <iostream>
 #include <list>
-//#include <lemon/smart_graph.h> //graph library
+
+#include "robin_hood.h"
 
 #include "compress.h"
 

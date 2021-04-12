@@ -2,8 +2,11 @@
 #include "generate_random_sequence.h"
 #include "draw_10x.h"
 
-using namespace std;
-using namespace chrono;
+using std::cout;
+using std::endl;
+using std::vector;
+using std::pair;
+using std::string;
 
 void create_exps(){
 	

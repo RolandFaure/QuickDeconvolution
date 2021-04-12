@@ -15,6 +15,7 @@ set(TARGET_H
     generate_random_sequence.h
     measure_speed.h
     tests.h
+    robin_hood.h
    )
 
 # Local source files here
@@ -33,3 +34,6 @@ set(TARGET_SRC
 
 file(GLOB SOURCES "*.cpp")
 add_executable(split10x ${SOURCES})
+
+target_compile_options (split10x PRIVATE -std=c++11)
+target_compile_options (split10x PRIVATE -O3)

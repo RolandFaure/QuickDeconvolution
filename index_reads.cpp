@@ -2,8 +2,17 @@
 
 #include <chrono>
 
-using namespace std;
+using std::cout;
+using std::endl;
+using std::vector;
+using std::list;
+using std::pair;
+using std::string;
+using std::ofstream;
+using std::ifstream;
+using robin_hood::unordered_map;
 using namespace std::chrono;
+
 
 //the index maps a kmer to all reads beginning or ending with the kmer or its reverse complement
 //the order is :

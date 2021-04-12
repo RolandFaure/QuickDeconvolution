@@ -1,7 +1,14 @@
 #include "measure_speed.h"
 
-using namespace std;
+using std::cout;
+using std::endl;
+using std::vector;
+using std::list;
+using std::pair;
+using std::string;
+using robin_hood::unordered_map;
 using namespace std::chrono; 
+
 
 float measure_graph_building_time(int k, int w, string readsFile){
 	
@@ -22,7 +29,8 @@ float measure_graph_building_time(int k, int w, string readsFile){
 		//if (index == 0){
 			
 		auto tt1 = high_resolution_clock::now();
-		vector<int> clusters = build_graph(k, w, index, cloud, allreads, idx);
+        vector <int> clusters (cloud.size(), -1);
+        build_graph(k, w, index, cloud, allreads, idx, clusters);
 		auto tt2 = high_resolution_clock::now();
 		timeGraph += duration_cast<microseconds>(tt2 - tt1).count();
 //		cout << "Treating tag number " << index << endl;

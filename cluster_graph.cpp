@@ -1,8 +1,14 @@
 #include "cluster_graph.h"
 
-using namespace std;
+using std::cout;
+using std::endl;
+using std::vector;
+using std::list;
+using std::string;
+using robin_hood::pair;
+using robin_hood::unordered_map;
 
-void cluster_graph(std::unordered_map<long int, std::list<int>> &matching_tags, vector<int> &clusters){
+void cluster_graph(unordered_map<long int, std::list<int>> &matching_tags, vector<int> &clusters){
 	
 	int adjMatrixSize = clusters.size();
 	vector<int> zeros (adjMatrixSize, 0);

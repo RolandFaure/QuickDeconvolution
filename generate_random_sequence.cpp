@@ -7,7 +7,13 @@
 #include <vector>
 #include <fstream>
 
-using namespace std;
+using std::cout;
+using std::endl;
+using std::vector;
+using std::pair;
+using std::string;
+using std::ofstream;
+using std::ifstream;
 
 string uniform_random_sequence(int length, char alphabet[], int sizeAlphabet){
 

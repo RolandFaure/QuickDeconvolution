@@ -4,7 +4,13 @@
 #include <cstdlib> // for generating random numbers
 #include <chrono>
 
-using namespace std;
+using std::cout;
+using std::endl;
+using std::vector;
+using std::pair;
+using std::string;
+using std::ifstream;
+using std::ofstream;
 
 void draw_fragments(int const read_size, int insert_size, int gen_coverage, float frag_coverage, int frag_size_min, int frag_size_max, float redundance, std::string fileGenome, std::string fileReads){
 	

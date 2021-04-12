@@ -1,6 +1,12 @@
 #include "tests.h"
 
-using namespace std;
+using std::cout;
+using std::endl;
+using std::vector;
+using std::list;
+using robin_hood::pair;
+using std::string;
+using robin_hood::unordered_map;
 
 vector<vector<int>> true_adjMatrix(vector<long long int> cloud, vector <Read> allReads){
 	
@@ -16,7 +22,7 @@ vector<vector<int>> true_adjMatrix(vector<long long int> cloud, vector <Read> al
 		index ++;
 	}
 	
-	for (pair<string, vector<int>> matchs : matching_tags){
+    for (pair<const string, vector<int>> matchs : matching_tags){
 		
 		//cout << "Let's look at what matched with tag " << matchs.first << endl;
 		for (int i = 0; i<matchs.second.size()-1 ; i++) {
@@ -52,7 +58,8 @@ void rapid_check(){
 	for (vector<long long int> cloud : readClouds){
 		
 		if (index == 0 /*&& cloud.size() < 120*/ ){
-			vector<int> clusters = build_graph(k, w, index, cloud, allreads, idx);
+            vector<int> clusters(cloud.size(), -1);
+            build_graph(k, w, index, cloud, allreads, idx, clusters);
 			
 			vector<vector<int>> adjMatrix_t = true_adjMatrix(cloud, allreads);
 		
@@ -72,7 +79,7 @@ void rapid_check(){
 //				}
 //				cout << endl;
 //			}
-			export_as_CSV(adjMatrix_t, "evalResultGraphs/"+to_string(index)+"_true.csv");
+            export_as_CSV(adjMatrix_t, "evalResultGraphs/"+std::to_string(index)+"_true.csv");
 			cout<<"Done for tag " << index << endl;
 		}
 		index ++;

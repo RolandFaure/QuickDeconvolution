@@ -6,7 +6,13 @@
 #include "tests.h"
 #include "cluster_graph.h"
 
-using namespace std;
+using std::cout;
+using std::endl;
+using std::vector;
+using std::list;
+using std::pair;
+using std::string;
+using robin_hood::unordered_map;
 
 int main(int argc, char *argv[])
 {

@@ -4,12 +4,20 @@
 //#include <lemon/smart_graph.h> //graph library
 //#include <lemon/list_graph.h>
 
-using namespace std;
-using namespace std::chrono; 
+using namespace std::chrono;
+
+using std::cout;
+using std::endl;
+using std::vector;
+using std::list;
+using std::pair;
+using std::min;
+using robin_hood::unordered_map;
+using std::string;
 //using namespace lemon;
 
 //the function takes as an input the list of all reads having the same tag
-vector<int> build_graph(int k, int w, long int tagCloud, std::vector<long long int>& readCloud, std::vector <Read> &reads, std::unordered_map<Sequence, vector<std::vector<Hit>>, Sequence::HashFunction> &index){
+vector<int> build_graph(int k, int w, long int tagCloud, std::vector<long long int>& readCloud, std::vector <Read> &reads, unordered_map<Sequence, vector<std::vector<Hit>>, Sequence::HashFunction> &index, vector<int> &clusters){
 	
 	long int mini_time = 0;
 	auto t0 = high_resolution_clock::now();
@@ -130,7 +138,6 @@ vector<int> build_graph(int k, int w, long int tagCloud, std::vector<long long i
 
 	auto t1 = high_resolution_clock::now();
 	
-	vector<int> clusters (readCloud.size(), -1);
 	cluster_graph(matching_tags, clusters);
 	
 //	int n = 0;

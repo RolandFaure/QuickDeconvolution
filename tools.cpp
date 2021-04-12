@@ -1,7 +1,15 @@
 #include "tools.h"
 
 #include <chrono>
-using namespace std;
+using std::cout;
+using std::endl;
+using std::vector;
+using std::list;
+using std::pair;
+using std::string;
+using std::ofstream;
+using std::ifstream;
+using robin_hood::unordered_map;
 using namespace std::chrono;
 //using namespace lemon;
 

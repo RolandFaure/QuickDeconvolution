@@ -7,7 +7,6 @@
 #include <unordered_map>
 #include <list>
 
-#include "measure_speed.h"
 #include "build_graph.h"
 #include "index_reads.h"
 
