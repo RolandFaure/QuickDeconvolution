@@ -17,7 +17,7 @@ using std::string;
 //using namespace lemon;
 
 //the function takes as an input the list of all reads having the same tag
-vector<int> build_graph(int k, int w, long int tagCloud, std::vector<long long int>& readCloud, std::vector <Read> &reads, unordered_map<Sequence, vector<std::vector<Hit>>, Sequence::HashFunction> &index, vector<int> &clusters){
+vector<int> build_graph(int k, int w, long int tagCloud, const std::vector<long long int>& readCloud, const std::vector <Read> &reads, unordered_map<Sequence, vector<std::vector<Hit>>, Sequence::HashFunction> &index, vector<int> &clusters){
 	
 	long int mini_time = 0;
 	auto t0 = high_resolution_clock::now();
@@ -35,9 +35,11 @@ vector<int> build_graph(int k, int w, long int tagCloud, std::vector<long long i
 		//cout << "\nLooking at read " << fullnum2str(read) << endl;
 		
 		auto tt0 = high_resolution_clock::now();
+
 		std::vector<std::pair<int, Sequence>> mini = minimisers(read, k, w); //mini is the list of all minimisers of the read
 		auto tt1 = high_resolution_clock::now();
 		mini_time += duration_cast<nanoseconds>(tt1-tt0).count();
+
 		
 		for (auto m : mini){
 			
@@ -48,7 +50,6 @@ vector<int> build_graph(int k, int w, long int tagCloud, std::vector<long long i
 			auto candidates = index[sub];
 			auto ttt1 = high_resolution_clock::now();
 			total_read_time += duration_cast<microseconds>(ttt1 - ttt0).count();
-
 			
 			//cout << "Minimizer " << fullnum2str(m.second) << endl;
 			

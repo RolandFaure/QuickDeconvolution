@@ -92,6 +92,11 @@ size_t Sequence::size(){
 bool Sequence::compare_kmers(int start1, int start2, int k){
 	return not lexicographical_compare(s.begin()+start1*2, s.begin()+(start1+k)*2,s.begin()+start2*2, s.begin()+(start2+k)*2);
 }
+
+//std::ostream& operator<< (std::ostream& stream, Sequence const& sequence){
+//    stream << sequence.str();
+//}
+
 //std::vector<bool> fullstr2num(const string& str) {
 //  std::vector<bool> res;
 //  for(uint i(0);i<str.size();i++){

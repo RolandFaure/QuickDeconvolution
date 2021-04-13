@@ -1,4 +1,5 @@
 #include "cluster_graph.h"
+#include <random>
 
 using std::cout;
 using std::endl;
@@ -14,7 +15,7 @@ void cluster_graph(unordered_map<long int, std::list<int>> &matching_tags, vecto
 	vector<int> zeros (adjMatrixSize, 0);
 	vector<vector<int>> adjMatrix (adjMatrixSize, zeros);
 	
-	int reject_tag_threshold = 30; //if a readCloud overlaps with too many reads in your readCloud, consider it a fluke
+    int reject_tag_threshold = 30000000; //if a readCloud overlaps with too many reads in your readCloud, consider it a fluke
 	vector<int> strengths_of_links = {0}; //strengths_of_links[p] contains how many links are at least as strong as p
 	
 	
@@ -48,7 +49,7 @@ void cluster_graph(unordered_map<long int, std::list<int>> &matching_tags, vecto
 	}
 	
 //	for (int i : strengths_of_links) cout << i << " ";
-	int link_between_reads_threshold = find_threshold(0.5, strengths_of_links); //if two reads share at least this number of common overlapping tags, consider them linked
+    int link_between_reads_threshold = std::max(1,find_threshold(0.5, strengths_of_links)); //if two reads share at least this number of common overlapping tags, consider them linked
 //	cout << "Threshold : " << link_between_reads_threshold << endl;
 	
 	//link_between_reads_threshold = 3;
@@ -67,12 +68,18 @@ void cluster_graph(unordered_map<long int, std::list<int>> &matching_tags, vecto
 		}
 	}
 	
+//    if (adjMatrix.size()>20){
+//        string id = std::to_string(int(rand()%30));
+//        string f = "/home/zaltabar/Documents/Ecole/X/4A/stage_M2/code/evalGraphs/cluster_"+id+"_adj.csv";
+//        export_as_CSV(adjMatrix, f);
+//        f = "/home/zaltabar/Documents/Ecole/X/4A/stage_M2/code/evalGraphs/cluster_"+id+"_matching-tag.csv";
+//        export_as_CSV(matching_tags, f);
+//    }
 	//export_as_CSV(adjMatrix, "evalResultGraphs/cluster.csv");
 		
 	find_connected_components(adjMatrix, clusters);
 	
-//	string f = "evalResultGraphs/"+to_string(t)+"_adj.csv";
-//	export_as_CSV(adjMatrix, f);
+
 }
 
 //a function to find connected components in an adjacency matrix using b

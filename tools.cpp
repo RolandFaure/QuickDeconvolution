@@ -79,6 +79,19 @@ void export_as_CSV(std::vector<std::vector<int>> adj, std::string file){
 	}
 }
 
+void export_as_CSV(robin_hood::unordered_map<long int, list<int>> matching_tags, std::string file){
+
+    ofstream out(file);
+
+    for (robin_hood::pair<long int, list<int>> p : matching_tags){
+
+        for (int r : p.second){
+            out << std::to_string(p.first)<<"_tag,"<<r << endl;
+        }
+
+    }
+}
+
 std::string reverse_complement(std::string &s){
 	
 	string res = "";

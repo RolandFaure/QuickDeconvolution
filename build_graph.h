@@ -12,6 +12,6 @@
 
 #include "tools.h"
 
-std::vector<int> build_graph(int k, int w, long int tagCloud, std::vector<long long int>& readCloud, std::vector <Read> &reads, robin_hood::unordered_map<Sequence, std::vector<std::vector<Hit>>, Sequence::HashFunction> &index, std::vector<int> &clusters);
+std::vector<int> build_graph(int k, int w, long int tagCloud, const std::vector<long long int>& readCloud, const std::vector <Read> &reads, robin_hood::unordered_map<Sequence, std::vector<std::vector<Hit>>, Sequence::HashFunction> &index, std::vector<int> &clusters);
 
 #endif

@@ -1,4 +1,5 @@
 #include "measure_speed.h"
+#include <thread>
 
 using std::cout;
 using std::endl;
@@ -7,7 +8,8 @@ using std::list;
 using std::pair;
 using std::string;
 using robin_hood::unordered_map;
-using namespace std::chrono; 
+using std::this_thread::sleep_for; //to pause the program
+using namespace std::chrono;
 
 
 float measure_graph_building_time(int k, int w, string readsFile){
@@ -20,7 +22,7 @@ float measure_graph_building_time(int k, int w, string readsFile){
 	vector <Read> allreads;
 		
 	index_reads(k, w, readsFile, idx, readClouds, allreads);
-	
+
 	auto t1 = high_resolution_clock::now();
 
 	long int index = 0;
@@ -33,6 +35,12 @@ float measure_graph_building_time(int k, int w, string readsFile){
         build_graph(k, w, index, cloud, allreads, idx, clusters);
 		auto tt2 = high_resolution_clock::now();
 		timeGraph += duration_cast<microseconds>(tt2 - tt1).count();
+
+//        cout << "Pausing..." << endl;
+//        cout << cloud.size() << endl;
+//        for (long long int i = 0 ; i < 400000000 ; i ++){int r = rand(); r++; }
+//        cout << "Finished the pause" << endl;
+
 //		cout << "Treating tag number " << index << endl;
 //			for (int i=0 ; i<adjMatrix.size() ; i++){for(int j=0 ; j<adjMatrix.size() ; j++){cout << adjMatrix[i][j] << "\t";} cout << endl;}
 //		cout << endl;

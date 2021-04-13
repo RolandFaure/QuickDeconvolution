@@ -33,13 +33,14 @@ private :
 	
 	std::vector<bool> s;
 	
-	//friend std::ostream& operator<< (std::ostream& stream, Sequence const& sequence);
+//    friend std::ostream& operator<< (std::ostream& stream, Sequence const& sequence);
 	friend bool operator==(Sequence const &a , Sequence const &b);
+
 }; 
 
 
 //std::vector<bool> fullstr2num(const std::string& str);
-//std::string fullnum2str(std::vector<bool> num);
+std::string fullnum2str(std::vector<bool> num);
 //
 //std::vector<bool> reverse_complement(std::vector<bool> &seq);
 

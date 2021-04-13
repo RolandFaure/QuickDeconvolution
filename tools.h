@@ -26,6 +26,7 @@ std::string get_tag(std::string &s);
 std::string get_true_tag(std::string &s);
 void export_as_SIF(std::vector<std::vector<int>> adj, std::string file);
 void export_as_CSV(std::vector<std::vector<int>> adj, std::string file);
+void export_as_CSV(robin_hood::unordered_map<long int, std::list<int>> matching_tags, std::string file);
 std::string reverse_complement(std::string &s);
 
 std::vector<std::pair<int, Sequence>> minimisers(Sequence &seq, short k, short w);

@@ -41,14 +41,19 @@ void index_reads(int k, int w, string fileReads, unordered_map<Sequence, vector<
 	
 	string line;
 	bool next = false;
+    bool notag = false; //bool alerting when there is no tag attached to a read
 	while(getline(in, line)){
 		
 		if (line[0] == '@'){
 			//here looking at the name of sequence and the tag
 			nameofsequence = line.erase(0,1);
 			tag = get_tag(nameofsequence); //this tag is a string, as contained in a fasta: we're going to convert it into a long int, this will be much more efficient
-			
-			if (tagIDs.find(tag) == tagIDs.end()){ // if true, tag is not in the keys of tagIDs
+
+            notag = false;
+            if (tag == ""){
+                notag = true;
+            }
+            else if (tagIDs.find(tag) == tagIDs.end()){ // if true, tag is not in the keys of tagIDs
 				tagIDs[tag] = readClouds.size(); //from now on this tag ID will be associated to this tag
 				tagID = readClouds.size();
 				readClouds.push_back({sequenceID});
@@ -66,7 +71,7 @@ void index_reads(int k, int w, string fileReads, unordered_map<Sequence, vector<
 
 			next = true;
 		}
-		else if (next) {
+        else if (next && !notag) {
 			//here looking at the sequence itself
 			next = false;
 			if (k+w > line.size()){
