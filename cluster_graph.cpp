@@ -20,7 +20,7 @@ void cluster_graph(unordered_map<long int, std::list<int>> &matching_tags, vecto
 	
 	
 	//building the interaction matrix between reads
-	for (pair<long int, list<int>> matchs : matching_tags){
+    for (pair<long int, list<int>> matchs : matching_tags){
 		
 		int mss = matchs.second.size();
 		if (mss < reject_tag_threshold){
@@ -68,13 +68,13 @@ void cluster_graph(unordered_map<long int, std::list<int>> &matching_tags, vecto
 		}
 	}
 	
-//    if (adjMatrix.size()>20){
-//        string id = std::to_string(int(rand()%30));
-//        string f = "/home/zaltabar/Documents/Ecole/X/4A/stage_M2/code/evalGraphs/cluster_"+id+"_adj.csv";
-//        export_as_CSV(adjMatrix, f);
-//        f = "/home/zaltabar/Documents/Ecole/X/4A/stage_M2/code/evalGraphs/cluster_"+id+"_matching-tag.csv";
-//        export_as_CSV(matching_tags, f);
-//    }
+    if (adjMatrix.size()>60){
+        string id = std::to_string(int(rand()%30));
+        string f = "/home/zaltabar/Documents/Ecole/X/4A/stage_M2/code/evalGraphs/cluster_"+id+"_adj.csv";
+        export_as_CSV(adjMatrix, f);
+        f = "/home/zaltabar/Documents/Ecole/X/4A/stage_M2/code/evalGraphs/cluster_"+id+"_matching-tag.csv";
+        export_as_CSV(matching_tags, f);
+    }
 	//export_as_CSV(adjMatrix, "evalResultGraphs/cluster.csv");
 		
 	find_connected_components(adjMatrix, clusters);

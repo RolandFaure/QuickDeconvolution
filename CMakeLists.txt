@@ -35,5 +35,5 @@ set(TARGET_SRC
 file(GLOB SOURCES "*.cpp")
 add_executable(split10x ${SOURCES})
 
-target_compile_options (split10x PRIVATE -std=gnu++11)
+target_compile_options (split10x PRIVATE -std=c++11)
 target_compile_options (split10x PRIVATE -O3)

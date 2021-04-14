@@ -10,7 +10,6 @@ using std::cout;
 using std::endl;
 using std::vector;
 using std::list;
-using std::pair;
 using std::min;
 using robin_hood::unordered_map;
 using std::string;
@@ -163,6 +162,6 @@ vector<int> build_graph(int k, int w, long int tagCloud, const std::vector<long 
 	auto t2 = high_resolution_clock::now();
 	
 	//cout << "push_back time : " << total_read_time << endl;
-	//cout << "Alignement time : " << duration_cast<nanoseconds>(t1 - t0).count() <<"us, total read accession : " << total_read_time << ", total minimizer time : " << mini_time << endl;
+    cout << "Alignement time : " << duration_cast<microseconds>(t1 - t0).count() <<"us, total read accession : " << total_read_time << ", total minimizer time : " << mini_time << endl;
 	return clusters;
 }
