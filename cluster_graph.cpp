@@ -49,10 +49,10 @@ void cluster_graph(unordered_map<long int, std::list<int>> &matching_tags, vecto
 	}
 	
 //	for (int i : strengths_of_links) cout << i << " ";
-    int link_between_reads_threshold = std::max(1,find_threshold(0.5, strengths_of_links)); //if two reads share at least this number of common overlapping tags, consider them linked
+    int link_between_reads_threshold = std::max(1,find_threshold(0.8, strengths_of_links)); //if two reads share at least this number of common overlapping tags, consider them linked
 //	cout << "Threshold : " << link_between_reads_threshold << endl;
 	
-	//link_between_reads_threshold = 3;
+    //int link_between_reads_threshold = 1;
 	
 	//building the adjacency matrix : if enough common tags, the reads are considered linked
 	//link together the reads with enough common barcodes
@@ -68,7 +68,7 @@ void cluster_graph(unordered_map<long int, std::list<int>> &matching_tags, vecto
 		}
 	}
 	
-    if (adjMatrix.size()>60){
+    if (adjMatrix.size()>20){
         string id = std::to_string(int(rand()%30));
         string f = "/home/zaltabar/Documents/Ecole/X/4A/stage_M2/code/evalGraphs/cluster_"+id+"_adj.csv";
         export_as_CSV(adjMatrix, f);

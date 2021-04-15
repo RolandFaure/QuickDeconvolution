@@ -6,6 +6,7 @@ using std::vector;
 using std::list;
 using robin_hood::pair;
 using std::string;
+using std::array;
 using robin_hood::unordered_map;
 
 vector<vector<int>> true_adjMatrix(vector<long long int> cloud, vector <Read> allReads){
@@ -45,7 +46,7 @@ void rapid_check(){
 //	chromosomes_to_file(100000, alphabet, 4, 1, "eval/genome_smallTest.fasta");
 //	draw_fragments(150, 400, 5, 0.2, 15000, 20000, 2, "eval/genome_smallTest.fasta", "eval/reads_smallTest");
 	
-	unordered_map <Sequence, vector<vector<Hit>>, Sequence::HashFunction> idx;
+    unordered_map <Sequence, array<vector<Hit>, 4>, Sequence::HashFunction> idx;
 	vector <vector<long long int>> readClouds;
 	vector <Read> allreads;
 	int k = 20;

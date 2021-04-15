@@ -10,6 +10,7 @@ using std::pair;
 using std::string;
 using std::ofstream;
 using std::ifstream;
+using std::array;
 using robin_hood::unordered_map;
 using namespace std::chrono;
 
@@ -23,7 +24,7 @@ using namespace std::chrono;
 
 //to compress sequencing data, reads and kmers are represented by vectors of bool
 
-void index_reads(int k, int w, string fileReads, unordered_map<Sequence, vector<vector<Hit>>, Sequence::HashFunction> &index, vector<vector<long long int>> &readClouds, vector <Read> &allreads){
+void index_reads(int k, int w, string fileReads, unordered_map<Sequence, array<vector<Hit>, 4>, Sequence::HashFunction> &index, vector<vector<long long int>> &readClouds, vector <Read> &allreads){
 	
 	float total_read_time = 0;
 	auto t0 = high_resolution_clock::now();
@@ -97,12 +98,9 @@ void index_reads(int k, int w, string fileReads, unordered_map<Sequence, vector<
 				Hit kmerL_h;
 				kmerL_h.sequenceID = sequenceID;
 				kmerL_h.position = kmerL.first;
-				if (index.count(kmerL.second) > 0) {
-					index[kmerL.second][0].push_back(kmerL_h);
-				}
-				else{
-					index[kmerL.second] = {{kmerL_h},{},{},{}};
-				}
+
+                index[kmerL.second][0].push_back(kmerL_h);
+
 				
 				ttt0 = high_resolution_clock::now();
 				pair<int, Sequence> kmerR = minimisers(kr, k ,w)[0];
@@ -112,12 +110,8 @@ void index_reads(int k, int w, string fileReads, unordered_map<Sequence, vector<
 				Hit kmerR_h;
 				kmerR_h.sequenceID = sequenceID;
 				kmerR_h.position = w+k-kmerR.first;
-				if (index.count(kmerR.second) > 0) {
-					index[kmerR.second][1].push_back(kmerR_h);
-				}
-				else{
-					index[kmerR.second] = {{},{kmerR_h},{},{}};
-				}
+                index[kmerR.second][1].push_back(kmerR_h);
+
 				
 				ttt0 = high_resolution_clock::now();
 				Sequence rev = kr.reverse_complement();
@@ -128,12 +122,8 @@ void index_reads(int k, int w, string fileReads, unordered_map<Sequence, vector<
 				Hit kmerRr_h;
 				kmerRr_h.sequenceID = sequenceID;
 				kmerRr_h.position = kmerRr.first;
-				if (index.count(kmerRr.second) > 0) {
-					index[kmerRr.second][2].push_back(kmerRr_h);
-				}
-				else{
-					index[kmerRr.second] = {{},{},{kmerRr_h},{}};
-				}
+                index[kmerRr.second][2].push_back(kmerRr_h);
+
 				
 				ttt0 = high_resolution_clock::now();
 				rev = kl.reverse_complement();
@@ -144,12 +134,7 @@ void index_reads(int k, int w, string fileReads, unordered_map<Sequence, vector<
 				Hit kmerLr_h;
 				kmerLr_h.sequenceID = sequenceID;
 				kmerLr_h.position = w+k-kmerLr.first;
-				if (index.count(kmerLr.second) > 0) {
-					index[kmerLr.second][3].push_back(kmerLr_h);
-				}
-				else{
-					index[kmerLr.second] = {{},{},{},{kmerLr_h}};
-				}
+                index[kmerLr.second][3].push_back(kmerLr_h);
 			
 			}
 			

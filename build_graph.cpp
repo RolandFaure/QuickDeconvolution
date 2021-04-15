@@ -13,10 +13,11 @@ using std::list;
 using std::min;
 using robin_hood::unordered_map;
 using std::string;
+using std::array;
 //using namespace lemon;
 
 //the function takes as an input the list of all reads having the same tag
-vector<int> build_graph(int k, int w, long int tagCloud, const std::vector<long long int>& readCloud, const std::vector <Read> &reads, unordered_map<Sequence, vector<std::vector<Hit>>, Sequence::HashFunction> &index, vector<int> &clusters){
+vector<int> build_graph(int k, int w, long int tagCloud, const std::vector<long long int>& readCloud, const std::vector <Read> &reads, unordered_map<Sequence, array<vector<Hit>, 4>, Sequence::HashFunction> &index, vector<int> &clusters){
 	
 	long int mini_time = 0;
 	auto t0 = high_resolution_clock::now();
@@ -162,6 +163,6 @@ vector<int> build_graph(int k, int w, long int tagCloud, const std::vector<long 
 	auto t2 = high_resolution_clock::now();
 	
 	//cout << "push_back time : " << total_read_time << endl;
-    cout << "Alignement time : " << duration_cast<microseconds>(t1 - t0).count() <<"us, total read accession : " << total_read_time << ", total minimizer time : " << mini_time << endl;
+    //cout << "Alignement time : " << duration_cast<microseconds>(t1 - t0).count() <<"us, total read accession : " << total_read_time << ", total minimizer time : " << mini_time << endl;
 	return clusters;
 }
