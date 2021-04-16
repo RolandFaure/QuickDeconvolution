@@ -37,6 +37,7 @@ vector<int> build_graph(int k, int w, long int tagCloud, const std::vector<long 
 		auto tt0 = high_resolution_clock::now();
 
 		std::vector<std::pair<int, Sequence>> mini = minimisers(read, k, w); //mini is the list of all minimisers of the read
+        cout << "I compute " << mini.size() << " minimiser for this read" << endl;
 		auto tt1 = high_resolution_clock::now();
 		mini_time += duration_cast<nanoseconds>(tt1-tt0).count();
 
