@@ -138,7 +138,6 @@ int find_threshold(float proportion, vector<int> &strengths_of_links){
 
 void cluster_graph_chinese_whispers(unordered_map<long int, std::set<int>> &matching_tags, vector<int> &clusters){
 
-    cout << "Building interaction matrix..." << endl;
     int adjMatrixSize = clusters.size();
     vector<int> zeros (adjMatrixSize, 0);
     vector<vector<int>> adjMatrix (adjMatrixSize, zeros);
@@ -216,13 +215,14 @@ void cluster_graph_chinese_whispers(unordered_map<long int, std::set<int>> &matc
                 }
 
             }
-
             //randomly pick one of the most frequent neighbor
-            int newCluster = most_frequent_neighbors[rand()%most_frequent_neighbors.size()];
-            //cout << "Next cluster : " << newCluster << ", old one : " << clusters[node] << endl;
-            if (newCluster != clusters[node]){
-                clusters[node] = newCluster;
-                nb_of_nodes_changing++;
+            if (most_frequent_neighbors.size() > 0){
+                int newCluster = most_frequent_neighbors[rand()%most_frequent_neighbors.size()];
+                //cout << "Next cluster : " << newCluster << ", old one : " << clusters[node] << endl;
+                if (newCluster != clusters[node]){
+                    clusters[node] = newCluster;
+                    nb_of_nodes_changing++;
+                }
             }
         }
 

@@ -42,7 +42,7 @@ float measure_graph_building_time(int k, int w, string readsFile){
 //        for (long long int i = 0 ; i < 400000000 ; i ++){int r = rand(); r++; }
 //        cout << "Finished the pause" << endl;
 
-        cout << "Treating tag number " << index << endl;
+//        cout << "Treating tag number " << index << endl;
 //			for (int i=0 ; i<adjMatrix.size() ; i++){for(int j=0 ; j<adjMatrix.size() ; j++){cout << adjMatrix[i][j] << "\t";} cout << endl;}
 //		cout << endl;
 		
