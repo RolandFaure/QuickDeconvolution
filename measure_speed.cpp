@@ -18,11 +18,11 @@ float measure_graph_building_time(int k, int w, string readsFile){
 	double timeGraph = 0;
 	auto t0 = high_resolution_clock::now();
 	
-    unordered_map <Sequence, array<vector<Hit>, 4>, Sequence::HashFunction> idx;
+    vector<vector<long int>> kmers;
 	vector <vector<long long int>> readClouds;
 	vector <Read> allreads;
 		
-	index_reads(k, w, readsFile, idx, readClouds, allreads);
+    index_reads(k, w, readsFile, kmers, readClouds, allreads);
 
 	auto t1 = high_resolution_clock::now();
 
@@ -33,7 +33,7 @@ float measure_graph_building_time(int k, int w, string readsFile){
 			
 		auto tt1 = high_resolution_clock::now();
         vector <int> clusters (cloud.size(), -1);
-        build_graph(k, w, index, cloud, allreads, idx, clusters);
+        build_graph(k, w, index, cloud, allreads, kmers, clusters);
 		auto tt2 = high_resolution_clock::now();
 		timeGraph += duration_cast<microseconds>(tt2 - tt1).count();
 
@@ -42,7 +42,7 @@ float measure_graph_building_time(int k, int w, string readsFile){
 //        for (long long int i = 0 ; i < 400000000 ; i ++){int r = rand(); r++; }
 //        cout << "Finished the pause" << endl;
 
-//		cout << "Treating tag number " << index << endl;
+        cout << "Treating tag number " << index << endl;
 //			for (int i=0 ; i<adjMatrix.size() ; i++){for(int j=0 ; j<adjMatrix.size() ; j++){cout << adjMatrix[i][j] << "\t";} cout << endl;}
 //		cout << endl;
 		

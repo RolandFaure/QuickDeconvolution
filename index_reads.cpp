@@ -11,6 +11,7 @@ using std::string;
 using std::ofstream;
 using std::ifstream;
 using std::array;
+//using std::unordered_set;
 using robin_hood::unordered_map;
 using namespace std::chrono;
 
@@ -24,7 +25,7 @@ using namespace std::chrono;
 
 //to compress sequencing data, reads and kmers are represented by vectors of bool
 
-void index_reads(int k, int w, string fileReads, unordered_map<Sequence, array<vector<Hit>, 4>, Sequence::HashFunction> &index, vector<vector<long long int>> &readClouds, vector <Read> &allreads){
+void index_reads(int k, int w, string fileReads, vector<vector<long int>> &kmers, vector<vector<long long int>> &readClouds, vector <Read> &allreads){
 	
 	float total_read_time = 0;
 	auto t0 = high_resolution_clock::now();
@@ -39,13 +40,15 @@ void index_reads(int k, int w, string fileReads, unordered_map<Sequence, array<v
 	unordered_map <string, long int> tagIDs;
 	long int tagID;
 	string trueTag;
+
+    unordered_map<Sequence,long int, Sequence::HashFunction> index;
 	
 	string line;
 	bool next = false;
     bool notag = false; //bool alerting when there is no tag attached to a read
 	while(getline(in, line)){
 		
-		if (line[0] == '@'){
+        if (line[0] == '@'){
 			//here looking at the name of sequence and the tag
 			nameofsequence = line.erase(0,1);
 			tag = get_tag(nameofsequence); //this tag is a string, as contained in a fasta: we're going to convert it into a long int, this will be much more efficient
@@ -81,60 +84,51 @@ void index_reads(int k, int w, string fileReads, unordered_map<Sequence, array<v
 			}
 			else{
 				Read r;
-				r.sequence = Sequence(line);
-				r.barcode = tagID;
-				r.trueBarcode = trueTag;
-				allreads.push_back(r);
+                r.barcode = tagID;
 				
-				Sequence kl = r.sequence.subseq(0, k+w);
-				Sequence kr = r.sequence.subseq(r.sequence.size()/2-k-w,k+w);
-				
+                Sequence s (line);
+                Sequence rev = s.reverse_complement();
+
 				auto ttt0 = high_resolution_clock::now();
-				pair<int, Sequence> kmerL = minimisers(kl, k, w)[0];
+                auto minis = minimisers(s, k, w);
 				
 				auto ttt1 = high_resolution_clock::now();
 				total_read_time += duration_cast<microseconds>(ttt1 - ttt0).count();
 				
-				Hit kmerL_h;
-				kmerL_h.sequenceID = sequenceID;
-				kmerL_h.position = kmerL.first;
+                //for all minimisers in the sequence, add the tag to the minimiser or add the minimiser
+                for (pair<int, Sequence> mini : minis){
 
-                index[kmerL.second][0].push_back(kmerL_h);
+                    if (index.find(mini.second) != index.end()){
+                        long int place = index[mini.second];
+                        r.minis.push_back(place);
+                        kmers[place].push_back(r.barcode); //each kmer contains the list of all barcodes containing this kmer
+                    }
+                    else {
+                        index[mini.second] = kmers.size();
+                        r.minis.push_back(kmers.size());
+                        kmers.push_back({r.barcode});
+                    }
 
-				
-				ttt0 = high_resolution_clock::now();
-				pair<int, Sequence> kmerR = minimisers(kr, k ,w)[0];
-				ttt1 = high_resolution_clock::now();
-				total_read_time += duration_cast<microseconds>(ttt1 - ttt0).count();
-				
-				Hit kmerR_h;
-				kmerR_h.sequenceID = sequenceID;
-				kmerR_h.position = w+k-kmerR.first;
-                index[kmerR.second][1].push_back(kmerR_h);
+                }
 
-				
-				ttt0 = high_resolution_clock::now();
-				Sequence rev = kr.reverse_complement();
-				pair<int, Sequence> kmerRr = minimisers(rev,k,w)[0];
-				ttt1 = high_resolution_clock::now();
-				total_read_time += duration_cast<microseconds>(ttt1 - ttt0).count();
-				
-				Hit kmerRr_h;
-				kmerRr_h.sequenceID = sequenceID;
-				kmerRr_h.position = kmerRr.first;
-                index[kmerRr.second][2].push_back(kmerRr_h);
+                auto minisR =  minimisers(rev, k, w);
+                //for all minimisers in the sequence, add the tag to the minimiser or add the minimiser
+                for (pair<int, Sequence> mini : minisR){
 
-				
-				ttt0 = high_resolution_clock::now();
-				rev = kl.reverse_complement();
-				pair<int, Sequence> kmerLr = minimisers(rev,k,w)[0];
-				ttt1 = high_resolution_clock::now();
-				total_read_time += duration_cast<microseconds>(ttt1 - ttt0).count();
-				
-				Hit kmerLr_h;
-				kmerLr_h.sequenceID = sequenceID;
-				kmerLr_h.position = w+k-kmerLr.first;
-                index[kmerLr.second][3].push_back(kmerLr_h);
+                    if (index.find(mini.second) != index.end()){
+                        long int place = index[mini.second];
+                        r.minis.push_back(place);
+                        kmers[place].push_back(r.barcode); //each kmer contains the list of all barcodes containing this kmer
+                    }
+                    else {
+                        index[mini.second] = kmers.size();
+                        r.minis.push_back(kmers.size());
+                        kmers.push_back({r.barcode});
+                    }
+
+                }
+
+                allreads.push_back(r);
 			
 			}
 			

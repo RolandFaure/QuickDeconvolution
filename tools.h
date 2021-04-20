@@ -6,6 +6,7 @@
 #include <fstream>
 #include <iostream>
 #include <list>
+#include <set>
 
 #include "robin_hood.h"
 
@@ -17,16 +18,28 @@ struct Hit{
 };
 
 struct Read{
-	Sequence sequence;
+    std::vector<long int> minis;
 	long int barcode;
-	std::string trueBarcode;
 };
+
+//class Filtering_set{ //an unordered set, except that you add an element only if you already have seen it n-1 times
+
+//public :
+
+//    Filtering_set(n);
+//    std::unordered_set set;
+
+//private :
+
+//    int n;
+
+//};
 
 std::string get_tag(std::string &s);
 std::string get_true_tag(std::string &s);
 void export_as_SIF(std::vector<std::vector<int>> adj, std::string file);
 void export_as_CSV(std::vector<std::vector<int>> adj, std::string file);
-void export_as_CSV(robin_hood::unordered_map<long int, std::list<int>> matching_tags, std::string file);
+void export_as_CSV(robin_hood::unordered_map<long int, std::set<int>> matching_tags, std::string file);
 std::string reverse_complement(std::string &s);
 
 std::vector<std::pair<int, Sequence>> minimisers(Sequence &seq, short k, short w);

@@ -9,22 +9,24 @@ using std::pair;
 using std::string;
 using std::ofstream;
 using std::ifstream;
+using std::set;
 using robin_hood::unordered_map;
 using namespace std::chrono;
 //using namespace lemon;
 
 std::string get_tag(std::string &s){
 	
+
 	string tag;
 	int t = 0;
 	for (int i = 4; i<s.size();i++){
-		if (s.substr(i-4,5) == "BX:Z:"){
-			t = true;
+        if (s.substr(i-4,5) == "BX:Z:"){ //for fastq
+            t = 1;
+        }
+        else if (s[i] == ' ' or s[i] == '\\'){
+            t = 0;
 		}
-		else if (s[i] == ' ' or s[i] == '\\'){
-			t = false;
-		}
-		else if (t){
+        else if (t == 1){
 			tag += s[i];
 		}
 	}
@@ -71,6 +73,7 @@ void export_as_CSV(std::vector<std::vector<int>> adj, std::string file){
 	for (int i = 0 ; i<adj.size()-1 ; i++){
 		for (int j = i+1 ; j<adj[0].size() ; j++){
 			
+            //cout << "link between " << i << " and " << j << " : " << adj[i][j] << endl;
 			for(int k = 0 ; k<adj[i][j] ; k++){
 				out<< i << "," << j << endl;
 			}
@@ -79,11 +82,11 @@ void export_as_CSV(std::vector<std::vector<int>> adj, std::string file){
 	}
 }
 
-void export_as_CSV(robin_hood::unordered_map<long int, list<int>> matching_tags, std::string file){
+void export_as_CSV(robin_hood::unordered_map<long int, std::set<int>> matching_tags, std::string file){
 
     ofstream out(file);
 
-    for (robin_hood::pair<long int, list<int>> p : matching_tags){
+    for (robin_hood::pair<const long int, set<int>> p : matching_tags){
 
         for (int r : p.second){
             out << std::to_string(p.first)<<"_tag,"<<r << endl;
@@ -202,15 +205,6 @@ std::vector<std::pair<int, Sequence>> minimisers(Sequence& seq, short k, short w
 
 
 
-//void lemon_to_csv(SmartGraph &g, std::string fileOut){
-//	
-//	ofstream out(fileOut);
-//	int out0 = 0;
-//	for(SmartGraph::EdgeIt a(g); a!=INVALID; ++a){
-//		
-//		out << g.id(g.u(a)) << ";" << g.id(g.v(a)) << "\n";
-//	}
-//}
 
 
 
