@@ -42,6 +42,7 @@ void index_reads(int k, int h, int w, string fileReads, vector<vector<long int>>
 	string trueTag;
 
     unordered_map<Sequence,long int, Sequence::HashFunction> index;
+    index.reserve(1000000);//there is usually at least 1 million different barcodes
 	
 	string line;
 	bool next = false;
@@ -138,7 +139,7 @@ void index_reads(int k, int h, int w, string fileReads, vector<vector<long int>>
 		}
 	}
 	auto t1 = high_resolution_clock::now();
-    cout << "In index_reads, finding minimizers took me " << total_read_time/1000000 << "s out of " << duration_cast<microseconds>(t1 - t0).count()/1000000 << "s in total, to find " << index.size() << " minimisers" <<  endl;
+    cout << "In index_reads, finding minimizers took me " << total_read_time/1000000 << "s out of " << duration_cast<microseconds>(t1 - t0).count()/1000000 << "s in total, to find " << index.size() << " minimisers, on average " << index.size()/allreads.size() << " per reads" <<  endl;
 }
 
 //function returning all minimizers of a sequence and their positions knowing k and the windowsize
