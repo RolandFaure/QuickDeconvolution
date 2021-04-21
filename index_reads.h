@@ -11,6 +11,6 @@
 #include <list>
 #include <set>
 
-void index_reads(int k, int w, std::string fileReads, std::vector<std::vector<long int>> &kmers, std::vector<std::vector<long long int>> &readClouds, std::vector <Read> &allreads);
+void index_reads(int k, int h, int w, std::string fileReads, std::vector<std::vector<long int>> &kmers, std::vector<std::vector<long long int>> &readClouds, std::vector <Read> &allreads);
 
 #endif //INDEX_READS_INCLUDED

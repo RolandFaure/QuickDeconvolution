@@ -18,7 +18,7 @@ using std::set;
 //using namespace lemon;
 
 //the function takes as an input the list of all reads having the same tag
-vector<int> build_graph(int k, int w, long int tagCloud, const std::vector<long long int>& readCloud, const std::vector <Read> &reads, vector<vector<long int>> &kmers, vector<int> &clusters){
+vector<int> build_graph(long int tagCloud, const std::vector<long long int>& readCloud, const std::vector <Read> &reads, vector<vector<long int>> &kmers, vector<int> &clusters){
 	
 	long int mini_time = 0;
 	auto t0 = high_resolution_clock::now();

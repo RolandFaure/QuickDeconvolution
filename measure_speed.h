@@ -10,7 +10,7 @@
 #include "build_graph.h"
 #include "index_reads.h"
 
-float measure_graph_building_time(int k, int w, std::string readsFile);
+float measure_graph_building_time(int k, int h, int w, std::string readsFile);
 void systematic_times(int k);
 
 #endif

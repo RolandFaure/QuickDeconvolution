@@ -18,6 +18,7 @@ public :
 	std::string str() const; //returns a string of ACGT
 	size_t size();
 		
+    void minimisers(int hardness, int k, int w, std::vector<Sequence> &minis);
 	bool compare_kmers(int start1, int start2, int k); //specific function to compare leicographically to kmer within a sequence (useful to find minimizers)
 	
 	struct HashFunction

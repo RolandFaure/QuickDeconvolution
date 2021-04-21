@@ -42,8 +42,6 @@ void export_as_CSV(std::vector<std::vector<int>> adj, std::string file);
 void export_as_CSV(robin_hood::unordered_map<long int, std::set<int>> matching_tags, std::string file);
 std::string reverse_complement(std::string &s);
 
-std::vector<std::pair<int, Sequence>> minimisers(Sequence &seq, short k, short w);
-
 //std::vector<bool> subseq(std::vector<bool> &seq, int start, int length);
 
 //void lemon_to_csv(lemon::SmartGraph &g, std::string fileOut);

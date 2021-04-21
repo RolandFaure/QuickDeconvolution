@@ -93,53 +93,64 @@ bool Sequence::compare_kmers(int start1, int start2, int k){
 	return not lexicographical_compare(s.begin()+start1*2, s.begin()+(start1+k)*2,s.begin()+start2*2, s.begin()+(start2+k)*2);
 }
 
-//std::ostream& operator<< (std::ostream& stream, Sequence const& sequence){
-//    stream << sequence.str();
-//}
+//returns in a deterministic fashion at least w of the reads, on average 1 / 2^hardness
+//the algorithm looks if the first bit of a letter, the l
+void Sequence::minimisers(int hardness, int k, int w, vector<Sequence> &minis){
 
-//std::vector<bool> fullstr2num(const string& str) {
-//  std::vector<bool> res;
-//  for(uint i(0);i<str.size();i++){
-//    switch (str[i]){
-//      case 'A':res.push_back(false);res.push_back(false);break;
-//      case 'C':res.push_back(false);res.push_back(true);break;
-//      case 'G':res.push_back(true);res.push_back(false);break;
-//      default:res.push_back(true);res.push_back(true);break;
-//    }
-//  }
-//  return res;
-//}
+    vector<bool> criterion (hardness, false);
+    vector <bool> emptyWindows (this->size()-w+1, true);
+    bool cont;
 
-//std::string fullnum2str(vector<bool> num) {
-//  string str(num.size()/2, 'N');
-//  uint j = 0;
-//  for(uint i(0);i<num.size();i+=2){
-//    if(num[i]){
-//      if(num[i+1]){
-//          str[j] = 'T';
-//      }else{
-//        str[j] = 'G';
-//      }
-//    }else{
-//      if(num[i+1]){
-//        str[j] = 'C';
-//      }else{
-//        str[j] = 'A';
-//      }
-//    }
-//    j++;
-//  }
-//  return str;
-//}
+    do{
 
-//std::vector<bool> reverse_complement(std::vector<bool> &seq){
-//	
-//	std::vector<bool> res;
-//	seq.flip();
-//	
-//	for (int i = seq.size()-1 ; i>0 ; i-=2){
-//		res.push_back(seq[i-1]);
-//		res.push_back(seq[i]);
-//	}
-//	return res;
-//}
+        int lastM = 0;
+        //in empty windows, look for kmers matching the criterion
+        for (int i = 0 ; i<=this->size()-k ; i++){
+
+            int emptyWindowsSize = emptyWindows.size();
+            if ((i>=emptyWindowsSize&&emptyWindows[emptyWindowsSize-1]) || (i<emptyWindowsSize&& emptyWindows[i])){
+
+                bool good = true;
+                short index = 0;
+                while (good && index < hardness){
+                    good = good && (s[i*2+index]==criterion[index]);
+                    index ++;
+                }
+
+                if (good) { //found a minimiser !
+                    minis.push_back(this->subseq(i, k));
+                    for (int j = std::max(lastM, i-w) ; j <= std::min(i, emptyWindowsSize) ; j++){
+                        emptyWindows[j] = false;
+                    }
+                    lastM = i;
+                }
+            }
+
+        }
+
+        cont = false;
+        short index = 0;
+        while (!cont && index<emptyWindows.size()){
+            cont = cont || emptyWindows[index];
+            index ++;
+        }
+
+
+        //update criterion by simple incrementing
+        bool extra = true;
+        int pos = hardness-1;
+        while (extra && pos>=0){
+            if (criterion[pos]){
+                criterion[pos] = false;
+            }
+            else{
+                criterion[pos] = true;
+                extra = false;
+            }
+            pos--;
+       }
+
+    } while (cont);
+
+}
+

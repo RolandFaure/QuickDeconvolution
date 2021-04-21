@@ -51,8 +51,9 @@ void rapid_check(){
 	vector <Read> allreads;
 	int k = 20;
 	int w = 10;
+    int h = 3;
 	
-    index_reads(k, w, "eval/reads_10Mb_cov25_redundance4.fasta", kmers, readClouds, allreads);
+    index_reads(k, h, w, "eval/reads_10Mb_cov25_redundance4.fasta", kmers, readClouds, allreads);
 	cout << "Finished indexing" << endl;
 	
 	long int index = 0;
@@ -60,7 +61,7 @@ void rapid_check(){
 		
 		if (index == 0 /*&& cloud.size() < 120*/ ){
             vector<int> clusters(cloud.size(), -1);
-            build_graph(k, w, index, cloud, allreads, kmers, clusters);
+            build_graph(index, cloud, allreads, kmers, clusters);
 			
 			vector<vector<int>> adjMatrix_t = true_adjMatrix(cloud, allreads);
 		

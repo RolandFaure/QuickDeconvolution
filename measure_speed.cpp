@@ -13,7 +13,7 @@ using std::this_thread::sleep_for; //to pause the program
 using namespace std::chrono;
 
 
-float measure_graph_building_time(int k, int w, string readsFile){
+float measure_graph_building_time(int k, int h, int w, string readsFile){
 	
 	double timeGraph = 0;
 	auto t0 = high_resolution_clock::now();
@@ -22,7 +22,7 @@ float measure_graph_building_time(int k, int w, string readsFile){
 	vector <vector<long long int>> readClouds;
 	vector <Read> allreads;
 		
-    index_reads(k, w, readsFile, kmers, readClouds, allreads);
+    index_reads(k, h, w, readsFile, kmers, readClouds, allreads);
 
 	auto t1 = high_resolution_clock::now();
 
@@ -33,7 +33,7 @@ float measure_graph_building_time(int k, int w, string readsFile){
 			
 		auto tt1 = high_resolution_clock::now();
         vector <int> clusters (cloud.size(), -1);
-        build_graph(k, w, index, cloud, allreads, kmers, clusters);
+        build_graph(index, cloud, allreads, kmers, clusters);
 		auto tt2 = high_resolution_clock::now();
 		timeGraph += duration_cast<microseconds>(tt2 - tt1).count();
 
@@ -77,13 +77,13 @@ void systematic_times(int k, int w){
 	string exp11 = "eval/reads_1Gb_cov50_redundance4_1.fasta";
 	string exp12 = "eval/reads_1Gb_cov50_redundance15_1.fasta";
 	
-	cout << exp1 << "\t" << measure_graph_building_time(k, w, exp1) << "s" << endl;
-	cout << exp2 << "\t" << measure_graph_building_time(k, w, exp2) << "s" << endl;
-	cout << exp3 << "\t" << measure_graph_building_time(k, w, exp3) << "s" << endl;
+//	cout << exp1 << "\t" << measure_graph_building_time(k, w, exp1) << "s" << endl;
+//	cout << exp2 << "\t" << measure_graph_building_time(k, w, exp2) << "s" << endl;
+//	cout << exp3 << "\t" << measure_graph_building_time(k, w, exp3) << "s" << endl;
 	
-	cout << exp4 << "\t" << measure_graph_building_time(k, w, exp4) << "s" << endl;
-	cout << exp5 << "\t" << measure_graph_building_time(k, w, exp5) << "s" << endl;
-	cout << exp6 << "\t" << measure_graph_building_time(k, w, exp6) << "s" << endl;
+//	cout << exp4 << "\t" << measure_graph_building_time(k, w, exp4) << "s" << endl;
+//	cout << exp5 << "\t" << measure_graph_building_time(k, w, exp5) << "s" << endl;
+//	cout << exp6 << "\t" << measure_graph_building_time(k, w, exp6) << "s" << endl;
 	
 //	cout << exp7 << "\t" << measure_graph_building_time(k, exp1) << "s" << endl;
 //	cout << exp8 << "\t" << measure_graph_building_time(k, exp1) << "s" << endl;

@@ -25,7 +25,7 @@ using namespace std::chrono;
 
 //to compress sequencing data, reads and kmers are represented by vectors of bool
 
-void index_reads(int k, int w, string fileReads, vector<vector<long int>> &kmers, vector<vector<long long int>> &readClouds, vector <Read> &allreads){
+void index_reads(int k, int h, int w, string fileReads, vector<vector<long int>> &kmers, vector<vector<long long int>> &readClouds, vector <Read> &allreads){
 	
 	float total_read_time = 0;
 	auto t0 = high_resolution_clock::now();
@@ -90,38 +90,40 @@ void index_reads(int k, int w, string fileReads, vector<vector<long int>> &kmers
                 Sequence rev = s.reverse_complement();
 
 				auto ttt0 = high_resolution_clock::now();
-                auto minis = minimisers(s, k, w);
+                vector<Sequence> minis;
+                s.minimisers(h, k, w, minis);
 				
 				auto ttt1 = high_resolution_clock::now();
 				total_read_time += duration_cast<microseconds>(ttt1 - ttt0).count();
 				
                 //for all minimisers in the sequence, add the tag to the minimiser or add the minimiser
-                for (pair<int, Sequence> mini : minis){
+                for (Sequence mini : minis){
 
-                    if (index.find(mini.second) != index.end()){
-                        long int place = index[mini.second];
+                    if (index.find(mini) != index.end()){
+                        long int place = index[mini];
                         r.minis.push_back(place);
                         kmers[place].push_back(r.barcode); //each kmer contains the list of all barcodes containing this kmer
                     }
                     else {
-                        index[mini.second] = kmers.size();
+                        index[mini] = kmers.size();
                         r.minis.push_back(kmers.size());
                         kmers.push_back({r.barcode});
                     }
 
                 }
 
-                auto minisR =  minimisers(rev, k, w);
+                minis = {};
+                rev.minimisers(h, k, w, minis);
                 //for all minimisers in the sequence, add the tag to the minimiser or add the minimiser
-                for (pair<int, Sequence> mini : minisR){
+                for (Sequence mini : minis){
 
-                    if (index.find(mini.second) != index.end()){
-                        long int place = index[mini.second];
+                    if (index.find(mini) != index.end()){
+                        long int place = index[mini];
                         r.minis.push_back(place);
                         kmers[place].push_back(r.barcode); //each kmer contains the list of all barcodes containing this kmer
                     }
                     else {
-                        index[mini.second] = kmers.size();
+                        index[mini] = kmers.size();
                         r.minis.push_back(kmers.size());
                         kmers.push_back({r.barcode});
                     }
@@ -136,7 +138,7 @@ void index_reads(int k, int w, string fileReads, vector<vector<long int>> &kmers
 		}
 	}
 	auto t1 = high_resolution_clock::now();
-	//cout << "In index_reads, finding minimizers took me " << total_read_time/1000000 << "s out of " << duration_cast<microseconds>(t1 - t0).count()/1000000 << "s in total" <<  endl;
+    cout << "In index_reads, finding minimizers took me " << total_read_time/1000000 << "s out of " << duration_cast<microseconds>(t1 - t0).count()/1000000 << "s in total, to find " << index.size() << " minimisers" <<  endl;
 }
 
 //function returning all minimizers of a sequence and their positions knowing k and the windowsize
