@@ -142,7 +142,7 @@ void index_reads(int k, int w, string fileReads, unordered_map<Sequence, array<v
 		}
 	}
 	auto t1 = high_resolution_clock::now();
-	//cout << "In index_reads, finding minimizers took me " << total_read_time/1000000 << "s out of " << duration_cast<microseconds>(t1 - t0).count()/1000000 << "s in total" <<  endl;
+    cout << "In index_reads, finding minimizers took me " << total_read_time/1000000 << "s out of " << duration_cast<microseconds>(t1 - t0).count()/1000000 << "s in total, to find " << index.size() << " minimizers" <<  endl;
 }
 
 //function returning all minimizers of a sequence and their positions knowing k and the windowsize
