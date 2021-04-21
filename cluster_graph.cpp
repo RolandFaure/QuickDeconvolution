@@ -229,16 +229,13 @@ void cluster_graph_chinese_whispers(unordered_map<long int, std::set<int>> &matc
     }
 
 
-//    cout << "Exporting..." << endl;
-//    if (adjMatrix.size()>20){
-//        string id = std::to_string(int(rand()%30));
-//        cout << "Id : " << id << " has " << std::set<int>(clusters.begin(), clusters.end()).size() << " elements:" << endl;
-//        for (int i : clusters) cout << i << " ";
-//        cout << endl;
-//        string f = "/home/zaltabar/Documents/Ecole/X/4A/stage_M2/code/evalGraphs/cluster_"+id+"_adj.csv";
-//        export_as_CSV(adjMatrix, f);
-//        f = "/home/zaltabar/Documents/Ecole/X/4A/stage_M2/code/evalGraphs/cluster_"+id+"_matching-tag.csv";
-//        export_as_CSV(matching_tags, f);
-//    }
+    cout << "Exporting..." << endl;
+    if (adjMatrix.size()>20){
+        string id = std::to_string(int(rand()%30));
+        string f = "/home/zaltabar/Documents/Ecole/X/4A/stage_M2/code/evalGraphs/cluster_"+id+"_adj.csv";
+        export_as_CSV(adjMatrix, f);
+        f = "/home/zaltabar/Documents/Ecole/X/4A/stage_M2/code/evalGraphs/cluster_"+id+"_matching-tag.csv";
+        export_as_CSV(matching_tags, f);
+    }
 
 }
