@@ -33,7 +33,7 @@ float measure_graph_building_time(int k, int h, int w, string readsFile){
 			
 		auto tt1 = high_resolution_clock::now();
         vector <int> clusters (cloud.size(), -1);
-        build_graph(index, cloud, allreads, kmers, clusters);
+        build_graph(3, index, cloud, allreads, kmers, clusters);
 		auto tt2 = high_resolution_clock::now();
 		timeGraph += duration_cast<microseconds>(tt2 - tt1).count();
 

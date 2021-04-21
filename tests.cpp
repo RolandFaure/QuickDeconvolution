@@ -61,7 +61,7 @@ void rapid_check(){
 		
 		if (index == 0 /*&& cloud.size() < 120*/ ){
             vector<int> clusters(cloud.size(), -1);
-            build_graph(index, cloud, allreads, kmers, clusters);
+            build_graph(3, index, cloud, allreads, kmers, clusters);
 			
 			vector<vector<int>> adjMatrix_t = true_adjMatrix(cloud, allreads);
 		

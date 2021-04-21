@@ -18,7 +18,7 @@ using std::set;
 //using namespace lemon;
 
 //the function takes as an input the list of all reads having the same tag
-vector<int> build_graph(long int tagCloud, const std::vector<long long int>& readCloud, const std::vector <Read> &reads, vector<vector<long int>> &kmers, vector<int> &clusters){
+vector<int> build_graph(short minCommonKmers, long int tagCloud, const std::vector<long long int>& readCloud, const std::vector <Read> &reads, vector<vector<long int>> &kmers, vector<int> &clusters){
 	
 	long int mini_time = 0;
 	auto t0 = high_resolution_clock::now();
@@ -30,7 +30,7 @@ vector<int> build_graph(long int tagCloud, const std::vector<long long int>& rea
 	//int r = 0;
 	for(int r = 0, sizer = readCloud.size(); r<sizer ; r++){
 
-        unordered_map<long int, int> alreadySeen; //a map to keep track of how many times the read has already been attached to that tag: you need to have at least 3 common minimizer for estimating there is an overlap
+        unordered_map<long int, int> alreadySeen; //a map to keep track of how many times the read has already been attached to that tag: you need to have at least minCommonKmers common minimizer for estimating there is an overlap
 		long long int name = readCloud[r];
 		
         for (long int m : reads[name].minis){
@@ -39,7 +39,7 @@ vector<int> build_graph(long int tagCloud, const std::vector<long long int>& rea
 
                 alreadySeen[tag] += 1;
 
-                if (alreadySeen[tag] > 2){
+                if (alreadySeen[tag] >= minCommonKmers){
                     matching_tags[tag].emplace(r);
                 }
             }

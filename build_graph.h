@@ -12,6 +12,6 @@
 
 #include "tools.h"
 
-std::vector<int> build_graph(long int tagCloud, const std::vector<long long int>& readCloud, const std::vector <Read> &reads, std::vector<std::vector<long int>> &kmers, std::vector<int> &clusters);
+std::vector<int> build_graph(short minCommonKmers, long int tagCloud, const std::vector<long long int>& readCloud, const std::vector <Read> &reads, std::vector<std::vector<long int>> &kmers, std::vector<int> &clusters);
 
 #endif
