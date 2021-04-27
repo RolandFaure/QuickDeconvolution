@@ -8,6 +8,7 @@ using std::list;
 using std::pair;
 using std::string;
 using std::array;
+using std::set;
 using robin_hood::unordered_map;
 using std::this_thread::sleep_for; //to pause the program
 using namespace std::chrono;
@@ -18,7 +19,7 @@ float measure_graph_building_time(int k, int h, int w, string readsFile){
 	double timeGraph = 0;
 	auto t0 = high_resolution_clock::now();
 	
-    vector<vector<long int>> kmers;
+    vector<set<long int>> kmers;
 	vector <vector<long long int>> readClouds;
 	vector <Read> allreads;
 		

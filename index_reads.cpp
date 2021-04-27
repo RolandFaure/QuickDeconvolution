@@ -11,7 +11,7 @@ using std::string;
 using std::ofstream;
 using std::ifstream;
 using std::array;
-//using std::unordered_set;
+using std::set;
 using robin_hood::unordered_map;
 using namespace std::chrono;
 
@@ -25,9 +25,10 @@ using namespace std::chrono;
 
 //to compress sequencing data, reads and kmers are represented by vectors of bool
 
-void index_reads(int k, int h, int w, string fileReads, vector<vector<long int>> &kmers, vector<vector<long long int>> &readClouds, vector <Read> &allreads){
+void index_reads(int k, int h, int w, string fileReads, vector<set<long int>> &kmers, vector<vector<long long int>> &readClouds, vector <Read> &allreads){
 	
-	float total_read_time = 0;
+    long long int total_mini_time = 0;
+    long long int total_read_time = 0;
 	auto t0 = high_resolution_clock::now();
 	
 	ifstream in(fileReads);
@@ -42,14 +43,14 @@ void index_reads(int k, int h, int w, string fileReads, vector<vector<long int>>
 	string trueTag;
 
     unordered_map<Sequence,long int, Sequence::HashFunction> index;
-    index.reserve(1000000);//there is usually at least 1 million different barcodes
+    //index.reserve(1000000);//there is usually at least 1 million different barcodes
 	
 	string line;
 	bool next = false;
     bool notag = false; //bool alerting when there is no tag attached to a read
 	while(getline(in, line)){
 		
-        if (line[0] == '@'){
+        if (line[0] == '>'){
 			//here looking at the name of sequence and the tag
 			nameofsequence = line.erase(0,1);
 			tag = get_tag(nameofsequence); //this tag is a string, as contained in a fasta: we're going to convert it into a long int, this will be much more efficient
@@ -59,6 +60,7 @@ void index_reads(int k, int h, int w, string fileReads, vector<vector<long int>>
                 notag = true;
             }
             else if (tagIDs.find(tag) == tagIDs.end()){ // if true, tag is not in the keys of tagIDs
+
 				tagIDs[tag] = readClouds.size(); //from now on this tag ID will be associated to this tag
 				tagID = readClouds.size();
 				readClouds.push_back({sequenceID});
@@ -75,6 +77,7 @@ void index_reads(int k, int h, int w, string fileReads, vector<vector<long int>>
 			trueTag = get_true_tag(nameofsequence);
 
 			next = true;
+
 		}
         else if (next && !notag) {
 			//here looking at the sequence itself
@@ -84,32 +87,36 @@ void index_reads(int k, int h, int w, string fileReads, vector<vector<long int>>
 				readClouds[tagID].pop_back();
 			}
 			else{
+                auto ttt0 = high_resolution_clock::now();
 				Read r;
                 r.barcode = tagID;
 				
                 Sequence s (line);
                 Sequence rev = s.reverse_complement();
 
-				auto ttt0 = high_resolution_clock::now();
+
                 vector<Sequence> minis;
                 s.minimisers(h, k, w, minis);
 				
 				auto ttt1 = high_resolution_clock::now();
-				total_read_time += duration_cast<microseconds>(ttt1 - ttt0).count();
+                total_mini_time += duration_cast<nanoseconds>(ttt1 - ttt0).count();
 				
                 //for all minimisers in the sequence, add the tag to the minimiser or add the minimiser
                 for (Sequence mini : minis){
 
+                    auto tt0 = high_resolution_clock::now();
                     if (index.find(mini) != index.end()){
                         long int place = index[mini];
                         r.minis.push_back(place);
-                        kmers[place].push_back(r.barcode); //each kmer contains the list of all barcodes containing this kmer
+                        kmers[place].insert(r.barcode); //each kmer contains the set of all barcodes containing this kmer
                     }
                     else {
                         index[mini] = kmers.size();
                         r.minis.push_back(kmers.size());
                         kmers.push_back({r.barcode});
                     }
+                    auto tt1 = high_resolution_clock::now();
+                    total_read_time += duration_cast<nanoseconds>(tt1 - tt0).count();
 
                 }
 
@@ -118,16 +125,19 @@ void index_reads(int k, int h, int w, string fileReads, vector<vector<long int>>
                 //for all minimisers in the sequence, add the tag to the minimiser or add the minimiser
                 for (Sequence mini : minis){
 
+                    auto tt0 = high_resolution_clock::now();
                     if (index.find(mini) != index.end()){
                         long int place = index[mini];
                         r.minis.push_back(place);
-                        kmers[place].push_back(r.barcode); //each kmer contains the list of all barcodes containing this kmer
+                        kmers[place].insert(r.barcode); //each kmer contains the list of all barcodes containing this kmer
                     }
                     else {
                         index[mini] = kmers.size();
                         r.minis.push_back(kmers.size());
                         kmers.push_back({r.barcode});
                     }
+                    auto tt1 = high_resolution_clock::now();
+                    total_read_time += duration_cast<nanoseconds>(tt1 - tt0).count();
 
                 }
 
@@ -138,8 +148,8 @@ void index_reads(int k, int h, int w, string fileReads, vector<vector<long int>>
 			sequenceID ++;
 		}
 	}
-	auto t1 = high_resolution_clock::now();
-    cout << "In index_reads, finding minimizers took me " << total_read_time/1000000 << "s out of " << duration_cast<microseconds>(t1 - t0).count()/1000000 << "s in total, to find " << index.size() << " minimisers, on average " << index.size()/allreads.size() << " per reads" <<  endl;
+    auto t1 = high_resolution_clock::now();
+    cout << "In index_reads, finding minimizers took me " << total_mini_time/1000000000 << "s and indexing reads " << total_read_time/1000000000 << "s out of " << duration_cast<microseconds>(t1 - t0).count()/1000000 << "s in total" <<  endl;
 }
 
 //function returning all minimizers of a sequence and their positions knowing k and the windowsize

@@ -10,6 +10,7 @@ using std::string;
 using std::ofstream;
 using std::ifstream;
 using std::set;
+using std::unordered_set;
 using robin_hood::unordered_map;
 using namespace std::chrono;
 //using namespace lemon;
@@ -20,11 +21,11 @@ std::string get_tag(std::string &s){
 	string tag;
 	int t = 0;
 	for (int i = 4; i<s.size();i++){
-        if (s.substr(i-4,5) == "BX:Z:"){ //for fastq
+        /*if (s.substr(i-4,5) == "BX:Z:"){ //for fastq
             t = 1;
         }
-        else if (s[i] == ' ' or s[i] == '\\'){
-            t = 0;
+        else */if (s[i] == ' ' or s[i] == '\\'){
+            t += 1;
 		}
         else if (t == 1){
 			tag += s[i];
@@ -82,11 +83,11 @@ void export_as_CSV(std::vector<std::vector<int>> adj, std::string file){
 	}
 }
 
-void export_as_CSV(robin_hood::unordered_map<long int, std::set<int>> matching_tags, std::string file){
+void export_as_CSV(robin_hood::unordered_map<long int, std::unordered_set<int>> matching_tags, std::string file){
 
     ofstream out(file);
 
-    for (robin_hood::pair<const long int, set<int>> p : matching_tags){
+    for (robin_hood::pair<const long int, unordered_set<int>> p : matching_tags){
 
         for (int r : p.second){
             out << std::to_string(p.first)<<"_tag,"<<r << endl;

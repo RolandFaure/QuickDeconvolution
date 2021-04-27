@@ -8,6 +8,7 @@ using robin_hood::pair;
 using std::string;
 using std::array;
 using robin_hood::unordered_map;
+using std::set;
 
 vector<vector<int>> true_adjMatrix(vector<long long int> cloud, vector <Read> allReads){
 	
@@ -46,7 +47,7 @@ void rapid_check(){
 //	chromosomes_to_file(100000, alphabet, 4, 1, "eval/genome_smallTest.fasta");
 //	draw_fragments(150, 400, 5, 0.2, 15000, 20000, 2, "eval/genome_smallTest.fasta", "eval/reads_smallTest");
 	
-    vector<vector<long int>> kmers;
+    vector<set<long int>> kmers;
 	vector <vector<long long int>> readClouds;
 	vector <Read> allreads;
 	int k = 20;
