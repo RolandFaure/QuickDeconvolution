@@ -46,16 +46,17 @@ vector<int> build_graph(int k, int w, long int tagCloud, const std::vector<long 
 			
 			int s = m.first; //postion of the minimizer
 			Sequence sub = m.second; //sequence of the minimizing kmer
-			
-			auto ttt0 = high_resolution_clock::now();
-			auto candidates = index[sub];
-			auto ttt1 = high_resolution_clock::now();
-			total_read_time += duration_cast<microseconds>(ttt1 - ttt0).count();
+
 			
 			//cout << "Minimizer " << fullnum2str(m.second) << endl;
 			
 			//if candidates.size()!=4, it means there are no corresponding kmers
-			if (candidates.size() == 4){
+            if (index.find(sub) != index.end()){
+
+                auto ttt0 = high_resolution_clock::now();
+                auto candidates = index[sub];
+                auto ttt1 = high_resolution_clock::now();
+                total_read_time += duration_cast<microseconds>(ttt1 - ttt0).count();
 				
 				Hit candidateL;
 				for (int c=0, sizec = candidates[0].size(); c<sizec; c++){

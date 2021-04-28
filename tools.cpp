@@ -18,13 +18,13 @@ std::string get_tag(std::string &s){
 	string tag;
 	int t = 0;
 	for (int i = 4; i<s.size();i++){
-		if (s.substr(i-4,5) == "BX:Z:"){
-			t = true;
+        /*if (s.substr(i-4,5) == "BX:Z:"){
+            t = 1;
 		}
-		else if (s[i] == ' ' or s[i] == '\\'){
-			t = false;
+        else */if (s[i] == ' ' or s[i] == '\\'){
+            t += 1;
 		}
-		else if (t){
+        else if (t == 1){
 			tag += s[i];
 		}
 	}
