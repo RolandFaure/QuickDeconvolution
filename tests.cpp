@@ -50,19 +50,22 @@ void rapid_check(){
     vector<set<long int>> kmers;
 	vector <vector<long long int>> readClouds;
 	vector <Read> allreads;
+    unordered_map <string, long int> tagIDs;
 	int k = 20;
 	int w = 10;
     int h = 3;
 	
-    index_reads(k, h, w, "eval/reads_10Mb_cov25_redundance4.fasta", kmers, readClouds, allreads);
+    index_reads(k, h, w, "eval/reads_10Mb_cov25_redundance4.fasta", kmers, readClouds, allreads, tagIDs);
 	cout << "Finished indexing" << endl;
 	
 	long int index = 0;
-	for (vector<long long int> cloud : readClouds){
+    for (pair<string, long int> p : tagIDs){
+
+        vector<long long int> cloud = readClouds[p.second];
 		
 		if (index == 0 /*&& cloud.size() < 120*/ ){
             vector<int> clusters(cloud.size(), -1);
-            build_graph(3, index, cloud, allreads, kmers, clusters);
+            build_graph(3, p.first, p.second, cloud, allreads, kmers, clusters);
 			
 			vector<vector<int>> adjMatrix_t = true_adjMatrix(cloud, allreads);
 		

@@ -11,6 +11,6 @@
 #include <list>
 #include <set>
 
-void index_reads(int k, int h, int w, std::string fileReads, std::vector<std::set<long int>> &kmers, std::vector<std::vector<long long int>> &readClouds, std::vector <Read> &allreads);
+void index_reads(int k, int h, int w, std::string fileReads, std::vector<std::set<long int>> &kmers, std::vector<std::vector<long long int>> &readClouds, std::vector <Read> &allreads, robin_hood::unordered_map <std::string, long int> &tagIDs);
 
 #endif //INDEX_READS_INCLUDED

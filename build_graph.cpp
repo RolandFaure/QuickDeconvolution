@@ -22,7 +22,7 @@ using std::set;
 //using namespace lemon;
 
 //the function takes as an input the list of all reads having the same tag
-vector<int> build_graph(short minCommonKmers, long int tagCloud, const std::vector<long long int>& readCloud, const std::vector <Read> &reads, vector<set<long int>> &kmers, vector<int> &clusters){
+vector<int> build_graph(short minCommonKmers, string tag, long int tagCloud, const std::vector<long long int>& readCloud, const std::vector <Read> &reads, vector<set<long int>> &kmers, vector<int> &clusters){
 	
 	auto t0 = high_resolution_clock::now();
 		
@@ -50,7 +50,7 @@ vector<int> build_graph(short minCommonKmers, long int tagCloud, const std::vect
     }
     matching_tags[tagCloud] = {}; //this line to avoid self-loops
 	
-    cluster_graph_chinese_whispers(matching_tags, clusters);
+    cluster_graph_chinese_whispers(matching_tags, clusters, tag);
 	
 //	int n = 0;
 ////	cout << "sequence of read 0 : " << fullnum2str(reads[0].sequence) << endl;

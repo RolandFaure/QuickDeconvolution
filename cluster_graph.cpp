@@ -137,7 +137,7 @@ int find_threshold(float proportion, vector<int> &strengths_of_links){
 	return b;
 }
 
-void cluster_graph_chinese_whispers(unordered_map<long int, std::unordered_set<int>> &matching_tags, vector<int> &clusters){
+void cluster_graph_chinese_whispers(unordered_map<long int, std::unordered_set<int>> &matching_tags, vector<int> &clusters, string &tag){
 
     int adjMatrixSize = clusters.size();
     vector<int> zeros (adjMatrixSize, 0);
@@ -230,10 +230,9 @@ void cluster_graph_chinese_whispers(unordered_map<long int, std::unordered_set<i
 
     //cout << "Exporting..." << endl;
     if (adjMatrix.size()>20){
-        string id = std::to_string(int(rand()%30));
-        string f = "/home/zaltabar/Documents/Ecole/X/4A/stage_M2/code/evalGraphs/cluster_"+id+"_adj.csv";
+        string f = "/home/zaltabar/Documents/Ecole/X/4A/stage_M2/code/evalGraphs/cluster_"+tag+"_adj.csv";
         export_as_CSV(adjMatrix, f);
-        f = "/home/zaltabar/Documents/Ecole/X/4A/stage_M2/code/evalGraphs/cluster_"+id+"_matching-tag.csv";
+        f = "/home/zaltabar/Documents/Ecole/X/4A/stage_M2/code/evalGraphs/cluster_"+tag+"_matching-tag.csv";
         export_as_CSV(matching_tags, f);
     }
 

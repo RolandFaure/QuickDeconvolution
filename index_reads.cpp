@@ -16,16 +16,10 @@ using robin_hood::unordered_map;
 using namespace std::chrono;
 
 
-//the index maps a kmer to all reads beginning or ending with the kmer or its reverse complement
-//the order is :
-//begins by kmer : cell 0
-//ends by kmer : cell 1
-//ends by reverse complement : cell 3
-//begins by reverse complement : cell 4
 
-//to compress sequencing data, reads and kmers are represented by vectors of bool
+//to compress sequencing data, reads and kmers are represented by vectors of bool (encapsulated in Sequence)
 
-void index_reads(int k, int h, int w, string fileReads, vector<set<long int>> &kmers, vector<vector<long long int>> &readClouds, vector <Read> &allreads){
+void index_reads(int k, int h, int w, string fileReads, vector<set<long int>> &kmers, vector<vector<long long int>> &readClouds, vector <Read> &allreads, unordered_map <string, long int> &tagIDs){
 	
     long long int total_mini_time = 0;
     long long int total_read_time = 0;
@@ -38,12 +32,12 @@ void index_reads(int k, int h, int w, string fileReads, vector<set<long int>> &k
 	long long int sequenceID = 0; //instead of storing the name of sequence in a string we're going to store them in long long int, it will be more efficient 
 	
 	string tag;
-	unordered_map <string, long int> tagIDs;
+
 	long int tagID;
 	string trueTag;
 
-    unordered_map<Sequence,long int, Sequence::HashFunction> index;
-    //index.reserve(1000000);//there is usually at least 1 million different barcodes
+    //maps all minimizing kmers to their index in kmers
+    unordered_map<Sequence,long long int, Sequence::HashFunction> index;
 	
 	string line;
 	bool next = false;

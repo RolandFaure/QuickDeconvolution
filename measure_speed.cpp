@@ -5,10 +5,10 @@ using std::cout;
 using std::endl;
 using std::vector;
 using std::list;
-using std::pair;
 using std::string;
 using std::array;
 using std::set;
+using robin_hood::pair;
 using robin_hood::unordered_map;
 using std::this_thread::sleep_for; //to pause the program
 using namespace std::chrono;
@@ -20,23 +20,26 @@ float measure_graph_building_time(int k, int h, int w, string readsFile){
 	auto t0 = high_resolution_clock::now();
 	
     vector<set<long int>> kmers;
-	vector <vector<long long int>> readClouds;
+    vector <vector<long long int>> readClouds;
 	vector <Read> allreads;
 		
-    index_reads(k, h, w, readsFile, kmers, readClouds, allreads);
+    unordered_map <string, long int> tagIDs;
+    index_reads(k, h, w, readsFile, kmers, readClouds, allreads, tagIDs);
 
 	auto t1 = high_resolution_clock::now();
 
 	long int index = 0;
-	for (vector<long long int> cloud : readClouds){
+    for (pair<string, long int> p : tagIDs){
 		
-		//if (index == 0){
+        vector<long long int> cloud = readClouds[p.second];
+        if (index <= 50){
 			
-		auto tt1 = high_resolution_clock::now();
-        vector <int> clusters (cloud.size(), -1);
-        build_graph(3, index, cloud, allreads, kmers, clusters);
-		auto tt2 = high_resolution_clock::now();
-		timeGraph += duration_cast<microseconds>(tt2 - tt1).count();
+            auto tt1 = high_resolution_clock::now();
+            vector <int> clusters (cloud.size(), -1);
+            build_graph(3, p.first, p.second, cloud, allreads, kmers, clusters);
+            auto tt2 = high_resolution_clock::now();
+            timeGraph += duration_cast<microseconds>(tt2 - tt1).count();
+        }
 
 //        cout << "Pausing..." << endl;
 //        cout << cloud.size() << endl;
