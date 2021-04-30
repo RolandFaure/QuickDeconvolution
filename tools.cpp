@@ -71,13 +71,15 @@ void export_as_CSV(std::vector<std::vector<int>> adj, std::string file){
 	
 	ofstream out(file);
 	
+    out << "Source,Target,Weight" << endl;
 	for (int i = 0 ; i<adj.size()-1 ; i++){
 		for (int j = i+1 ; j<adj[0].size() ; j++){
 			
             //cout << "link between " << i << " and " << j << " : " << adj[i][j] << endl;
-			for(int k = 0 ; k<adj[i][j] ; k++){
-				out<< i << "," << j << endl;
-			}
+            if (adj[i][j] > 0){
+                out<< i << "," << j  << "," << adj[i][j]<< endl;
+            }
+
 			
 		}
 	}
