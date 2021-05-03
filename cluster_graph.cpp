@@ -69,7 +69,7 @@ void cluster_graph(unordered_map<long int, std::list<int>> &matching_tags, vecto
         }
     }
 	
-    if (adjMatrix.size()>0){
+    if (adjMatrix.size()>20){
         cout << "Clustering " << tag << ", " << matching_tags.size() << endl;
         string f = "/home/zaltabar/Documents/Ecole/X/4A/stage_M2/code/evalGraphs/cluster_"+tag+"_adj.csv";
         export_as_CSV(adjMatrix, f);
