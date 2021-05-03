@@ -46,25 +46,25 @@ void rapid_check(){
 //	chromosomes_to_file(100000, alphabet, 4, 1, "eval/genome_smallTest.fasta");
 //	draw_fragments(150, 400, 5, 0.2, 15000, 20000, 2, "eval/genome_smallTest.fasta", "eval/reads_smallTest");
 	
-    unordered_map <Sequence, array<vector<Hit>, 4>, Sequence::HashFunction> idx;
-	vector <vector<long long int>> readClouds;
-	vector <Read> allreads;
-	int k = 20;
-	int w = 10;
+//    unordered_map <Sequence, array<vector<Hit>, 4>, Sequence::HashFunction> idx;
+//	vector <vector<long long int>> readClouds;
+//	vector <Read> allreads;
+//	int k = 20;
+//	int w = 10;
 	
-	index_reads(k, w, "eval/reads_10Mb_cov25_redundance4.fasta", idx, readClouds, allreads);
-	cout << "Finished indexing" << endl;
+//	index_reads(k, w, "eval/reads_10Mb_cov25_redundance4.fasta", idx, readClouds, allreads);
+//	cout << "Finished indexing" << endl;
 	
-	long int index = 0;
-	for (vector<long long int> cloud : readClouds){
+//	long int index = 0;
+//	for (vector<long long int> cloud : readClouds){
 		
-		if (index == 0 /*&& cloud.size() < 120*/ ){
-            vector<int> clusters(cloud.size(), -1);
-            build_graph(k, w, index, cloud, allreads, idx, clusters);
+//		if (index == 0 /*&& cloud.size() < 120*/ ){
+//            vector<int> clusters(cloud.size(), -1);
+//            build_graph(k, w, index, cloud, allreads, idx, clusters);
 			
-			vector<vector<int>> adjMatrix_t = true_adjMatrix(cloud, allreads);
+//			vector<vector<int>> adjMatrix_t = true_adjMatrix(cloud, allreads);
 		
-			cout << "Computed adj_matrix of tag " << index << " : " << endl;
+//			cout << "Computed adj_matrix of tag " << index << " : " << endl;
 //			for (int i=0 ; i < adjMatrix.size() ; i++){
 //				for (int j = 0 ; j < adjMatrix.size() ; j++){
 //					cout << adjMatrix[i][j] << "\t";
@@ -80,11 +80,11 @@ void rapid_check(){
 //				}
 //				cout << endl;
 //			}
-            export_as_CSV(adjMatrix_t, "evalResultGraphs/"+std::to_string(index)+"_true.csv");
-			cout<<"Done for tag " << index << endl;
-		}
-		index ++;
+//            export_as_CSV(adjMatrix_t, "evalResultGraphs/"+std::to_string(index)+"_true.csv");
+//			cout<<"Done for tag " << index << endl;
+//		}
+//		index ++;
 
-	}
+//	}
 }
 

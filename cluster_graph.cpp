@@ -9,7 +9,7 @@ using std::string;
 using robin_hood::pair;
 using robin_hood::unordered_map;
 
-void cluster_graph(unordered_map<long int, std::list<int>> &matching_tags, vector<int> &clusters){
+void cluster_graph(unordered_map<long int, std::list<int>> &matching_tags, vector<int> &clusters, string& tag){
 	
 	int adjMatrixSize = clusters.size();
 	vector<int> zeros (adjMatrixSize, 0);
@@ -21,8 +21,9 @@ void cluster_graph(unordered_map<long int, std::list<int>> &matching_tags, vecto
 	
 	//building the interaction matrix between reads
     for (pair<long int, list<int>> matchs : matching_tags){
-		
+
 		int mss = matchs.second.size();
+
 		if (mss < reject_tag_threshold){
 	//		cout << "\nLet's look at what matched with tag " << matchs.first << endl;
 			int i = 0;
@@ -49,30 +50,30 @@ void cluster_graph(unordered_map<long int, std::list<int>> &matching_tags, vecto
 	}
 	
 //	for (int i : strengths_of_links) cout << i << " ";
-    int link_between_reads_threshold = std::max(1,find_threshold(0.8, strengths_of_links)); //if two reads share at least this number of common overlapping tags, consider them linked
+    //int link_between_reads_threshold = std::max(1,find_threshold(0.3, strengths_of_links)); //if two reads share at least this number of common overlapping tags, consider them linked
 //	cout << "Threshold : " << link_between_reads_threshold << endl;
 	
-    //int link_between_reads_threshold = 1;
+    int link_between_reads_threshold = 1;
 	
 	//building the adjacency matrix : if enough common tags, the reads are considered linked
 	//link together the reads with enough common barcodes
-	for (int i = 0 ; i < adjMatrix.size() ; i++){
+//	for (int i = 0 ; i < adjMatrix.size() ; i++){
 				
-		for (int j = 0 ; j < adjMatrix.size() ; j++){
-			if (adjMatrix[i][j] >= link_between_reads_threshold){
-				adjMatrix[i][j] = 1;
-			}
-			else{
-				adjMatrix[i][j] = 0;
-			}
-		}
-	}
+//		for (int j = 0 ; j < adjMatrix.size() ; j++){
+//			if (adjMatrix[i][j] >= link_between_reads_threshold){
+//				adjMatrix[i][j] = 1;
+//			}
+//			else{
+//				adjMatrix[i][j] = 0;
+//			}
+//		}
+//	}
 	
-    if (adjMatrix.size()>20){
-        string id = std::to_string(int(rand()%30));
-        string f = "/home/zaltabar/Documents/Ecole/X/4A/stage_M2/code/evalGraphs/cluster_"+id+"_adj.csv";
+    if (adjMatrix.size()>0){
+        cout << "Clustering " << tag << ", " << matching_tags.size() << endl;
+        string f = "/home/zaltabar/Documents/Ecole/X/4A/stage_M2/code/evalGraphs/cluster_"+tag+"_adj.csv";
         export_as_CSV(adjMatrix, f);
-        f = "/home/zaltabar/Documents/Ecole/X/4A/stage_M2/code/evalGraphs/cluster_"+id+"_matching-tag.csv";
+        f = "/home/zaltabar/Documents/Ecole/X/4A/stage_M2/code/evalGraphs/cluster_"+tag+"_matching-tag.csv";
         export_as_CSV(matching_tags, f);
     }
 	//export_as_CSV(adjMatrix, "evalResultGraphs/cluster.csv");

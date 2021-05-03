@@ -19,7 +19,7 @@ float measure_graph_building_time(int k, int w, string readsFile){
 	auto t0 = high_resolution_clock::now();
 	
     unordered_map <Sequence, array<vector<Hit>, 4>, Sequence::HashFunction> idx;
-	vector <vector<long long int>> readClouds;
+    vector<pair<string,vector<long long int>>> readClouds;
 	vector <Read> allreads;
 		
 	index_reads(k, w, readsFile, idx, readClouds, allreads);
@@ -27,15 +27,17 @@ float measure_graph_building_time(int k, int w, string readsFile){
 	auto t1 = high_resolution_clock::now();
 
 	long int index = 0;
-	for (vector<long long int> cloud : readClouds){
+    for (pair<string, vector<long long int>> cloud : readClouds){
 		
-		//if (index == 0){
-			
-		auto tt1 = high_resolution_clock::now();
-        vector <int> clusters (cloud.size(), -1);
-        build_graph(k, w, index, cloud, allreads, idx, clusters);
-		auto tt2 = high_resolution_clock::now();
-		timeGraph += duration_cast<microseconds>(tt2 - tt1).count();
+        if (index <= 20){
+
+            auto tt1 = high_resolution_clock::now();
+            vector <int> clusters (cloud.second.size(), -1);
+            build_graph(k, w, cloud.first, index, cloud.second, allreads, idx, clusters);
+            auto tt2 = high_resolution_clock::now();
+            timeGraph += duration_cast<microseconds>(tt2 - tt1).count();
+        }
+
 
 //        cout << "Pausing..." << endl;
 //        cout << cloud.size() << endl;

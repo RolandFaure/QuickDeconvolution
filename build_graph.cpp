@@ -17,7 +17,7 @@ using std::array;
 //using namespace lemon;
 
 //the function takes as an input the list of all reads having the same tag
-vector<int> build_graph(int k, int w, long int tagCloud, const std::vector<long long int>& readCloud, const std::vector <Read> &reads, unordered_map<Sequence, array<vector<Hit>, 4>, Sequence::HashFunction> &index, vector<int> &clusters){
+vector<int> build_graph(int k, int w, string tag, long int tagCloud, const std::vector<long long int>& readCloud, const std::vector <Read> &reads, unordered_map<Sequence, array<vector<Hit>, 4>, Sequence::HashFunction> &index, vector<int> &clusters){
 	
 	long int mini_time = 0;
 	auto t0 = high_resolution_clock::now();
@@ -43,21 +43,19 @@ vector<int> build_graph(int k, int w, long int tagCloud, const std::vector<long 
 
 		
 		for (auto m : mini){
+
 			
 			int s = m.first; //postion of the minimizer
 			Sequence sub = m.second; //sequence of the minimizing kmer
-
 			
 			//cout << "Minimizer " << fullnum2str(m.second) << endl;
 			
 			//if candidates.size()!=4, it means there are no corresponding kmers
             if (index.find(sub) != index.end()){
 
-                auto ttt0 = high_resolution_clock::now();
                 auto candidates = index[sub];
-                auto ttt1 = high_resolution_clock::now();
-                total_read_time += duration_cast<microseconds>(ttt1 - ttt0).count();
 				
+
 				Hit candidateL;
 				for (int c=0, sizec = candidates[0].size(); c<sizec; c++){
 					
@@ -68,10 +66,9 @@ vector<int> build_graph(int k, int w, long int tagCloud, const std::vector<long 
 					long int tag = candid.barcode;
 					int alignmentLength = read.size()-s+candidateL.position;
 					
-
 					if (candid.barcode != tagCloud && alignmentLength<=read.size() && read.subseq(s-candidateL.position, alignmentLength) == candidate.subseq(0 ,alignmentLength)){
 						
-						//cout << "Match left with " << fullnum2str(candid.sequence) << endl;						
+                        //cout << "Match left with " << endl;
 						matching_tags[tag].push_back(r);
 					}
 				}
@@ -87,12 +84,15 @@ vector<int> build_graph(int k, int w, long int tagCloud, const std::vector<long 
 					long int tag = candid.barcode;					
 					int alignmentLength = min(s+candidateR.position, int(candidate.size()));
 
-					
-					//cout << "Candidate right with " << fullnum2str(candidate) << ", comparing " << fullnum2str(subseq(candidate, candidate.size()/2-alignmentLength, alignmentLength)) << " and " << fullnum2str(subseq(read, s+candidateR.position-alignmentLength,alignmentLength)) << " (alignment length: " << alignmentLength << "), minimizer: " << fullnum2str(sub)  << endl;
+//                    if (candid.barcode != tagCloud ){
+//                        cout << "alignment trial : " << sub.str() << " " << candidateR.position  << " " << (s+candidateR.position<=candidate.size()) << endl;
+//                        cout << candidate.subseq(candidate.size()-alignmentLength, alignmentLength).str() << endl;
+//                        cout << read.subseq(s+candidateR.position-alignmentLength,alignmentLength).str() << endl;
+//                    }
 
 					if (candid.barcode != tagCloud && s+candidateR.position<=candidate.size() && candidate.subseq(candidate.size()-alignmentLength, alignmentLength) == read.subseq(s+candidateR.position-alignmentLength,alignmentLength)){
 						
-						//cout << "Match right with " << fullnum2str(candid.sequence) << endl;						
+                        //cout << "Match right" << endl;
 						matching_tags[tag].push_back(r);
 					}
 				}
@@ -110,7 +110,7 @@ vector<int> build_graph(int k, int w, long int tagCloud, const std::vector<long 
 
 					if (candid.barcode != tagCloud && alignmentLength<=candidate.size() && candidate.subseq(0, alignmentLength) == read.subseq(s-candidateRr.position,alignmentLength)){
 						
-						//cout << "Match !" << endl;						
+                        //cout << "Match !" << endl;
 						matching_tags[tag].push_back(r);
 					}
 				}
@@ -127,7 +127,7 @@ vector<int> build_graph(int k, int w, long int tagCloud, const std::vector<long 
 					
 					if (candid.barcode != tagCloud && s+candidateLr.position<=read.size() && candidate.subseq(candidate.size()-alignmentLength, alignmentLength) == read.subseq(s+candidateLr.position-alignmentLength,alignmentLength)){
 						
-						//cout << "Match !" << endl;													
+                        //cout << "Match !" << endl;
 						matching_tags[tag].push_back(r);
 					}
 				}
@@ -141,7 +141,7 @@ vector<int> build_graph(int k, int w, long int tagCloud, const std::vector<long 
 
 	auto t1 = high_resolution_clock::now();
 	
-	cluster_graph(matching_tags, clusters);
+    cluster_graph(matching_tags, clusters, tag);
 	
 //	int n = 0;
 ////	cout << "sequence of read 0 : " << fullnum2str(reads[0].sequence) << endl;

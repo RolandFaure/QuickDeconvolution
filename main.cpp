@@ -26,8 +26,9 @@ int main(int argc, char *argv[])
 	
 	//create_exps(); 
     //rapid_check();
+
     if (argc > 1){
-        measure_graph_building_time(20, 40, argv[1]);
+        measure_graph_building_time(20, 20, argv[1]);
 
     }
     else cout << "You must give as an argument the fastq file I will try to deconvolve" << endl;
