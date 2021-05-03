@@ -88,14 +88,13 @@ void index_reads(int k, int h, int w, string fileReads, vector<set<long int>> &k
                 Sequence s (line);
                 Sequence rev = s.reverse_complement();
 
-
                 vector<Sequence> minis;
                 s.minimisers(h, k, w, minis);
 				
 				auto ttt1 = high_resolution_clock::now();
                 total_mini_time += duration_cast<nanoseconds>(ttt1 - ttt0).count();
 				
-                //for all minimisers in the sequence, add the tag to the minimiser or add the minimiser
+                //for all minimisers in the sequence, add the tag to the kmer
                 for (Sequence mini : minis){
 
                     auto tt0 = high_resolution_clock::now();
@@ -116,7 +115,7 @@ void index_reads(int k, int h, int w, string fileReads, vector<set<long int>> &k
 
                 minis = {};
                 rev.minimisers(h, k, w, minis);
-                //for all minimisers in the sequence, add the tag to the minimiser or add the minimiser
+                //for all minimisers in the sequence, add the tag to the kmer
                 for (Sequence mini : minis){
 
                     auto tt0 = high_resolution_clock::now();

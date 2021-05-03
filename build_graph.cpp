@@ -52,26 +52,6 @@ vector<int> build_graph(short minCommonKmers, string tag, long int tagCloud, con
 	
     cluster_graph_chinese_whispers(matching_tags, clusters, tag);
 	
-//	int n = 0;
-////	cout << "sequence of read 0 : " << fullnum2str(reads[0].sequence) << endl;
-////	cout << "sequence of read 0' : " << fullnum2str(reads[1].sequence) << endl;
-//	if (tagCloud == 0){
-//		for (pair<long int, list<int>> matchs : matching_tags){
-//			for (int i: matchs.second){
-//				if (readCloud[i] == 0){
-//					cout << "Read 0 matched with tag " << matchs.first << endl;
-//					n++;
-//				}
-//				if (readCloud[i] == 1){
-//					cout << "Read 0' matched with tag " << matchs.first << endl;
-//					n++;
-//				}
-//			}
-//		}
-//	}
-//	cout << "reads 0 matched with " << n << " tags" << endl;
-
-	auto t2 = high_resolution_clock::now();
 	
 	//cout << "push_back time : " << total_read_time << endl;
     //cout << "Alignement time : " << duration_cast<microseconds>(t1 - t0).count() <<"us, total read accession : " << total_read_time << ", total minimizer time : " << mini_time << endl;
