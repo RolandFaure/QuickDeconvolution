@@ -53,21 +53,21 @@ void cluster_graph(unordered_map<long int, std::list<int>> &matching_tags, vecto
     //int link_between_reads_threshold = std::max(1,find_threshold(0.3, strengths_of_links)); //if two reads share at least this number of common overlapping tags, consider them linked
 //	cout << "Threshold : " << link_between_reads_threshold << endl;
 	
-    int link_between_reads_threshold = 1;
+    int link_between_reads_threshold = 2;
 	
 	//building the adjacency matrix : if enough common tags, the reads are considered linked
 	//link together the reads with enough common barcodes
-//	for (int i = 0 ; i < adjMatrix.size() ; i++){
+    for (int i = 0 ; i < adjMatrix.size() ; i++){
 				
-//		for (int j = 0 ; j < adjMatrix.size() ; j++){
-//			if (adjMatrix[i][j] >= link_between_reads_threshold){
-//				adjMatrix[i][j] = 1;
-//			}
-//			else{
-//				adjMatrix[i][j] = 0;
-//			}
-//		}
-//	}
+        for (int j = 0 ; j < adjMatrix.size() ; j++){
+            if (adjMatrix[i][j] >= link_between_reads_threshold){
+                //adjMatrix[i][j] = 1;
+            }
+            else{
+                adjMatrix[i][j] = 0;
+            }
+        }
+    }
 	
     if (adjMatrix.size()>0){
         cout << "Clustering " << tag << ", " << matching_tags.size() << endl;

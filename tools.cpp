@@ -16,12 +16,12 @@ using namespace std::chrono;
 std::string get_tag(std::string &s){
 	
 	string tag;
-    int t = 0;
-    for (int i = 0; i<s.size();i++){
-        /*if (s.substr(i-4,5) == "BX:Z:"){
+    int t =20;
+    for (int i = 4; i<s.size();i++){
+        if (s.substr(i-4,5) == "BX:Z:"){
             t = 1;
 		}
-        else */if (s[i] == ' ' or s[i] == '\t'){
+        else if (s[i] == ' ' or s[i] == '\t'){
             t += 1;
 		}
         else if (t == 1){
