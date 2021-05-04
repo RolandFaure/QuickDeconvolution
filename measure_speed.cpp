@@ -30,7 +30,7 @@ float measure_graph_building_time(int k, int h, int w, string readsFile){
 
 	long int index = 0;
     for (pair<string, long int> p : tagIDs){
-		
+        cout << p.first << endl;
         vector<long long int> cloud = readClouds[p.second];
         if (index <= 50){
 			
