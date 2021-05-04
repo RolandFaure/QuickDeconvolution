@@ -32,120 +32,124 @@ vector<int> build_graph(int k, int w, string tag, long int tagCloud, const std::
 		long long int name = readCloud[r];
 		
 		Sequence read = reads[name].sequence; //name is the name of the read, read is the sequence
-		//cout << "\nLooking at read " << fullnum2str(read) << endl;
-		
-		auto tt0 = high_resolution_clock::now();
 
-		std::vector<std::pair<int, Sequence>> mini = minimisers(read, k, w); //mini is the list of all minimisers of the read
+        //if (read.str() == "TCGGCTCAAAGATTTTCCCATTTCCCATTTTCTCAAACCCCACCCTTGGCAACAGCCCACTGGAAAACTTTCACTCTCTGTGTAATACAAAACCTGGGCACGGTTTTCTTGTCTTCTCTCGTGTTCTGTTGCGTTGTCTAATCATGTATG"){
+        //cout << "\nLooking at read " << fullnum2str(read) << endl;
+
+        auto tt0 = high_resolution_clock::now();
+
+        std::vector<std::pair<int, Sequence>> mini = minimisers(read, k, w); //mini is the list of all minimisers of the read
         //cout << "I compute " << mini.size() << " minimiser for this read" << endl;
-		auto tt1 = high_resolution_clock::now();
-		mini_time += duration_cast<nanoseconds>(tt1-tt0).count();
+        auto tt1 = high_resolution_clock::now();
+        mini_time += duration_cast<nanoseconds>(tt1-tt0).count();
 
-		
-		for (auto m : mini){
 
-			
-			int s = m.first; //postion of the minimizer
-			Sequence sub = m.second; //sequence of the minimizing kmer
-			
-			//cout << "Minimizer " << fullnum2str(m.second) << endl;
-			
-			//if candidates.size()!=4, it means there are no corresponding kmers
+        for (auto m : mini){
+
+
+            int s = m.first; //postion of the minimizer
+            Sequence sub = m.second; //sequence of the minimizing kmer
+
+            cout << "Minimizer " << m.second.str() << endl;
+
+            //if candidates.size()!=4, it means there are no corresponding kmers
             if (index.find(sub) != index.end()){
 
                 auto candidates = index[sub];
-				
 
-				Hit candidateL;
-				for (int c=0, sizec = candidates[0].size(); c<sizec; c++){
-					
-					candidateL = candidates[0][c];
-					
-					Read candid = reads[candidateL.sequenceID];
-					Sequence candidate = candid.sequence;
-					long int tag = candid.barcode;
-					int alignmentLength = read.size()-s+candidateL.position;
-					
-					if (candid.barcode != tagCloud && alignmentLength<=read.size() && read.subseq(s-candidateL.position, alignmentLength) == candidate.subseq(0 ,alignmentLength)){
-						
+
+                Hit candidateL;
+                for (int c=0, sizec = candidates[0].size(); c<sizec; c++){
+
+                    candidateL = candidates[0][c];
+
+                    Read candid = reads[candidateL.sequenceID];
+                    Sequence candidate = candid.sequence;
+                    long int tag = candid.barcode;
+                    int alignmentLength = read.size()-s+candidateL.position;
+
+                    if (candid.barcode != tagCloud && alignmentLength<=read.size() && read.subseq(s-candidateL.position, alignmentLength) == candidate.subseq(0 ,alignmentLength)){
+
+                        cout << "Read " << candid.trueBarcode << " matches " << candidate.str() << endl;
+                        cout << read.subseq(s-candidateL.position, alignmentLength).str() << endl;
+                        cout << candidate.subseq(0 ,alignmentLength).str() << endl;
                         //cout << "Match left with " << endl;
-						matching_tags[tag].push_back(r);
-					}
-				}
-				
-				
-				Hit candidateR;
-				for (int c=0, sizec = candidates[1].size(); c<sizec; c++){
-					
-					candidateR = candidates[1][c];
-					
-					Read candid = reads[candidateR.sequenceID];
-					Sequence candidate = candid.sequence;
-					long int tag = candid.barcode;					
-					int alignmentLength = min(s+candidateR.position, int(candidate.size()));
+                        matching_tags[tag].push_back(r);
+                    }
+                }
 
-//                    if (candid.barcode != tagCloud ){
-//                        cout << "alignment trial : " << sub.str() << " " << candidateR.position  << " " << (s+candidateR.position<=candidate.size()) << endl;
-//                        cout << candidate.subseq(candidate.size()-alignmentLength, alignmentLength).str() << endl;
-//                        cout << read.subseq(s+candidateR.position-alignmentLength,alignmentLength).str() << endl;
-//                    }
 
-					if (candid.barcode != tagCloud && s+candidateR.position<=candidate.size() && candidate.subseq(candidate.size()-alignmentLength, alignmentLength) == read.subseq(s+candidateR.position-alignmentLength,alignmentLength)){
-						
+                Hit candidateR;
+                for (int c=0, sizec = candidates[1].size(); c<sizec; c++){
+
+                    candidateR = candidates[1][c];
+
+                    Read candid = reads[candidateR.sequenceID];
+                    Sequence candidate = candid.sequence;
+                    long int tag = candid.barcode;
+                    int alignmentLength = min(s+candidateR.position, int(candidate.size()));
+
+
+                    if (candid.barcode != tagCloud && s+candidateR.position<=candidate.size() && candidate.subseq(candidate.size()-alignmentLength, alignmentLength) == read.subseq(s+candidateR.position-alignmentLength,alignmentLength)){
+
                         //cout << "Match right" << endl;
-						matching_tags[tag].push_back(r);
-					}
-				}
+                        cout << "Read " << candidateR.sequenceID << " matches 2" << endl;
+                        matching_tags[tag].push_back(r);
+                    }
+                }
 
-				Hit candidateRr;
-				for (int c=0, sizec = candidates[2].size(); c<sizec; c++){
-					
-					candidateRr = candidates[2][c];
-					Read candid = reads[candidateRr.sequenceID];
-					Sequence candidate = candid.sequence.reverse_complement();
-					long int tag = candid.barcode;
-					
-					int alignmentLength = read.size()-s+candidateRr.position;
-					//cout << "candidateRr : " << fullnum2str(candidate) << " (" << fullnum2str(candid.sequence) << "), comparing " << fullnum2str(subseq(candidate, 0, alignmentLength)) << " and " << fullnum2str(subseq(read,s-candidateRr.position,alignmentLength)) << endl;
+                Hit candidateRr;
+                for (int c=0, sizec = candidates[2].size(); c<sizec; c++){
 
-					if (candid.barcode != tagCloud && alignmentLength<=candidate.size() && candidate.subseq(0, alignmentLength) == read.subseq(s-candidateRr.position,alignmentLength)){
-						
+                    candidateRr = candidates[2][c];
+                    Read candid = reads[candidateRr.sequenceID];
+                    Sequence candidate = candid.sequence.reverse_complement();
+                    long int tag = candid.barcode;
+
+                    int alignmentLength = read.size()-s+candidateRr.position;
+                    //cout << "candidateRr : " << fullnum2str(candidate) << " (" << fullnum2str(candid.sequence) << "), comparing " << fullnum2str(subseq(candidate, 0, alignmentLength)) << " and " << fullnum2str(subseq(read,s-candidateRr.position,alignmentLength)) << endl;
+
+                    if (candid.barcode != tagCloud && alignmentLength<=candidate.size() && candidate.subseq(0, alignmentLength) == read.subseq(s-candidateRr.position,alignmentLength)){
+
                         //cout << "Match !" << endl;
-						matching_tags[tag].push_back(r);
-					}
-				}
+                        cout << "Read " << candidateRr.sequenceID << " matches 3" << endl;
+                        matching_tags[tag].push_back(r);
+                    }
+                }
 
-				Hit candidateLr;
-				for (int c=0, sizec = candidates[3].size(); c<sizec; c++){
-					
-					candidateLr = candidates[3][c];
-					Read candid = reads[candidateLr.sequenceID];
-					Sequence candidate = candid.sequence.reverse_complement(); // we have a sequence which ends with the kmer
-					long int tag = candid.barcode;
-					
-					int alignmentLength = min(s+candidateLr.position, int(candidate.size()));
-					
-					if (candid.barcode != tagCloud && s+candidateLr.position<=read.size() && candidate.subseq(candidate.size()-alignmentLength, alignmentLength) == read.subseq(s+candidateLr.position-alignmentLength,alignmentLength)){
-						
+                Hit candidateLr;
+                for (int c=0, sizec = candidates[3].size(); c<sizec; c++){
+
+                    candidateLr = candidates[3][c];
+                    Read candid = reads[candidateLr.sequenceID];
+                    Sequence candidate = candid.sequence.reverse_complement(); // we have a sequence which ends with the kmer
+                    long int tag = candid.barcode;
+
+                    int alignmentLength = min(s+candidateLr.position, int(candidate.size()));
+
+                    if (candid.barcode != tagCloud && s+candidateLr.position<=read.size() && candidate.subseq(candidate.size()-alignmentLength, alignmentLength) == read.subseq(s+candidateLr.position-alignmentLength,alignmentLength)){
+
                         //cout << "Match !" << endl;
-						matching_tags[tag].push_back(r);
-					}
-				}
-			}
+                        cout << "Read " << candidateLr.sequenceID << " matches 4" << endl;
+                        matching_tags[tag].push_back(r);
+                    }
+                }
+            }
             else { // in this case, by trying to access index[sub] above we've created a useless key sub in index, which will take much space in memory
                 index.erase(sub);
             }
-		}
+        }
+        cout << "read : " << read.str() << endl;
+        //}
 		//r++;
 	}
-
 	auto t1 = high_resolution_clock::now();
 	
     cluster_graph(matching_tags, clusters, tag);
 	
 //	int n = 0;
 ////	cout << "sequence of read 0 : " << fullnum2str(reads[0].sequence) << endl;
-////	cout << "sequence of read 0' : " << fullnum2str(reads[1].sequence) << endl;
+////	cout << "   sequence of read 0' : " << fullnum2str(reads[1].sequence) << endl;
 //	if (tagCloud == 0){
 //		for (pair<long int, list<int>> matchs : matching_tags){
 //			for (int i: matchs.second){

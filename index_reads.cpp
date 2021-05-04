@@ -50,6 +50,8 @@ void index_reads(int k, int w, string fileReads, unordered_map<Sequence, array<v
 			nameofsequence = line.erase(0,1);
 			tag = get_tag(nameofsequence); //this tag is a string, as contained in a fasta: we're going to convert it into a long int, this will be much more efficient
 
+            trueTag = line.substr(0,10);
+
             notag = false;
             if (tag == ""){
                 notag = true;
@@ -69,8 +71,6 @@ void index_reads(int k, int w, string fileReads, unordered_map<Sequence, array<v
                 readClouds[tagID].second.push_back(sequenceID);
 			}
 			
-			trueTag = get_true_tag(nameofsequence);
-
 			next = true;
 		}
         else if (next && !notag) {
@@ -91,16 +91,17 @@ void index_reads(int k, int w, string fileReads, unordered_map<Sequence, array<v
                 Sequence kr = r.sequence.subseq(r.sequence.size()-k-w,k+w);
 				
 				pair<int, Sequence> kmerL = minimisers(kl, k, w)[0];
-				
 				Hit kmerL_h;
 				kmerL_h.sequenceID = sequenceID;
-				kmerL_h.position = kmerL.first;
-
+                kmerL_h.position = kmerL.first;
                 index[kmerL.second][0].push_back(kmerL_h);
 
 				
 				pair<int, Sequence> kmerR = minimisers(kr, k ,w)[0];
 				Hit kmerR_h;
+//                if (line == "CCATTTGCCAATGCCACGCCTGTCTGACTCGGTGGGTTCAGGCTTTTGCCTCGGCTCAAAGATTTTCCCATTTCCCATTTTCTCAAACCCCACCCTTGGCAACAGCCCACTGGAAAACTTTCACTCT"){
+//                    cout << "Now indexing suspicious line: " << kmerR.second.str() << endl;
+//                }
 				kmerR_h.sequenceID = sequenceID;
 				kmerR_h.position = w+k-kmerR.first;
                 index[kmerR.second][1].push_back(kmerR_h);

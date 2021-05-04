@@ -31,7 +31,7 @@ int main(int argc, char *argv[])
         measure_graph_building_time(20, 20, argv[1]);
 
     }
-    else cout << "You must give as an argument the fastq file I will try to deconvolve" << endl;
+    else //cout << "You must give as an argument the fastq file I will try to deconvolve" << endl;
 	//systematic_times(30);
 	//draw_fragments(150, 400, 25, 0.2, 20000, 5000, 4, "eval/genome_10Mb.fasta", "eval/reads_10Mb_cov25_redundance4.fasta");
 	return 0;

@@ -29,7 +29,7 @@ float measure_graph_building_time(int k, int w, string readsFile){
 	long int index = 0;
     for (pair<string, vector<long long int>> cloud : readClouds){
 		
-        if (index <= 20){
+        if (cloud.first == "AAACCCATCTTCACGC"){
 
             auto tt1 = high_resolution_clock::now();
             vector <int> clusters (cloud.second.size(), -1);
