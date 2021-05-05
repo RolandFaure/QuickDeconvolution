@@ -30,16 +30,16 @@ float measure_graph_building_time(int k, int h, int w, string readsFile){
 
 	long int index = 0;
     for (pair<string, long int> p : tagIDs){
-        cout << p.first << endl;
+
         vector<long long int> cloud = readClouds[p.second];
-        if (index <= 50){
+        //if (index <= 50){
 			
             auto tt1 = high_resolution_clock::now();
             vector <int> clusters (cloud.size(), -1);
             build_graph(3, p.first, p.second, cloud, allreads, kmers, clusters);
             auto tt2 = high_resolution_clock::now();
             timeGraph += duration_cast<microseconds>(tt2 - tt1).count();
-        }
+        //}
 
 //        cout << "Pausing..." << endl;
 //        cout << cloud.size() << endl;
