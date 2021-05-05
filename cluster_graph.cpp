@@ -103,11 +103,11 @@ void cluster_graph_chinese_whispers(unordered_map<long int, std::unordered_set<i
     }
 
     //cout << "Exporting..." << endl;
-    if (adjMatrix.size()>20){
-        string f = "/home/zaltabar/Documents/Ecole/X/4A/stage_M2/code/evalGraphs/cluster_"+tag+"_adj.csv";
-        export_as_CSV(adjMatrix, f);
-        f = "/home/zaltabar/Documents/Ecole/X/4A/stage_M2/code/evalGraphs/cluster_"+tag+"_matching-tag.csv";
-        export_as_CSV(matching_tags, f);
-    }
+//    if (adjMatrix.size()>20){
+//        string f = "/home/zaltabar/Documents/Ecole/X/4A/stage_M2/code/evalGraphs/cluster_"+tag+"_adj.csv";
+//        export_as_CSV(adjMatrix, f);
+//        f = "/home/zaltabar/Documents/Ecole/X/4A/stage_M2/code/evalGraphs/cluster_"+tag+"_matching-tag.csv";
+//        export_as_CSV(matching_tags, f);
+//    }
 
 }
