@@ -76,13 +76,13 @@ void cluster_graph(unordered_map<long int, std::set<int>> &matching_tags, vector
         }
     }
 	
-    if (adjMatrix.size()>20){
-        //cout << "Clustering " << tag << ", " << matching_tags.size() << endl;
-        string f = "/home/zaltabar/Documents/Ecole/X/4A/stage_M2/code/evalGraphs/cluster_"+tag+"_adj.csv";
-        export_as_CSV(adjMatrix, f);
-        f = "/home/zaltabar/Documents/Ecole/X/4A/stage_M2/code/evalGraphs/cluster_"+tag+"_matching-tag.csv";
-        export_as_CSV(matching_tags, f);
-    }
+//    if (adjMatrix.size()>20){
+//        //cout << "Clustering " << tag << ", " << matching_tags.size() << endl;
+//        string f = "/home/zaltabar/Documents/Ecole/X/4A/stage_M2/code/evalGraphs/cluster_"+tag+"_adj.csv";
+//        export_as_CSV(adjMatrix, f);
+//        f = "/home/zaltabar/Documents/Ecole/X/4A/stage_M2/code/evalGraphs/cluster_"+tag+"_matching-tag.csv";
+//        export_as_CSV(matching_tags, f);
+//    }
 	//export_as_CSV(adjMatrix, "evalResultGraphs/cluster.csv");
 		
     //find_connected_components(adjMatrix, clusters);
