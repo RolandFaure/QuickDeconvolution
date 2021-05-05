@@ -29,14 +29,18 @@ float measure_graph_building_time(int k, int w, string readsFile){
 	long int index = 0;
     for (pair<string, vector<long long int>> cloud : readClouds){
 		
-        if (cloud.first == "AAACCCATCTTCACGC"){
+        if (index<100){
+        cout << "Looking at " << cloud.first << " " << cloud.second.size() << endl;
+        }
+        //if (cloud.first == "AAACCCATCTTCACGC"){
 
             auto tt1 = high_resolution_clock::now();
             vector <int> clusters (cloud.second.size(), -1);
+            //cout << "building graph of " << cloud.first << ", size : " << clusters.size() << endl;
             build_graph(k, w, cloud.first, index, cloud.second, allreads, idx, clusters);
             auto tt2 = high_resolution_clock::now();
             timeGraph += duration_cast<microseconds>(tt2 - tt1).count();
-        }
+        //}
 
 
 //        cout << "Pausing..." << endl;

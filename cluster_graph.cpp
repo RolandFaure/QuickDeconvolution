@@ -5,22 +5,23 @@ using std::cout;
 using std::endl;
 using std::vector;
 using std::list;
+using std::set;
 using std::string;
 using robin_hood::pair;
 using robin_hood::unordered_map;
 
-void cluster_graph(unordered_map<long int, std::list<int>> &matching_tags, vector<int> &clusters, string& tag){
+void cluster_graph(unordered_map<long int, std::set<int>> &matching_tags, vector<int> &clusters, string& tag){
 	
 	int adjMatrixSize = clusters.size();
 	vector<int> zeros (adjMatrixSize, 0);
 	vector<vector<int>> adjMatrix (adjMatrixSize, zeros);
 	
-    int reject_tag_threshold = 30000000; //if a readCloud overlaps with too many reads in your readCloud, consider it a fluke
+    int reject_tag_threshold = 10000; //if a readCloud overlaps with too many reads in your readCloud, consider it a fluke
 	vector<int> strengths_of_links = {0}; //strengths_of_links[p] contains how many links are at least as strong as p
 	
 	
 	//building the interaction matrix between reads
-    for (pair<long int, list<int>> matchs : matching_tags){
+    for (pair<const long int, set<int>> matchs : matching_tags){
 
 		int mss = matchs.second.size();
 
@@ -47,13 +48,19 @@ void cluster_graph(unordered_map<long int, std::list<int>> &matching_tags, vecto
 				i++;
 			}
 		}
+        else{
+            cout << "a pretty big tag, " << matchs.first << endl;
+            for (auto i : matchs.second){
+               cout << i << " ";
+            }
+        }
 	}
 	
 //	for (int i : strengths_of_links) cout << i << " ";
     //int link_between_reads_threshold = std::max(1,find_threshold(0.3, strengths_of_links)); //if two reads share at least this number of common overlapping tags, consider them linked
 //	cout << "Threshold : " << link_between_reads_threshold << endl;
 	
-    int link_between_reads_threshold = 2;
+    int link_between_reads_threshold = 1;
 	
 	//building the adjacency matrix : if enough common tags, the reads are considered linked
 	//link together the reads with enough common barcodes
@@ -70,7 +77,7 @@ void cluster_graph(unordered_map<long int, std::list<int>> &matching_tags, vecto
     }
 	
     if (adjMatrix.size()>20){
-        cout << "Clustering " << tag << ", " << matching_tags.size() << endl;
+        //cout << "Clustering " << tag << ", " << matching_tags.size() << endl;
         string f = "/home/zaltabar/Documents/Ecole/X/4A/stage_M2/code/evalGraphs/cluster_"+tag+"_adj.csv";
         export_as_CSV(adjMatrix, f);
         f = "/home/zaltabar/Documents/Ecole/X/4A/stage_M2/code/evalGraphs/cluster_"+tag+"_matching-tag.csv";
@@ -78,8 +85,7 @@ void cluster_graph(unordered_map<long int, std::list<int>> &matching_tags, vecto
     }
 	//export_as_CSV(adjMatrix, "evalResultGraphs/cluster.csv");
 		
-	find_connected_components(adjMatrix, clusters);
-	
+    //find_connected_components(adjMatrix, clusters);
 
 }
 

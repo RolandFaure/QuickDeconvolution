@@ -50,7 +50,7 @@ void index_reads(int k, int w, string fileReads, unordered_map<Sequence, array<v
 			nameofsequence = line.erase(0,1);
 			tag = get_tag(nameofsequence); //this tag is a string, as contained in a fasta: we're going to convert it into a long int, this will be much more efficient
 
-            trueTag = line.substr(0,10);
+            //trueTag = line.substr(0,10);
 
             notag = false;
             if (tag == ""){
@@ -86,7 +86,7 @@ void index_reads(int k, int w, string fileReads, unordered_map<Sequence, array<v
 				r.barcode = tagID;
 				r.trueBarcode = trueTag;
 				allreads.push_back(r);
-				
+
 				Sequence kl = r.sequence.subseq(0, k+w);
                 Sequence kr = r.sequence.subseq(r.sequence.size()-k-w,k+w);
 				

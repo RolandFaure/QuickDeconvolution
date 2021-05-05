@@ -6,6 +6,7 @@ using std::endl;
 using std::vector;
 using std::list;
 using std::pair;
+using std::set;
 using std::string;
 using std::ofstream;
 using std::ifstream;
@@ -67,23 +68,22 @@ void export_as_SIF(std::vector<std::vector<int>> adj, std::string file){
 void export_as_CSV(std::vector<std::vector<int>> adj, std::string file){
 	
 	ofstream out(file);
-	
+    out << "Source,Target,Weight" << endl;
+
 	for (int i = 0 ; i<adj.size()-1 ; i++){
 		for (int j = i+1 ; j<adj[0].size() ; j++){
 			
-			for(int k = 0 ; k<adj[i][j] ; k++){
-				out<< i << "," << j << endl;
-			}
+            out << i << "," << j << "," << adj[i][j] << endl;
 			
 		}
 	}
 }
 
-void export_as_CSV(robin_hood::unordered_map<long int, list<int>> matching_tags, std::string file){
+void export_as_CSV(robin_hood::unordered_map<long int, set<int>> matching_tags, std::string file){
 
     ofstream out(file);
 
-    for (robin_hood::pair<long int, list<int>> p : matching_tags){
+    for (robin_hood::pair<const long int, set<int>> p : matching_tags){
 
         for (int r : p.second){
             out << std::to_string(p.first)<<"_tag,"<<r << endl;
