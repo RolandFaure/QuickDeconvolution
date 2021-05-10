@@ -11,41 +11,13 @@ using robin_hood::pair;
 using std::unordered_set;
 using robin_hood::unordered_map;
 
-void cluster_graph_chinese_whispers(unordered_map<long int, std::unordered_set<int>> &matching_tags, vector<int> &clusters, string &tag){
+using namespace std::chrono;
 
-    int adjMatrixSize = clusters.size();
-    vector<int> zeros (adjMatrixSize, 0);
-    vector<vector<int>> adjMatrix (adjMatrixSize, zeros);
+void cluster_graph_chinese_whispers(vector<vector<int>> &adjMatrix, vector<int> &clusters, string &tag){
 
-    //building the interaction matrix between reads
-    for (pair<const long int, unordered_set<int>> matchs : matching_tags){
+    long long unsigned int bas = 0;
 
-//		cout << "\nLet's look at what matched with tag " << matchs.first << endl;
-        int i = 0;
-        for (int a  : matchs.second) {
-
-            int j = 0;
-            for (int b : matchs.second){
-
-                if (j>i){
-                    adjMatrix[a][b] += 1;
-                    adjMatrix[b][a] += 1;
-                }
-                j++;
-            }
-            i++;
-        }
-    }
-
-    // this can be suppressed, it is just for exporting examples
-    for (int i =0 ; i<adjMatrix.size(); i++){
-        for (int j = 0 ; j<adjMatrix[i].size() ; j++){
-            if (adjMatrix[i][j] < 2){
-                adjMatrix[i][j] = 0;
-            }
-        }
-    }
-
+    //now we're done, let's whisper
     float nb_of_nodes = clusters.size();
     float nb_of_nodes_changing = nb_of_nodes; //an index keeping count of how many nodes changed in the last iteration, to estimate when convergence is reached
     int nb_of_iterations = 0; //another index keeping count of how many iterations there was, to be sure not to get trapped in a oscillating result
@@ -60,7 +32,10 @@ void cluster_graph_chinese_whispers(unordered_map<long int, std::unordered_set<i
         nb_of_iterations++;
         nb_of_nodes_changing = 0; //it will then be increased through this loop
 
+        auto t0 = high_resolution_clock::now();
+
         std::random_shuffle(order.begin(), order.end()); //define the random order with which to look at the node
+
 
         for (int node : order){ //go through the nodes in a random order
 
@@ -99,15 +74,12 @@ void cluster_graph_chinese_whispers(unordered_map<long int, std::unordered_set<i
                 }
             }
         }
+        auto t1 = high_resolution_clock::now();
+
+        bas += duration_cast<microseconds>(t1-t0).count();
 
     }
 
-    //cout << "Exporting..." << endl;
-//    if (adjMatrix.size()>20){
-//        string f = "/home/zaltabar/Documents/Ecole/X/4A/stage_M2/code/evalGraphs/cluster_"+tag+"_adj.csv";
-//        export_as_CSV(adjMatrix, f);
-//        f = "/home/zaltabar/Documents/Ecole/X/4A/stage_M2/code/evalGraphs/cluster_"+tag+"_matching-tag.csv";
-//        export_as_CSV(matching_tags, f);
-//    }
+    //cout << "clustered in " << nb_of_iterations << " iterations, basic time : " << bas/1000 << " ms" << endl;
 
 }

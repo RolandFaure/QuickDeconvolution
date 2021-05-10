@@ -26,20 +26,29 @@ float measure_graph_building_time(int k, int h, int w, string readsFile){
     unordered_map <string, long int> tagIDs;
     index_reads(k, h, w, readsFile, kmers, readClouds, allreads, tagIDs);
 
+//    std::ofstream out("/home/zaltabar/Documents/Ecole/X/4A/stage_M2/code/c++/candidates_multiplicity.txt");
+//    for (auto i : kmers){
+//        if (i.size() > 1){
+//        out << i.size() << ",";}
+//    }
+
 	auto t1 = high_resolution_clock::now();
 
 	long int index = 0;
     for (pair<string, long int> p : tagIDs){
 
-        vector<long long int> cloud = readClouds[p.second];
-        //if (index <= 50){
+        auto tt1 = high_resolution_clock::now();
+        //vector<long long int> cloud = readClouds[p.second];
+        auto tt2 = high_resolution_clock::now();
+        timeGraph += duration_cast<nanoseconds>(tt2 - tt1).count();
+        if (index <= 5000){
 			
-            auto tt1 = high_resolution_clock::now();
-            vector <int> clusters (cloud.size(), -1);
-            build_graph(3, p.first, p.second, cloud, allreads, kmers, clusters);
-            auto tt2 = high_resolution_clock::now();
-            timeGraph += duration_cast<microseconds>(tt2 - tt1).count();
-        //}
+            cout << endl << "Tag " << p.first << ", of size " << readClouds[p.second].size() << endl;
+
+            vector <int> clusters (readClouds[p.second].size(), -1);
+            build_graph(3, p.first, p.second, readClouds, allreads, kmers, clusters);
+
+        }
 
 //        cout << "Pausing..." << endl;
 //        cout << cloud.size() << endl;
@@ -59,7 +68,7 @@ float measure_graph_building_time(int k, int h, int w, string readsFile){
 	
 	auto t2 = high_resolution_clock::now();
 	
-	cout << "Indexation time : " << duration_cast<seconds>(t1 - t0).count() << "s, alignment time " << duration_cast<seconds>(t2 - t1).count() << "s over a total of " << index << " tags, taking on average " << timeGraph/index << "us to build one graph" << endl;
+    cout << "Indexation time : " << duration_cast<seconds>(t1 - t0).count() << "s, alignment time " << duration_cast<milliseconds>(t2 - t1).count()/100 << "/10 s over a total of " << index << " tags, taking in total " << timeGraph/100000000 << "/10 s copying stuff around" << endl;
 	return duration_cast<seconds>(t2 - t0).count();
 }
 

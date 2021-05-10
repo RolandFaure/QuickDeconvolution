@@ -16,7 +16,7 @@ void draw_fragments(int const read_size, int insert_size, int gen_coverage, floa
 	
 	ifstream in(fileGenome.c_str());
 	if (not in){
-		cout << "Problem while reading file in draww_fragments, check file name" << endl;
+        cout << "Problem while reading file in draw_fragments, check file name" << endl;
 	}
 	
 	ofstream out(fileReads);

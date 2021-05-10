@@ -24,10 +24,10 @@ int main(int argc, char *argv[])
 //	}
 //	cout << endl;
 	
-	//create_exps(); 
+    //create_exps();
     //rapid_check();
 
-
+    //measure_graph_building_time(20,4,40, "/home/zaltabar/Documents/Ecole/X/4A/stage_M2/code/eval/reads_10Mb_cov25_redundance4.fasta");
     if (argc > 1){
         measure_graph_building_time(20, 4, 40, argv[1]);
 

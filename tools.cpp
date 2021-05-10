@@ -19,12 +19,12 @@ std::string get_tag(std::string &s){
 	
 
 	string tag;
-	int t = 0;
-    for (int i = 0; i<s.size();i++){
-        /*if (s.substr(i-4,5) == "BX:Z:"){ //for fastq
+    int t = 2;
+    for (int i = 4; i<s.size();i++){
+        if (s.substr(i-4,5) == "BX:Z:"){ //for fastq
             t = 1;
         }
-        else */if (s[i] == ' ' or s[i] == '\\'){
+        else if (s[i] == ' ' or s[i] == '\\'){
             t += 1;
 		}
         else if (t == 1){
@@ -67,9 +67,9 @@ void export_as_SIF(std::vector<std::vector<int>> adj, std::string file){
 	}
 }
 
-void export_as_CSV(std::vector<std::vector<int>> adj, std::string file){
+void export_as_CSV(std::vector<std::vector<int>> &adj, std::string fileEdge, std::string fileNode, vector<int> &clusters){
 	
-	ofstream out(file);
+    ofstream out(fileEdge);
 	
     out << "Source,Target,Weight" << endl;
 	for (int i = 0 ; i<adj.size()-1 ; i++){
@@ -80,9 +80,15 @@ void export_as_CSV(std::vector<std::vector<int>> adj, std::string file){
                 out<< i << "," << j  << "," << adj[i][j]<< endl;
             }
 
-			
 		}
 	}
+    ofstream out2(fileNode);
+
+    out2 << "Id,Label,Cluster" << endl;
+    for (int i = 0 ; i<clusters.size() ; i++){
+        out2 << i << "," <<i <<","<<clusters[i] << endl;
+
+    }
 }
 
 void export_as_CSV(robin_hood::unordered_map<long int, std::unordered_set<int>> matching_tags, std::string file){

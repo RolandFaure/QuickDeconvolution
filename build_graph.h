@@ -12,6 +12,9 @@
 
 #include "tools.h"
 
-std::vector<int> build_graph(short minCommonKmers, std::string tag, long int tagCloud, const std::vector<long long int>& readCloud, const std::vector <Read> &reads, std::vector<std::set<long int>> &kmers, std::vector<int> &clusters);
+void build_graph(short minCommonKmers, std::string tag, long int tagCloud, const std::vector<std::vector<long long int>> &readClouds, const std::vector <Read> &reads, const std::vector<std::set<long int>> &kmers, std::vector<int> &clusters);
 
+void build_adj_matrix(short minCommonKmers, long int tagCloud, const std::vector <std::vector<long long int>> &readClouds, const std::vector <Read> &reads, const std::vector<std::set<long int>> &kmers, std::vector<std::vector<int>> &adjMatrix);
+
+void fast_clustering(long int tagCloud, const std::vector <std::vector<long long int>> &readClouds, const std::vector <Read> &reads, const std::vector<std::set<long int>> &kmers, std::vector<int> &clusters);
 #endif

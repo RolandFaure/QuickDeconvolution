@@ -128,6 +128,7 @@ void Sequence::minimisers(int hardness, int k, int w, vector<Sequence> &minis){
 
         }
 
+        //check if there is till an empty window
         cont = false;
         short index = 0;
         while (!cont && index<emptyWindows.size()){

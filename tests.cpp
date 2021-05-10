@@ -65,7 +65,7 @@ void rapid_check(){
 		
 		if (index == 0 /*&& cloud.size() < 120*/ ){
             vector<int> clusters(cloud.size(), -1);
-            build_graph(3, p.first, p.second, cloud, allreads, kmers, clusters);
+            build_graph(3, p.first, p.second, readClouds, allreads, kmers, clusters);
 			
 			vector<vector<int>> adjMatrix_t = true_adjMatrix(cloud, allreads);
 		
@@ -85,7 +85,7 @@ void rapid_check(){
 //				}
 //				cout << endl;
 //			}
-            export_as_CSV(adjMatrix_t, "evalResultGraphs/"+std::to_string(index)+"_true.csv");
+            export_as_CSV(adjMatrix_t, "evalResultGraphs/"+std::to_string(index)+"_true.csv", "evalResultGraphs/"+std::to_string(index)+"_true_nodes.csv", clusters);
 			cout<<"Done for tag " << index << endl;
 		}
 		index ++;
