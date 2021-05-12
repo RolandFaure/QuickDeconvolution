@@ -164,34 +164,42 @@ void fast_clustering(long int tagCloud, const std::vector <std::vector<long long
             }
         }
 
-        if (known < limit){ //then add all the new tags to alreadySeenTags
+        if (known < limit){ //then add the new tags to alreadySeenTags (only the 30 first, we don't have all night)
 
             clusterReps.push_back(r);
             int clustIdx = clusterReps.size()-1;
             for (long int m : reads[name].minis){
+                short count = 0;
                 for (long int tag : kmers[m]){
-                    alreadySeenTags[tag] = clustIdx;
+                    if (count<30){
+                        alreadySeenTags[tag] = clustIdx;
+                        count++;
+                    }
+                    else{
+                        break;
+                    }
                 }
             }
         }
     }
-//    cout << "Fast clustering, the reps are : ";
-//    for (int i : clusterReps){
-//        cout << i << " ";
-//    }
-//    cout << endl;
+    cout << "Fast clustering, the reps are : ";
+    for (int i : clusterReps){
+        cout << i << " ";
+    }
+    cout << endl;
 
 
     //now that we have all the representants of the clusters, map each read to the best cluster
 
-    short newTagsToAdd = 3; //because rep may not always be 100% representative, allow this number of new tags to be indexed at each read to enrich the reference
+    short newTagsToAdd = 2; //because rep may not always be 100% representative, allow this number of new tags to be indexed at each read to enrich the reference
 
     //go through all the reads by going through the vector order (we do that instead of a for loop in range(0,clusters.size()) because we'd like to re-cluster the reads we are the less sure about :
     vector<int> order (clusters.size());
     std::iota(order.begin(), order.end(), 0); //fill this vector with increasing int starting from 0
 
     std::map <std::pair<long int, long int>, int> fusionProposal; //a map of pairs to see if two clusters should be merged
-    std::set<std::pair<long int, long int>> fusionDecided; //a map of pairs indicating which clusters should be merged
+    vector<int> fusionCluster(clusterReps.size()); //a vector indicating which clusters should be merged, for example [0,1,2,0,4] Indicates that cluster 0 and 3 should be merged
+    std::iota(fusionCluster.begin(), fusionCluster.end(), 0);
 
     for(int n = 0 ; n < order.size() ; n++){
 
@@ -242,20 +250,21 @@ void fast_clustering(long int tagCloud, const std::vector <std::vector<long long
 
 
          if (clusterScores.size()>1 && max<max2*2 && n<2*clusters.size()){ //if the clustering is not fully convincing
-             order.push_back(r);
+             clusters[r] = idxmax;
+             //order.push_back(r);
              fusionProposal[std::make_pair(min(idxmax, idxMax2), std::max(idxmax, idxMax2))] += 1;
 
              //look if there is enough evidence that idxmax and idxmax2 should in fact be merged in one cluster: if not, then r remains mysterious and you may want to re-inspect it
              int fusionScore = fusionProposal[std::make_pair(min(idxmax, idxMax2), std::max(idxmax, idxMax2))];
 
              //first check if the fusion has already been decided anyway
-             if (fusionDecided.find(std::make_pair(min(idxmax, idxMax2), std::max(idxmax, idxMax2))) == fusionDecided.end()) {
+             if (fusionCluster[idxmax] != fusionCluster[idxMax2]) {
 
                  //then check if the fusion should be decided
-                 if (fusionScore > 20 && fusionScore > 2*fusionProposal[std::make_pair(min(idxmax, idxmax), std::max(idxmax, idxmax))]+fusionProposal[std::make_pair(min(idxMax2, idxMax2), std::max(idxMax2, idxMax2))] ){
+                 if (fusionScore > 30 && fusionScore > fusionProposal[std::make_pair(min(idxmax, idxmax), std::max(idxmax, idxmax))]+fusionProposal[std::make_pair(min(idxMax2, idxMax2), std::max(idxMax2, idxMax2))] ){
 
                      //then merge :
-                     fusionDecided.emplace(std::make_pair(min(idxmax, idxMax2), std::max(idxmax, idxMax2)));
+                     fusionCluster[std::max(idxmax, idxMax2)] = min(idxmax, idxMax2);
                  }
                  else{ //it is then still unclear what cluster r is from
                     order.push_back(r);
@@ -282,14 +291,32 @@ void fast_clustering(long int tagCloud, const std::vector <std::vector<long long
 //    for (auto i : fusionDecided) cout << i.first << "," << i.second << " ; ";
 //    cout << endl;
 
+    for (auto potential : fusionProposal){
+            if (potential.first.first != potential.first.second){
+                    if (potential.second > fusionProposal[std::make_pair(potential.first.first, potential.first.first)]+fusionProposal[std::make_pair(potential.first.second, potential.first.second)]){
+                            fusionCluster[potential.first.second] = potential.first.first;
+                    }
+            }
+    }
+
+
     //merge all clusters that should be merged:
 
-    for (auto fusion : fusionDecided){
 
+    bool cont = true;
+    while(cont){
+
+        cont = false;
         for (int c = 0 ; c < clusters.size() ; c++){
 
-            if (clusters[c] == fusion.second){
-                clusters[c] = fusion.first;
+
+//            cout << "Let's see : " << c << " " << clusters.size() << endl;
+//            cout << "Oulala : " << clusters[c] << " " << fusionCluster.size() << endl;
+
+            if (fusionCluster[clusters[c]] != clusters[c]){
+                cont = true;
+                clusters[c] = fusionCluster[clusters[c]];
+                //cout << "New value : " << clusters[c] << endl;
             }
         }
     }

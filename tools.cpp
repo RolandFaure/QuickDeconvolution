@@ -19,12 +19,12 @@ std::string get_tag(std::string &s){
 	
 
 	string tag;
-    int t = 2;
-    for (int i = 4; i<s.size();i++){
-        if (s.substr(i-4,5) == "BX:Z:"){ //for fastq
+    int t = 0;
+    for (int i = 0; i<s.size();i++){
+        /*if (s.substr(i-4,5) == "BX:Z:"){ //for fastq
             t = 1;
         }
-        else if (s[i] == ' ' or s[i] == '\\'){
+        else */if (s[i] == ' ' or s[i] == '\\'){
             t += 1;
 		}
         else if (t == 1){
@@ -123,6 +123,13 @@ std::string reverse_complement(std::string &s){
 		}
 	}
 	return res;
+}
+
+std::ostream& operator<< (std::ostream& out, const vector<int>& v) {
+        for(size_t i = 0; i < v.size(); i++) {
+                out << v[i] << ", ";
+        }
+        return out;
 }
 
 //std::vector<std::pair<int, Sequence>> minimisers(Sequence& seq, short k, short w){

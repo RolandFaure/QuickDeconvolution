@@ -44,7 +44,7 @@ void index_reads(int k, int h, int w, string fileReads, vector<set<long int>> &k
     bool notag = false; //bool alerting when there is no tag attached to a read
     while(getline(in, line)){
 
-        if (line[0] == '@'){
+        if (line[0] == '>'){
             //here looking at the name of sequence and the tag
             nameofsequence = line.erase(0,1);
             tag = get_tag(nameofsequence); //this tag is a string, as contained in a fasta: we're going to convert it into a long int, this will be much more efficient

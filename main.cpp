@@ -23,17 +23,17 @@ int main(int argc, char *argv[])
 //		cout << clusters[i] << "\t";
 //	}
 //	cout << endl;
-	
+
     //create_exps();
     //rapid_check();
 
-    //measure_graph_building_time(20,4,40, "/home/zaltabar/Documents/Ecole/X/4A/stage_M2/code/eval/reads_10Mb_cov25_redundance4.fasta");
+    measure_graph_building_time(20,4,40, "/home/zaltabar/Documents/Ecole/X/4A/stage_M2/datasets/drosophila/DrosoReal_PE1.fasta");
     if (argc > 1){
-        measure_graph_building_time(20, 4, 40, argv[1]);
+        //measure_graph_building_time(20, 4, 40, argv[1]);
 
     }
     else cout << "You must give as an argument the fastq file I will try to deconvolve" << endl;
-	//systematic_times(30);
-	//draw_fragments(150, 400, 25, 0.2, 20000, 5000, 4, "eval/genome_10Mb.fasta", "eval/reads_10Mb_cov25_redundance4.fasta");
-	return 0;
+    //systematic_times(30);
+    //draw_fragments(150, 400, 25, 0.2, 20000, 5000, 4, "eval/genome_10Mb.fasta", "eval/reads_10Mb_cov25_redundance4.fasta");
+    return 0;
 }
