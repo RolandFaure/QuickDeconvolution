@@ -19,11 +19,13 @@ using namespace std::chrono;
 
 //to compress sequencing data, reads and kmers are represented by vectors of bool (encapsulated in Sequence)
 
-void index_reads(int k, int h, int w, string fileReads, vector<set<long int>> &kmers, vector<vector<long long int>> &readClouds, vector <Read> &allreads, unordered_map <string, long int> &tagIDs){
+void index_reads(int k, int h, int w, string fileReads, vector<vector<long int>> &kmers, vector<vector<long long int>> &readClouds, vector <Read> &allreads, unordered_map <string, long int> &tagIDs){
 
     long long int total_mini_time = 0;
     long long int total_read_time = 0;
     auto t0 = high_resolution_clock::now();
+    double number_of_minimizers = 0;
+    double number_of_reads = 0;
 
     ifstream in(fileReads);
     if (!in){cout << "problem reading files in index_reads, while trying to read " << fileReads << endl;}
@@ -44,7 +46,7 @@ void index_reads(int k, int h, int w, string fileReads, vector<set<long int>> &k
     bool notag = false; //bool alerting when there is no tag attached to a read
     while(getline(in, line)){
 
-        if (line[0] == '>'){
+        if (line[0] == '@'){
             //here looking at the name of sequence and the tag
             nameofsequence = line.erase(0,1);
             tag = get_tag(nameofsequence); //this tag is a string, as contained in a fasta: we're going to convert it into a long int, this will be much more efficient
@@ -90,6 +92,8 @@ void index_reads(int k, int h, int w, string fileReads, vector<set<long int>> &k
 
                 vector<Sequence> minis;
                 s.minimisers(h, k, w, minis);
+                number_of_minimizers += minis.size();
+                number_of_reads++;
 
                 auto ttt1 = high_resolution_clock::now();
                 total_mini_time += duration_cast<nanoseconds>(ttt1 - ttt0).count();
@@ -101,7 +105,7 @@ void index_reads(int k, int h, int w, string fileReads, vector<set<long int>> &k
                     if (index.find(mini) != index.end()){
                         long int place = index[mini];
                         r.minis.push_back(place);
-                        kmers[place].insert(r.barcode); //each kmer contains the set of all barcodes containing this kmer
+                        kmers[place].push_back(r.barcode); //each kmer contains the set of all barcodes containing this kmer
                     }
                     else {
                         index[mini] = kmers.size();
@@ -122,7 +126,7 @@ void index_reads(int k, int h, int w, string fileReads, vector<set<long int>> &k
                     if (index.find(mini) != index.end()){
                         long int place = index[mini];
                         r.minis.push_back(place);
-                        kmers[place].insert(r.barcode); //each kmer contains the list of all barcodes containing this kmer
+                        kmers[place].push_back(r.barcode); //each kmer contains the list of all barcodes containing this kmer
                     }
                     else {
                         index[mini] = kmers.size();
@@ -142,7 +146,7 @@ void index_reads(int k, int h, int w, string fileReads, vector<set<long int>> &k
         }
     }
     auto t1 = high_resolution_clock::now();
-    cout << "In index_reads, finding minimizers took me " << total_mini_time/1000000000 << "s and indexing reads " << total_read_time/1000000000 << "s out of " << duration_cast<microseconds>(t1 - t0).count()/1000000 << "s in total" <<  endl;
+    cout << "In index_reads, finding minimizers took me " << total_mini_time/1000000000 << "s and indexing reads " << total_read_time/1000000000 << "s out of " << duration_cast<microseconds>(t1 - t0).count()/1000000 << "s in total, to treat on average " << number_of_minimizers/number_of_reads << " minimizers per reads" <<  endl;
 }
 
 //function returning all minimizers of a sequence and their positions knowing k and the windowsize

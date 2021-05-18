@@ -21,7 +21,7 @@ using std::set;
 //using namespace lemon;
 
 //the function takes as an input the list of all reads having the same tag
-void build_graph(short minCommonKmers, string tag, long int tagCloud, const vector <vector<long long int>> &readClouds, const std::vector <Read> &reads, const vector<set<long int>> &kmers, vector<int> &clusters){
+void build_graph(short minCommonKmers, string tag, long int tagCloud, const vector <vector<long long int>> &readClouds, const std::vector <Read> &reads, const vector<vector<long int>> &kmers, vector<int> &clusters){
 	
 	auto t0 = high_resolution_clock::now();
 
@@ -53,7 +53,7 @@ void build_graph(short minCommonKmers, string tag, long int tagCloud, const vect
     }
 }
 
-void build_adj_matrix(short minCommonKmers, long int tagCloud, const vector <vector<long long int>> &readClouds, const std::vector <Read> &reads, const vector<set<long int>> &kmers, vector<vector<int>> &adjMatrix){
+void build_adj_matrix(short minCommonKmers, long int tagCloud, const vector <vector<long long int>> &readClouds, const std::vector <Read> &reads, const vector<vector<long int>> &kmers, vector<vector<int>> &adjMatrix){
 
     auto t0 = high_resolution_clock::now();
 
@@ -128,7 +128,7 @@ void build_adj_matrix(short minCommonKmers, long int tagCloud, const vector <vec
     //cout << "While building adjMat, took me " << duration_cast<microseconds>(t1-t0).count() << "us to create matching tags, among it " << int(d/1000) << "us handling maps (against potentially "<< int(d2/1000) <<"us) " << duration_cast<microseconds>(t2-t1).count() << "us to build the adjMat " << endl;
 }
 
-void fast_clustering(long int tagCloud, const std::vector <std::vector<long long int>> &readClouds, const std::vector <Read> &reads, const std::vector<std::set<long int>> &kmers, vector<int> &clusters){
+void fast_clustering(long int tagCloud, const std::vector <std::vector<long long int>> &readClouds, const std::vector <Read> &reads, const std::vector<std::vector<long int>> &kmers, vector<int> &clusters){
 
     double time = 0;
     int limit = 5; //how many tags two reads can share without considering they are linked

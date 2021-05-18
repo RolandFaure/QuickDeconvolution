@@ -45,6 +45,7 @@ void export_as_CSV(robin_hood::unordered_map<long int, std::unordered_set<int>> 
 std::string reverse_complement(std::string &s);
 
 std::ostream& operator<< (std::ostream& out, const std::vector<int>& v);
+void minimisers(Sequence& seq, short k, short w, std::vector<Sequence> &res);
 
 //std::vector<bool> subseq(std::vector<bool> &seq, int start, int length);
 
