@@ -37,3 +37,4 @@ add_executable(split10x ${SOURCES})
 
 target_compile_options (split10x PRIVATE -std=c++11)
 target_compile_options (split10x PRIVATE -O3)
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")

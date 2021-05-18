@@ -19,12 +19,12 @@ std::string get_tag(std::string &s){
 	
 
 	string tag;
-    int t = 0;
-    for (int i = 0; i<s.size();i++){
-        /*if (s.substr(i-4,5) == "BX:Z:"){ //for fastq
+    int t = 2;
+    for (int i = 4; i<s.size();i++){
+        if (s.substr(i-4,5) == "BX:Z:"){ //for fastq
             t = 1;
         }
-        else */if (s[i] == ' ' or s[i] == '\\'){
+        else if (s[i] == ' ' or s[i] == '\\'){
             t += 1;
 		}
         else if (t == 1){
@@ -82,6 +82,7 @@ void export_as_CSV(std::vector<std::vector<int>> &adj, std::string fileEdge, std
 
 		}
 	}
+
     ofstream out2(fileNode);
 
     out2 << "Id,Label,Cluster" << endl;

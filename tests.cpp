@@ -47,49 +47,49 @@ void rapid_check(){
 //	chromosomes_to_file(100000, alphabet, 4, 1, "eval/genome_smallTest.fasta");
 //	draw_fragments(150, 400, 5, 0.2, 15000, 20000, 2, "eval/genome_smallTest.fasta", "eval/reads_smallTest");
 	
-    vector<set<long int>> kmers;
-	vector <vector<long long int>> readClouds;
-	vector <Read> allreads;
-    unordered_map <string, long int> tagIDs;
-	int k = 20;
-	int w = 10;
-    int h = 3;
+//    vector<set<long int>> kmers;
+//	vector <vector<long long int>> readClouds;
+//	vector <Read> allreads;
+//    unordered_map <string, long int> tagIDs;
+//	int k = 20;
+//	int w = 10;
+//    int h = 3;
 	
-    index_reads(k, h, w, "eval/reads_10Mb_cov25_redundance4.fasta", kmers, readClouds, allreads, tagIDs);
-	cout << "Finished indexing" << endl;
+//    index_reads(k, h, w, "eval/reads_10Mb_cov25_redundance4.fasta", kmers, readClouds, allreads, tagIDs);
+//	cout << "Finished indexing" << endl;
 	
-	long int index = 0;
-    for (pair<string, long int> p : tagIDs){
+//	long int index = 0;
+//    for (pair<string, long int> p : tagIDs){
 
-        vector<long long int> cloud = readClouds[p.second];
+//        vector<long long int> cloud = readClouds[p.second];
 		
-		if (index == 0 /*&& cloud.size() < 120*/ ){
-            vector<int> clusters(cloud.size(), -1);
-            build_graph(3, p.first, p.second, readClouds, allreads, kmers, clusters);
+//		if (index == 0 /*&& cloud.size() < 120*/ ){
+//            vector<int> clusters(cloud.size(), -1);
+//            build_graph(3, p.first, p.second, readClouds, allreads, kmers, clusters);
 			
-			vector<vector<int>> adjMatrix_t = true_adjMatrix(cloud, allreads);
+//			vector<vector<int>> adjMatrix_t = true_adjMatrix(cloud, allreads);
 		
-			cout << "Computed adj_matrix of tag " << index << " : " << endl;
-//			for (int i=0 ; i < adjMatrix.size() ; i++){
-//				for (int j = 0 ; j < adjMatrix.size() ; j++){
-//					cout << adjMatrix[i][j] << "\t";
-//				}
-//				cout << endl;
-//			}
-//			export_as_SIF(adjMatrix, "evalResultGraphs/"+to_string(index)+".sif");
+//			cout << "Computed adj_matrix of tag " << index << " : " << endl;
+////			for (int i=0 ; i < adjMatrix.size() ; i++){
+////				for (int j = 0 ; j < adjMatrix.size() ; j++){
+////					cout << adjMatrix[i][j] << "\t";
+////				}
+////				cout << endl;
+////			}
+////			export_as_SIF(adjMatrix, "evalResultGraphs/"+to_string(index)+".sif");
 			
-//			cout << "True adjacent matrix of the tag : " << endl;
-//			for (int i=0 ; i < adjMatrix_t.size() ; i++){
-//				for (int j = 0 ; j < adjMatrix_t.size() ; j++){
-//					cout << adjMatrix_t[i][j] << "\t";
-//				}
-//				cout << endl;
-//			}
-            export_as_CSV(adjMatrix_t, "evalResultGraphs/"+std::to_string(index)+"_true.csv", "evalResultGraphs/"+std::to_string(index)+"_true_nodes.csv", clusters);
-			cout<<"Done for tag " << index << endl;
-		}
-		index ++;
+////			cout << "True adjacent matrix of the tag : " << endl;
+////			for (int i=0 ; i < adjMatrix_t.size() ; i++){
+////				for (int j = 0 ; j < adjMatrix_t.size() ; j++){
+////					cout << adjMatrix_t[i][j] << "\t";
+////				}
+////				cout << endl;
+////			}
+//            export_as_CSV(adjMatrix_t, "evalResultGraphs/"+std::to_string(index)+"_true.csv", "evalResultGraphs/"+std::to_string(index)+"_true_nodes.csv", clusters);
+//			cout<<"Done for tag " << index << endl;
+//		}
+//		index ++;
 
-	}
+//	}
 }
 

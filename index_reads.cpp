@@ -21,8 +21,9 @@ using namespace std::chrono;
 
 void index_reads(int k, int h, int w, string fileReads, vector<set<long int>> &kmers, vector<vector<long long int>> &readClouds, vector <Read> &allreads, unordered_map <string, long int> &tagIDs){
 
-    long long int total_mini_time = 0;
-    long long int total_read_time = 0;
+    double total_mini_time = 0;
+    double total_read_time = 0;
+    double expansion_kmers_time = 0;
     auto t0 = high_resolution_clock::now();
 
     ifstream in(fileReads);
@@ -44,7 +45,7 @@ void index_reads(int k, int h, int w, string fileReads, vector<set<long int>> &k
     bool notag = false; //bool alerting when there is no tag attached to a read
     while(getline(in, line)){
 
-        if (line[0] == '>'){
+        if (line[0] == '@'){
             //here looking at the name of sequence and the tag
             nameofsequence = line.erase(0,1);
             tag = get_tag(nameofsequence); //this tag is a string, as contained in a fasta: we're going to convert it into a long int, this will be much more efficient
@@ -99,14 +100,20 @@ void index_reads(int k, int h, int w, string fileReads, vector<set<long int>> &k
 
                     auto tt0 = high_resolution_clock::now();
                     if (index.find(mini) != index.end()){
+                        auto ttt0 = high_resolution_clock::now();
                         long int place = index[mini];
                         r.minis.push_back(place);
                         kmers[place].insert(r.barcode); //each kmer contains the set of all barcodes containing this kmer
+                        auto ttt1 = high_resolution_clock::now();
+                        expansion_kmers_time += duration_cast<nanoseconds>(ttt1 - ttt0).count();
                     }
                     else {
+                        auto ttt0 = high_resolution_clock::now();
                         index[mini] = kmers.size();
                         r.minis.push_back(kmers.size());
                         kmers.push_back({r.barcode});
+                        auto ttt1 = high_resolution_clock::now();
+                        expansion_kmers_time += duration_cast<nanoseconds>(ttt1 - ttt0).count();
                     }
                     auto tt1 = high_resolution_clock::now();
                     total_read_time += duration_cast<nanoseconds>(tt1 - tt0).count();
@@ -120,14 +127,20 @@ void index_reads(int k, int h, int w, string fileReads, vector<set<long int>> &k
 
                     auto tt0 = high_resolution_clock::now();
                     if (index.find(mini) != index.end()){
+                        auto ttt0 = high_resolution_clock::now();
                         long int place = index[mini];
                         r.minis.push_back(place);
                         kmers[place].insert(r.barcode); //each kmer contains the list of all barcodes containing this kmer
+                        auto ttt1 = high_resolution_clock::now();
+                        expansion_kmers_time += duration_cast<nanoseconds>(ttt1 - ttt0).count();
                     }
                     else {
+                        auto ttt0 = high_resolution_clock::now();
                         index[mini] = kmers.size();
                         r.minis.push_back(kmers.size());
                         kmers.push_back({r.barcode});
+                        auto ttt1 = high_resolution_clock::now();
+                        expansion_kmers_time += duration_cast<nanoseconds>(ttt1 - ttt0).count();
                     }
                     auto tt1 = high_resolution_clock::now();
                     total_read_time += duration_cast<nanoseconds>(tt1 - tt0).count();
@@ -142,7 +155,7 @@ void index_reads(int k, int h, int w, string fileReads, vector<set<long int>> &k
         }
     }
     auto t1 = high_resolution_clock::now();
-    cout << "In index_reads, finding minimizers took me " << total_mini_time/1000000000 << "s and indexing reads " << total_read_time/1000000000 << "s out of " << duration_cast<microseconds>(t1 - t0).count()/1000000 << "s in total" <<  endl;
+    cout << "In index_reads, finding minimizers took me " << total_mini_time/1000000000 << "s, indexing reads " << total_read_time/1000000000 << "s, expanding kmers " << expansion_kmers_time/1000000000 << "s out of " << duration_cast<microseconds>(t1 - t0).count()/1000000 << "s in total" <<  endl;
 }
 
 //function returning all minimizers of a sequence and their positions knowing k and the windowsize
