@@ -39,7 +39,7 @@ struct Read{
 
 //};
 
-std::string get_tag(std::string &s);
+std::string get_tag(std::string &s, char format);
 std::string get_true_tag(std::string &s);
 void export_as_SIF(std::vector<std::vector<int>> adj, std::string file);
 void export_as_CSV(std::vector<std::vector<int>> &adj, std::string file,  std::string fileNode, std::vector<int> &clusters);
@@ -47,6 +47,7 @@ void export_as_CSV(robin_hood::unordered_map<long int, std::unordered_set<int>> 
 std::string reverse_complement(std::string &s);
 
 std::ostream& operator<< (std::ostream& out, const std::vector<int>& v);
+void minimisers(Sequence& seq, short k, short w, std::vector<Sequence> &res);
 
 //std::vector<bool> subseq(std::vector<bool> &seq, int start, int length);
 
