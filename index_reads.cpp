@@ -27,6 +27,11 @@ void index_reads(int k, int h, int w, string fileReads, vector<vector<long int>>
     double number_of_minimizers = 0;
     double number_of_reads = 0;
 
+    char format = '@'; //a character to keep track of whether the input file is a fasta or a fastq
+    if (fileReads.substr(fileReads.size()-6,6) == ".fasta"){
+        format = '>';
+    }
+
     ifstream in(fileReads);
     if (!in){cout << "problem reading files in index_reads, while trying to read " << fileReads << endl;}
 
@@ -46,10 +51,10 @@ void index_reads(int k, int h, int w, string fileReads, vector<vector<long int>>
     bool notag = false; //bool alerting when there is no tag attached to a read
     while(getline(in, line)){
 
-        if (line[0] == '@'){
+        if (line[0] == format){
             //here looking at the name of sequence and the tag
             nameofsequence = line.erase(0,1);
-            tag = get_tag(nameofsequence); //this tag is a string, as contained in a fasta: we're going to convert it into a long int, this will be much more efficient
+            tag = get_tag(nameofsequence, format); //this tag is a string, as contained in a fasta: we're going to convert it into a long int, this will be much more efficient
 
             notag = false;
             if (tag == ""){

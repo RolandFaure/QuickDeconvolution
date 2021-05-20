@@ -37,7 +37,7 @@ struct Read{
 
 //};
 
-std::string get_tag(std::string &s);
+std::string get_tag(std::string &s, char format);
 std::string get_true_tag(std::string &s);
 void export_as_SIF(std::vector<std::vector<int>> adj, std::string file);
 void export_as_CSV(std::vector<std::vector<int>> &adj, std::string file,  std::string fileNode, std::vector<int> &clusters);

@@ -15,22 +15,37 @@ using robin_hood::unordered_map;
 using namespace std::chrono;
 //using namespace lemon;
 
-std::string get_tag(std::string &s){
+std::string get_tag(std::string &s, char format){
 	
+    string tag;
 
-	string tag;
-    int t = 2;
-    for (int i = 4; i<s.size();i++){
-        if (s.substr(i-4,5) == "BX:Z:"){ //for fastq
-            t = 1;
+    if (format == '>'){
+        int t = 0;
+        for (int i = 0; i<s.size();i++){
+            if (s[i] == ' ' or s[i] == '\\'){
+                t += 1;
+            }
+            else if (t == 1){
+                tag += s[i];
+            }
         }
-        else if (s[i] == ' ' or s[i] == '\\'){
-            t += 1;
-		}
-        else if (t == 1){
-			tag += s[i];
-		}
-	}
+    }
+    else if (format == '@'){
+        int t = 2;
+        for (int i = 4; i<s.size();i++){
+            if (s.substr(i-4,5) == "BX:Z:"){ //for fastq
+                t = 1;
+            }
+            else if (s[i] == ' ' or s[i] == '\\'){
+                t += 1;
+            }
+            else if (t == 1){
+                tag += s[i];
+            }
+        }
+    }
+
+
 	return tag;
 }
 

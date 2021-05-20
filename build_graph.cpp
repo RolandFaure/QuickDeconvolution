@@ -21,7 +21,7 @@ using std::set;
 //using namespace lemon;
 
 //the function takes as an input the list of all reads having the same tag
-void build_graph(short minCommonKmers, string tag, long int tagCloud, const vector <vector<long long int>> &readClouds, const std::vector <Read> &reads, const vector<vector<long int>> &kmers, vector<int> &clusters){
+void build_graph(short minCommonKmers, string tag, long int tagCloud, const vector <vector<long long int>> &readClouds, const std::vector <Read> &reads, const vector<vector<long int>> &kmers, vector<int> &clusters, string folderOut){
 	
 	auto t0 = high_resolution_clock::now();
 
@@ -43,9 +43,14 @@ void build_graph(short minCommonKmers, string tag, long int tagCloud, const vect
 
     cout << "Building adjacency matrix : " << duration_cast<microseconds>(t1-t0).count()/1000 << "ms, clustering the matrix : " << duration_cast<microseconds>(t2-t1).count()/1000 << "ms, fast clustering : " << duration_cast<microseconds>(t3-t2).count()/1000 << "ms" << endl;
 	
-    if (adjMatrix.size()>500){
-        string f = "/home/zaltabar/Documents/Ecole/X/4A/stage_M2/code/evalGraphs/cluster_"+tag+"_adj.csv";
-        string f2 = "/home/zaltabar/Documents/Ecole/X/4A/stage_M2/code/evalGraphs/cluster_"+tag+"_nodes.csv";
+    if (adjMatrix.size()>700){
+
+        if (folderOut[folderOut.size()-1] != '/'){
+            folderOut += '/';
+        }
+
+        string f = folderOut + "cluster_"+tag+"_droso_adj.csv";
+        string f2 = folderOut + "cluster_"+tag+"_droso_nodes.csv";
         //cout << "exporting..."  << adjMatrix.size()  << " "<< clusters.size()<< endl;
         export_as_CSV(adjMatrix, f, f2, clusters);
 //        f = "/home/zaltabar/Documents/Ecole/X/4A/stage_M2/code/evalGraphs/cluster_"+tag+"_matching-tag.csv";

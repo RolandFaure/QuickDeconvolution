@@ -14,7 +14,7 @@ using std::this_thread::sleep_for; //to pause the program
 using namespace std::chrono;
 
 
-float measure_graph_building_time(int k, int h, int w, int c, string readsFile){
+float measure_graph_building_time(int k, int h, int w, int c, string readsFile, string folderOut){
 
     double timeGraph = 0;
     auto t0 = high_resolution_clock::now();
@@ -55,7 +55,7 @@ float measure_graph_building_time(int k, int h, int w, int c, string readsFile){
         timeGraph += duration_cast<nanoseconds>(tt2 - tt1).count();
 
         vector <int> clusters (readClouds[p.second].size(), -1);
-        build_graph(3, p.first, p.second, readClouds, allreads, kmersV, clusters);
+        build_graph(3, p.first, p.second, readClouds, allreads, kmersV, clusters, folderOut);
 
         index ++;
         if (index%100 == 0){

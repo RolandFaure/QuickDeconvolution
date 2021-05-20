@@ -12,7 +12,7 @@
 
 #include "tools.h"
 
-void build_graph(short minCommonKmers, std::string tag, long int tagCloud, const std::vector<std::vector<long long int>> &readClouds, const std::vector <Read> &reads, const std::vector<std::vector<long int>> &kmers, std::vector<int> &clusters);
+void build_graph(short minCommonKmers, std::string tag, long int tagCloud, const std::vector<std::vector<long long int>> &readClouds, const std::vector <Read> &reads, const std::vector<std::vector<long int>> &kmers, std::vector<int> &clusters, std::string folderOut);
 
 void build_adj_matrix(short minCommonKmers, long int tagCloud, const std::vector <std::vector<long long int>> &readClouds, const std::vector <Read> &reads, const std::vector<std::vector<long int>> &kmers, std::vector<std::vector<int>> &adjMatrix);
 
