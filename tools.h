@@ -11,6 +11,7 @@
 #include <chrono>
 #include <thread>
 #include <mutex>
+#include <atomic> //for multi-threading
 
 #include "robin_hood.h"
 
@@ -23,21 +24,9 @@ struct Hit{
 
 struct Read{
     std::vector<long int> minis;
-	long int barcode;
+    long int barcode;
 };
 
-//class Filtering_set{ //an unordered set, except that you add an element only if you already have seen it n-1 times
-
-//public :
-
-//    Filtering_set(n);
-//    std::unordered_set set;
-
-//private :
-
-//    int n;
-
-//};
 
 std::string get_tag(std::string &s, char format);
 std::string get_true_tag(std::string &s);
