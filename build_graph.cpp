@@ -19,15 +19,19 @@ using std::array;
 using std::unordered_set;
 using std::set;
 
-void thread_deconvolve(short minCommonKmers, unordered_map <string, long int> &tagIDs, const vector <vector<long long int>> &readClouds, const std::vector <Read> &reads, const vector<vector<long int>> &kmers, int thread_id, int num_thread, string folderOut){
+void thread_deconvolve(short minCommonKmers, unordered_map <string, long int> &tagIDs, const vector <vector<long long int>> &readClouds, std::vector <Read> &reads, const vector<vector<vector<long int>>> &kmers, int thread_id, int num_thread, string folderOut){
 
+    int count = 0;
     for (robin_hood::pair<string, long int> p : tagIDs){
 
         //a condition because we want each thread to work separately
         if (p.second % num_thread == thread_id){
             vector <int> clusters (readClouds[p.second].size(), -1);
-            build_graph(3, p.first, p.second, readClouds, reads, kmers, clusters, folderOut);
+            build_graph(minCommonKmers, p.first, p.second, readClouds, reads, kmers, clusters, folderOut);
             //cout << "Deconvolved " << p.second << endl;
+
+            if (count % 10 == 0) cout << "thread " << thread_id << " deconvolved " << count << " tags over " << readClouds.size() << " in total" << endl;
+            count ++;
          }
 
     }
@@ -35,7 +39,7 @@ void thread_deconvolve(short minCommonKmers, unordered_map <string, long int> &t
 
 //the function takes as an input the list of all reads having the same tag
 
-void build_graph(short minCommonKmers, string tag, long int tagCloud, const vector <vector<long long int>> &readClouds, const std::vector <Read> &reads, const vector<vector<long int>> &kmers, vector<int> &clusters, string folderOut){
+void build_graph(short minCommonKmers, string tag, long int tagCloud, const vector <vector<long long int>> &readClouds, std::vector <Read> &reads, const vector<vector<vector<long int>>> &kmers, vector<int> &clusters, string folderOut){
 	
 	auto t0 = high_resolution_clock::now();
 
@@ -43,7 +47,7 @@ void build_graph(short minCommonKmers, string tag, long int tagCloud, const vect
     vector<int> zeros (adjMatrixSize, 0);
     vector<vector<int>> adjMatrix (adjMatrixSize, zeros);
 		
-    build_adj_matrix(minCommonKmers, tagCloud, readClouds, reads, kmers, adjMatrix);
+  // build_adj_matrix(minCommonKmers, tagCloud, readClouds, reads, kmers, adjMatrix);
 
     auto t1 = high_resolution_clock::now();
 
@@ -58,14 +62,14 @@ void build_graph(short minCommonKmers, string tag, long int tagCloud, const vect
 //    cout << "Building adjacency matrix : " << duration_cast<microseconds>(t1-t0).count()/1000 << "ms, clustering the matrix : " << duration_cast<microseconds>(t2-t1).count()/1000 << "ms, fast clustering : " << duration_cast<microseconds>(t3-t2).count()/1000 << "ms" << endl;
 	
 
-    if (adjMatrix.size()>700){
+    if (adjMatrix.size()>700000){
 
         if (folderOut[folderOut.size()-1] != '/'){
             folderOut += '/';
         }
 
-        string f = folderOut + "cluster_"+tag+"_droso_adj.csv";
-        string f2 = folderOut + "cluster_"+tag+"_droso_nodes.csv";
+        string f = folderOut + "cluster_"+tag+"_adj.csv";
+        string f2 = folderOut + "cluster_"+tag+"_nodes.csv";
         //cout << "exporting..."  << adjMatrix.size()  << " "<< clusters.size()<< endl;
 
         export_as_CSV(adjMatrix, f, f2, clusters);
@@ -74,7 +78,7 @@ void build_graph(short minCommonKmers, string tag, long int tagCloud, const vect
     }
 }
 
-void build_adj_matrix(short minCommonKmers, long int tagCloud, const vector <vector<long long int>> &readClouds, const std::vector <Read> &reads, const vector<vector<long int>> &kmers, vector<vector<int>> &adjMatrix){
+void build_adj_matrix(short minCommonKmers, long int tagCloud, const vector <vector<long long int>> &readClouds, std::vector <Read> &reads, const vector<vector<vector<long int>>> &kmers, vector<vector<int>> &adjMatrix){
 
     auto t0 = high_resolution_clock::now();
 
@@ -89,19 +93,16 @@ void build_adj_matrix(short minCommonKmers, long int tagCloud, const vector <vec
         unordered_map<long int, int> alreadySeen; //a map to keep track of how many times the read has already been attached to that tag: you need to have at least minCommonKmers common minimizer to attach a read to a tags
         long long int name = readClouds[tagCloud][r];
 
-        for (long int m : reads[name].minis){
+        vector<vector<long int>> &minis = reads[name].get_minis();
 
-            if (kmers[m].size() > 2){ //if the size is 1, it will be the tagCloud
+        for (short t = 0 ; t < kmers.size() ; t++){ //here, we iterate through all threads that built the index
+
+            for (long int m : /*reads[name].*/minis[t]){
 
                 int c = 0;
                 int cmax = 50;
 
-//                cout << "in3, " << kmers[m].size() << " " << m << " " << kmers.size() << endl;
-//                for (long int t : kmers[m]){cout << t << " ";}
-//                cout << endl << "inm3" << endl;
-
-                for (long int tag : kmers[m]){
-
+                for (long int tag : kmers[t][m]){
 
                     if (c < cmax){
 
@@ -116,8 +117,7 @@ void build_adj_matrix(short minCommonKmers, long int tagCloud, const vector <vec
                         d += duration_cast<nanoseconds>(tt1-tt0).count();
                     }
                 }
-             }
-
+            }
         }
 
     }
@@ -149,7 +149,7 @@ void build_adj_matrix(short minCommonKmers, long int tagCloud, const vector <vec
     //cout << "While building adjMat, took me " << duration_cast<microseconds>(t1-t0).count() << "us to create matching tags, among it " << int(d/1000) << "us handling maps (against potentially "<< int(d2/1000) <<"us) " << duration_cast<microseconds>(t2-t1).count() << "us to build the adjMat " << endl;
 }
 
-void fast_clustering(long int tagCloud, const std::vector <std::vector<long long int>> &readClouds, const std::vector <Read> &reads, const std::vector<vector<long int>> &kmers, vector<int> &clusters){
+void fast_clustering(long int tagCloud, const std::vector <std::vector<long long int>> &readClouds, std::vector <Read> &reads, const vector<vector<vector<long int>>> &kmers, vector<int> &clusters){
 
     double time = 0;
     int overlapLimit = 50; //limit of how many tags we look at for each kmer
@@ -185,24 +185,27 @@ void fast_clustering(long int tagCloud, const std::vector <std::vector<long long
 
         long long int name = readClouds[tagCloud][r];
 
-         for (long int m : reads[name].minis){
+        vector<vector<long int>> &minis = reads[name].get_minis();
+        for (short t = 0 ; t < kmers.size() ; t++){
+             for (long int m : /*reads[name].*/minis[t]){
 
-             int index = 0;
-             for (auto tag : kmers[m]){
+                 int index = 0;
+                 for (auto tag : kmers[t][m]){
 
-                 if (index < overlapLimit){
-                     if (alreadySeenTags.find(tag) != alreadySeenTags.end()){
-                         clusterScores[alreadySeenTags[tag]] += 1;
+                     if (index < overlapLimit){
+                         if (alreadySeenTags.find(tag) != alreadySeenTags.end()){
+                             clusterScores[alreadySeenTags[tag]] += 1;
+                         }
+                         else if (newTags.size() < newTagsToAdd){
+                             newTags.emplace(tag);
+                         }
                      }
-                     else if (newTags.size() < newTagsToAdd){
-                         newTags.emplace(tag);
-                     }
+                     index++;
                  }
-                 index++;
-             }
 
-         }
-;
+             }
+        }
+
          //now find the cluster the read seems closest to
          int max = clusterScores[0];
          int idxmax = 0;
@@ -290,7 +293,7 @@ void fast_clustering(long int tagCloud, const std::vector <std::vector<long long
 
 }
 
-void find_reps(long int tagCloud, const std::vector <std::vector<long long int>> &readClouds, const std::vector <Read> &reads, const std::vector<std::vector<long int>> &kmers, vector<int> &clusterReps, unordered_map <long int, int> &alreadySeenTags){
+void find_reps(long int tagCloud, const std::vector <std::vector<long long int>> &readClouds, std::vector <Read> &reads, const vector<vector<vector<long int>>> &kmers, vector<int> &clusterReps, unordered_map <long int, int> &alreadySeenTags){
 
     int limit = 5; //how many tags two reads can share without considering they are linked
 
@@ -299,25 +302,28 @@ void find_reps(long int tagCloud, const std::vector <std::vector<long long int>>
         short known = 0; //bool keeping trace of with how many already seen barcodes the new read overlaps
 
         long long int name = readClouds[tagCloud][r];
+        vector<vector<long int>> &minis = reads[name].get_minis();
 
-        for (long int m : reads[name].minis){
-            if (known < limit){
+        for (short t = 0 ; t < kmers.size() ; t++){ //different kmers were indexed by different threads
+            for (long int m : /*reads[name].*/minis[t]){
+                if (known < limit){
 
-                known --; //that is because tagCloud will always be there as a common tag
-                for (long int tag : kmers[m]){
+                    known --; //that is because tagCloud will always be there as a common tag
+                    for (long int tag : kmers[t][m]){
 
-                    if (known < limit){
-                        if (alreadySeenTags.find(tag) != alreadySeenTags.end()){
-                            known++;
+                        if (known < limit){
+                            if (alreadySeenTags.find(tag) != alreadySeenTags.end()){
+                                known++;
+                            }
+                        }
+                        else{
+                            break;
                         }
                     }
-                    else{
-                        break;
-                    }
                 }
-            }
-            else{
-                break;
+                else{
+                    break;
+                }
             }
         }
 
@@ -325,9 +331,12 @@ void find_reps(long int tagCloud, const std::vector <std::vector<long long int>>
 
             clusterReps.push_back(r);
             int clustIdx = clusterReps.size()-1;
-            for (long int m : reads[name].minis){
-                for (long int tag : kmers[m]){
-                      alreadySeenTags[tag] = clustIdx;
+
+            for (short t = 0 ; t < kmers.size() ; t++){
+                for (long int m : /*reads[name].*/minis[t]){
+                    for (long int tag : kmers[t][m]){
+                          alreadySeenTags[tag] = clustIdx;
+                    }
                 }
             }
         }

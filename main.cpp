@@ -16,19 +16,12 @@ using robin_hood::unordered_map;
 
 int main(int argc, char *argv[])
 {
-//	vector<vector<int>> adjMatrix = {{0,1,0,0},{1,0,0,1},{0,0,0,1},{0,1,1,0}};
-//	vector<int> clusters = {-1,-1,-1,-1};
-//	find_connected_components(adjMatrix, clusters);
-//	for (int i = 0 ; i < clusters.size() ; i++) {
-//		cout << clusters[i] << "\t";
-//	}
-//	cout << endl;
 
     //create_exps();
     //rapid_check();
 
     int num_threads = 2;
-    measure_graph_building_time(20,4,40,50, num_threads,"/home/zaltabar/Documents/Ecole/X/4A/stage_M2/code/eval/reads_1Mb_cov25_redundance4.fastq", "/home/zaltabar/Documents/Ecole/X/4A/stage_M2/code/evalGraphs/");
+    measure_graph_building_time(20,4,40,50, num_threads,"/home/zaltabar/Documents/Ecole/X/4A/stage_M2/code/eval/reads_10Mb_cov25_redundance4.fastq", "/home/zaltabar/Documents/Ecole/X/4A/stage_M2/code/evalGraphs/");
     if (argc > 2){
         //measure_graph_building_time(20, 4, 40, 50, num_threads, argv[1], argv[2]);
 

@@ -2,6 +2,7 @@
 #define INDEX_READS_INCLUDED
 
 #include "tools.h"
+#include "read.h"
 
 #include <string>
 #include <fstream>
@@ -11,6 +12,11 @@
 #include <list>
 #include <set>
 
-void index_reads(int k, int h, int w, std::string fileReads, std::vector<std::vector<long int>> &kmers, std::vector<std::vector<long long int>> &readClouds, std::vector <Read> &allreads, robin_hood::unordered_map <std::string, long int> &tagIDs);
+void parse_reads(std::string fileReads, std::vector<std::vector<long long int>> &readClouds, std::vector <Read> &allreads, robin_hood::unordered_map <std::string, long int> &tagIDs, int num_threads); //function to compile all reads before dispatching the work among the several threads
+
+void compute_minimizers(int k, int h, int w, std::vector <Read> &allreads, int thread_id, int num_threads);
+
+void index_kmers(std::vector<std::vector<long int>> &kmers, std::vector <Read> &allreads, int thread_id, int num_threads);
+
 
 #endif //INDEX_READS_INCLUDED

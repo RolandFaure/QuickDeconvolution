@@ -16,6 +16,7 @@ set(TARGET_H
     measure_speed.h
     tests.h
     robin_hood.h
+    read.h
    )
 
 # Local source files here
@@ -30,6 +31,7 @@ set(TARGET_SRC
     generate_random_sequence.cpp
     measure_speed.cpp
     tests.cpp
+    read.cpp
     )
 
 file(GLOB SOURCES "*.cpp")

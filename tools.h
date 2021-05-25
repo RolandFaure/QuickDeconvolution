@@ -22,10 +22,10 @@ struct Hit{
 	int position;
 };
 
-struct Read{
-    std::vector<long int> minis;
-    long int barcode;
-};
+//struct Read{
+//    std::vector<std::vector<long int>> minis; //one vector for each thread (in the simplest case, juste a vector)
+//    long int barcode;
+//};
 
 
 std::string get_tag(std::string &s, char format);

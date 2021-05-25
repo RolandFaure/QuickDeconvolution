@@ -13,6 +13,7 @@ using std::thread;
 using std::ref; //to pass references in threads
 using std::this_thread::sleep_for; //to pause the program
 using namespace std::chrono;
+//using std::atomic; //to use atomic types (multithreading)
 
 
 
@@ -21,35 +22,84 @@ float measure_graph_building_time(int k, int h, int w, int c, int num_threads, s
     double timeGraph = 0;
     auto t0 = high_resolution_clock::now();
 
-    vector<vector<long int>> kmers;
+    vector<vector<vector<long int>>> kmers (num_threads); //different index, one for each thread
     vector <vector<long long int>> readClouds;
     vector <Read> allreads;
 
     unordered_map <string, long int> tagIDs;
-    index_reads(k, h, w, readsFile, kmers, readClouds, allreads, tagIDs);
+
+    //first parse all the reads from the file
+    parse_reads(readsFile, readClouds, allreads, tagIDs, num_threads);
 
 
-    //for now kmers is a vector of sets, but iterating through sets is not very fast, so we'll convert that into a vector of vectors
-    cout << "Converting kmers to make it faster to iterate" << endl;
-    vector<vector<long int>> kmersV(kmers.size());
-    double meansize = 0;
-    for (int l = 0 , ls = kmers.size() ; l < ls ; l++){
+    //then compute all the minimizers
 
-        set <long int> uniquek (kmers[l].begin(), kmers[l].end());
-        vector <long int> kv (uniquek.begin(), uniquek.end());
+    auto t0_5 = high_resolution_clock::now();
+    vector<thread> threadsMini;
 
-        if (kv.size() > c){
-            kv.erase(kv.begin()+c , kv.end()); //only keep the first c elements
-        }
-        meansize += kv.size();
-        kmersV[l] = kv;
+    for (int i = 1 ; i < num_threads ; i++){
+
+        threadsMini.push_back(thread(compute_minimizers, k, h, w, ref(allreads), i, num_threads));
+
+    }
+    compute_minimizers(k,h,w, ref(allreads), 0, num_threads); //also use the main thread, no reason to wait
+
+        //now join all the threads
+    for (vector<thread>::iterator it = threadsMini.begin() ; it != threadsMini.end() ; ++it)
+    {
+        it->join();
     }
 
-    vector<vector<long int>> ().swap(kmers); //this frees up the memory taken by kmers, since we'll only be using kmersV from now on
-    cout << "Finished converting kmers, mean size of kmers : " << meansize/kmersV.size() << endl;
+    auto t1 = high_resolution_clock::now();
+
+    //finish by building the index (kmers)
+
+    vector<thread> threadsIdx;
+
+    for (int i = 1 ; i < num_threads ; i++){
+
+        threadsIdx.push_back(thread(index_kmers, ref(kmers[i]), ref(allreads), i, num_threads));
+
+    }
+    index_kmers(kmers[0], allreads, 0, num_threads);
+
+        //now join all the threads
+    for (vector<thread>::iterator it = threadsIdx.begin() ; it != threadsIdx.end() ; ++it)
+    {
+        it->join();
+    }
+
+    cout << "First, allreads minis : " << allreads[0].get_minis()[0].size()<< endl;
+
+    auto t1_5 = high_resolution_clock::now();
+
+    cout << "In total, indexing reads took me " << duration_cast<seconds>(t1_5-t0).count() << "s, among which " << duration_cast<seconds>(t0_5-t0).count() << "s for parsing, " << duration_cast<seconds>(t1-t0).count() << "s for finding minimizers and " << duration_cast<seconds>(t1_5-t1).count() << "s for putting all that in an index"  << endl;
+
+    //for now kmers is a vector of vector of sets, but iterating through sets is not very fast, so we'll convert that into a vector of vectors of vectors
+    cout << "Converting kmers to make it faster to iterate" << endl;
+    vector<vector<vector<long int>>> kmersV(kmers.size());
+    double meansize = 0;
+    for (int t = 0 ; t< num_threads ; t++){
+        kmersV[t] = vector<vector<long int>> (kmers[t].size());
+        for (int l = 0 , ls = kmers[t].size() ; l < ls ; l++){
+
+            set <long int> uniquek (kmers[t][l].begin(), kmers[t][l].end());
+            vector <long int> kv (uniquek.begin(), uniquek.end());
 
 
-	auto t1 = high_resolution_clock::now();
+            if (kv.size() > c){
+                kv.erase(kv.begin()+c , kv.end()); //only keep the first c elements
+            }
+            meansize += kv.size();
+            kmersV[t][l] = kv;
+        }
+    }
+
+    vector<vector<vector<long int>>> ().swap(kmers); //this frees up the memory taken by kmers, since we'll only be using kmersV from now on
+    cout << "Finished converting kmers, mean size of kmers : " << meansize/kmersV[0].size() << endl;
+
+
+    auto t10 = high_resolution_clock::now();
 
     vector<thread> threads;
 
@@ -67,7 +117,7 @@ float measure_graph_building_time(int k, int h, int w, int c, int num_threads, s
 	
 	auto t2 = high_resolution_clock::now();
 	
-    cout << "Indexation time : " << duration_cast<seconds>(t1 - t0).count() << "s, alignment time " << duration_cast<milliseconds>(t2 - t1).count()/1000 << "s " << endl;
+    cout << "Indexation time : " << duration_cast<seconds>(t1_5 - t0).count() << "s, conversion time "<< duration_cast<seconds>(t10 - t1_5).count() <<"s, alignment time " << duration_cast<milliseconds>(t2 - t10).count()/1000 << "s " << endl;
 	return duration_cast<seconds>(t2 - t0).count();
 
 }

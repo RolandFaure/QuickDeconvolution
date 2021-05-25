@@ -95,7 +95,9 @@ bool Sequence::compare_kmers(int start1, int start2, int k){
 
 //returns in a deterministic fashion at least w of the reads, on average 1 / 2^hardness
 //the algorithm looks if the first bit of a letter, the l
-void Sequence::minimisers(int hardness, int k, int w, vector<Sequence> &minis){
+void Sequence::minimisers(int hardness, int k, int w, vector<vector<Sequence>> &minis){
+
+    int num_threads = minis.size();
 
     vector<bool> criterion (hardness, false);
     vector <bool> emptyWindows (this->size()-w+1, true);
@@ -104,11 +106,15 @@ void Sequence::minimisers(int hardness, int k, int w, vector<Sequence> &minis){
     do{
 
         int lastM = 0;
+        int lastEmpty = -w; //a variable to keep track of which windows need a minimizer
         //in empty windows, look for kmers matching the criterion
         for (int i = 0 ; i<=this->size()-k ; i++){
 
             int emptyWindowsSize = emptyWindows.size();
-            if ((i>=emptyWindowsSize&&emptyWindows[emptyWindowsSize-1]) || (i<emptyWindowsSize&& emptyWindows[i])){
+
+            if (i<emptyWindowsSize&& emptyWindows[i])  lastEmpty = i;
+
+            if (i-lastEmpty < w){
 
                 bool good = true;
                 short index = 0;
@@ -118,7 +124,11 @@ void Sequence::minimisers(int hardness, int k, int w, vector<Sequence> &minis){
                 }
 
                 if (good) { //found a minimiser !
-                    minis.push_back(this->subseq(i, k));
+
+                   Sequence sub = this->subseq(i, k);
+                    minis[sub.hash()%num_threads].push_back(sub);
+
+
                     for (int j = std::max(lastM, i-w) ; j <= std::min(i, emptyWindowsSize) ; j++){
                         emptyWindows[j] = false;
                     }
@@ -155,3 +165,7 @@ void Sequence::minimisers(int hardness, int k, int w, vector<Sequence> &minis){
 
 }
 
+size_t Sequence::hash(){
+    std::hash<vector<bool>> h;
+    return h(s);
+}
