@@ -30,7 +30,7 @@ void thread_deconvolve(short minCommonKmers, unordered_map <string, long int> &t
             build_graph(minCommonKmers, p.first, p.second, readClouds, reads, kmers, clusters, folderOut);
             //cout << "Deconvolved " << p.second << endl;
 
-            if (count % 10 == 0) cout << "thread " << thread_id << " deconvolved " << count << " tags over " << readClouds.size() << " in total" << endl;
+            if (count % 100 == 0) cout << "thread " << thread_id << " deconvolved " << count << " tags over " << readClouds.size() << " in total" << endl;
             count ++;
          }
 
@@ -47,7 +47,7 @@ void build_graph(short minCommonKmers, string tag, long int tagCloud, const vect
     vector<int> zeros (adjMatrixSize, 0);
     vector<vector<int>> adjMatrix (adjMatrixSize, zeros);
 		
-  // build_adj_matrix(minCommonKmers, tagCloud, readClouds, reads, kmers, adjMatrix);
+   // build_adj_matrix(minCommonKmers, tagCloud, readClouds, reads, kmers, adjMatrix);
 
     auto t1 = high_resolution_clock::now();
 
@@ -62,7 +62,7 @@ void build_graph(short minCommonKmers, string tag, long int tagCloud, const vect
 //    cout << "Building adjacency matrix : " << duration_cast<microseconds>(t1-t0).count()/1000 << "ms, clustering the matrix : " << duration_cast<microseconds>(t2-t1).count()/1000 << "ms, fast clustering : " << duration_cast<microseconds>(t3-t2).count()/1000 << "ms" << endl;
 	
 
-    if (adjMatrix.size()>700000){
+    if (adjMatrix.size()>15000){
 
         if (folderOut[folderOut.size()-1] != '/'){
             folderOut += '/';
@@ -108,11 +108,11 @@ void build_adj_matrix(short minCommonKmers, long int tagCloud, const vector <vec
 
                         auto tt0 = high_resolution_clock::now();
                         c++;
-                        alreadySeen[tag] += 1;
+                        //alreadySeen[tag] += 1;
 
-                        if (alreadySeen[tag] == minCommonKmers){ // it would be equivalent to put >= here, but a bit slower
-                            matching_tags[tag].emplace(r);
-                        }
+                        //if (alreadySeen[tag] == minCommonKmers){ // it would be equivalent to put >= here, but a bit slower
+                        matching_tags[tag].emplace(r);
+                        //}
                         auto tt1 = high_resolution_clock::now();
                         d += duration_cast<nanoseconds>(tt1-tt0).count();
                     }
@@ -280,15 +280,19 @@ void fast_clustering(long int tagCloud, const std::vector <std::vector<long long
         for (int c = 0 ; c < clusters.size() ; c++){
 
 
-//            cout << "Let's see : " << c << " " << clusters.size() << endl;
-//            cout << "Oulala : " << clusters[c] << " " << fusionCluster.size() << endl;
-
             if (fusionCluster[clusters[c]] != clusters[c]){
                 cont = true;
                 clusters[c] = fusionCluster[clusters[c]];
                 //cout << "New value : " << clusters[c] << endl;
             }
         }
+    }
+
+    //now store the result in the reads
+    for (int r = 0 ; r < readClouds[tagCloud].size() ; r++ ){
+
+        reads[readClouds[tagCloud][r]].barcode_extension = clusters[r];
+
     }
 
 }

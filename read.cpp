@@ -1,6 +1,8 @@
 #include "read.h"
 
 using std::vector;
+using std::cout;
+using std::endl;
 
 Read::Read(int num_threads)
 {
@@ -9,6 +11,9 @@ Read::Read(int num_threads)
     }
     for (int t = 0 ; t < num_threads ; t++){
         minis_seq.push_back({});
+    }
+    for (int t = 0 ; t < num_threads ; t++){
+        minis_seq_rev.push_back({});
     }
 }
 
@@ -26,8 +31,18 @@ std::vector<std::vector<long int>>& Read::get_minis(){
     return minis;
 }
 
-std::vector<std::vector<Sequence>>& Read::get_minis_seq(){
-    return minis_seq;
+void Read::get_minis_seq(int k, std::vector<Sequence> &res, int thread_id){
+
+    for (int pos : minis_seq[thread_id]){
+        res.push_back(sequence.subseq(pos, k));
+    }
+    minis_seq[thread_id] = {}; //now that they are returned as sequences, you don't need to keep them at indices
+
+    Sequence rev = sequence.reverse_complement();
+    for (int pos : minis_seq_rev[thread_id]){
+        res.push_back(rev.subseq(pos, k));
+    }
+    minis_seq_rev[thread_id] = {};
 }
 
 void Read::reset_minis_seq_thread (int thread){
@@ -37,8 +52,5 @@ void Read::reset_minis_seq_thread (int thread){
 void Read::compute_minimisers(int k, int h, int w){
 
     sequence.minimisers(h,k,w, minis_seq);
-    sequence.reverse_complement().minimisers(h,k,w,minis_seq); //append to minis_seq also the minimisers of the reverse complement
-
-    //now the sequence is useless, free some space by deleting it
-    sequence = Sequence();
+    sequence.reverse_complement().minimisers(h,k,w,minis_seq_rev); //append to minis_seq also the minimisers of the reverse complement
 }

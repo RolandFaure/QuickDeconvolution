@@ -17,7 +17,7 @@ using namespace std::chrono;
 
 
 
-float measure_graph_building_time(int k, int h, int w, int c, int num_threads, string readsFile, string folderOut){
+float measure_graph_building_time(int k, int h, int w, int c, int num_threads, string readsFile, string folderOut, string fileOut){
 
     double timeGraph = 0;
     auto t0 = high_resolution_clock::now();
@@ -32,7 +32,7 @@ float measure_graph_building_time(int k, int h, int w, int c, int num_threads, s
     parse_reads(readsFile, readClouds, allreads, tagIDs, num_threads);
 
 
-    //then compute all the minimizers
+    //then compute all the minimizers (parallely)
 
     auto t0_5 = high_resolution_clock::now();
     vector<thread> threadsMini;
@@ -52,16 +52,17 @@ float measure_graph_building_time(int k, int h, int w, int c, int num_threads, s
 
     auto t1 = high_resolution_clock::now();
 
-    //finish by building the index (kmers)
+    //finish by building the index (kmers) (parallely)
 
     vector<thread> threadsIdx;
 
     for (int i = 1 ; i < num_threads ; i++){
 
-        threadsIdx.push_back(thread(index_kmers, ref(kmers[i]), ref(allreads), i, num_threads));
+        threadsIdx.push_back(thread(index_kmers,k, ref(kmers[i]), ref(allreads), i, num_threads));
 
     }
-    index_kmers(kmers[0], allreads, 0, num_threads);
+    index_kmers(k, kmers[0], allreads, 0, num_threads);
+
 
         //now join all the threads
     for (vector<thread>::iterator it = threadsIdx.begin() ; it != threadsIdx.end() ; ++it)
@@ -73,41 +74,42 @@ float measure_graph_building_time(int k, int h, int w, int c, int num_threads, s
 
     auto t1_5 = high_resolution_clock::now();
 
-    cout << "In total, indexing reads took me " << duration_cast<seconds>(t1_5-t0).count() << "s, among which " << duration_cast<seconds>(t0_5-t0).count() << "s for parsing, " << duration_cast<seconds>(t1-t0).count() << "s for finding minimizers and " << duration_cast<seconds>(t1_5-t1).count() << "s for putting all that in an index"  << endl;
+    cout << "In total, indexing reads took me " << duration_cast<seconds>(t1_5-t0).count() << "s, among which " << duration_cast<seconds>(t0_5-t0).count() << "s for parsing, " << duration_cast<seconds>(t1-t0_5).count() << "s for finding minimizers and " << duration_cast<seconds>(t1_5-t1).count() << "s for putting all that in an index"  << endl;
 
-    //for now kmers is a vector of vector of sets, but iterating through sets is not very fast, so we'll convert that into a vector of vectors of vectors
-    cout << "Converting kmers to make it faster to iterate" << endl;
+    //for now kmers[i][j] may contain replicate (in repetitive regions), get rid of them to iterate much faster
+
+    vector<thread> threadsConvert;
     vector<vector<vector<long int>>> kmersV(kmers.size());
-    double meansize = 0;
-    for (int t = 0 ; t< num_threads ; t++){
+
+    for (int t = 1 ; t < num_threads ; t++){
+
         kmersV[t] = vector<vector<long int>> (kmers[t].size());
-        for (int l = 0 , ls = kmers[t].size() ; l < ls ; l++){
+        threadsConvert.push_back(thread(convert_kmers,ref(kmersV[t]), ref(kmers[t]) , c));
 
-            set <long int> uniquek (kmers[t][l].begin(), kmers[t][l].end());
-            vector <long int> kv (uniquek.begin(), uniquek.end());
+    }
+    kmersV[0] = vector<vector<long int>> (kmers[0].size());
+    convert_kmers(kmersV[0], kmers[0], c);
 
-
-            if (kv.size() > c){
-                kv.erase(kv.begin()+c , kv.end()); //only keep the first c elements
-            }
-            meansize += kv.size();
-            kmersV[t][l] = kv;
-        }
+        //now join all the threads
+    for (vector<thread>::iterator it = threadsConvert.begin() ; it != threadsConvert.end() ; ++it)
+    {
+        it->join();
     }
 
+
     vector<vector<vector<long int>>> ().swap(kmers); //this frees up the memory taken by kmers, since we'll only be using kmersV from now on
-    cout << "Finished converting kmers, mean size of kmers : " << meansize/kmersV[0].size() << endl;
 
 
     auto t10 = high_resolution_clock::now();
 
     vector<thread> threads;
 
-    for (int i = 0 ; i < num_threads ; i++){
+    for (int i = 1 ; i < num_threads ; i++){
 
         threads.push_back(thread(thread_deconvolve, 3, ref(tagIDs), ref(readClouds), ref(allreads), ref(kmersV), i, num_threads, folderOut));
 
     }
+    thread_deconvolve(3, ref(tagIDs), ref(readClouds), ref(allreads), ref(kmersV), 0, num_threads, folderOut);
 
     //now join all the threads
     for (vector<thread>::iterator it = threads.begin() ; it != threads.end() ; ++it)
@@ -116,8 +118,13 @@ float measure_graph_building_time(int k, int h, int w, int c, int num_threads, s
     }
 	
 	auto t2 = high_resolution_clock::now();
+
+    //now write the output
+    output(readsFile, fileOut, allreads);
+
+    auto t3 = high_resolution_clock::now();
 	
-    cout << "Indexation time : " << duration_cast<seconds>(t1_5 - t0).count() << "s, conversion time "<< duration_cast<seconds>(t10 - t1_5).count() <<"s, alignment time " << duration_cast<milliseconds>(t2 - t10).count()/1000 << "s " << endl;
+    cout << "Indexation time : " << duration_cast<seconds>(t1_5 - t0).count() << "s, conversion time "<< duration_cast<seconds>(t10 - t1_5).count() <<"s, alignment time " << duration_cast<milliseconds>(t2 - t10).count()/1000 << "s, output time " << duration_cast<milliseconds>(t3 - t2).count()/1000 << "s" << endl;
 	return duration_cast<seconds>(t2 - t0).count();
 
 }

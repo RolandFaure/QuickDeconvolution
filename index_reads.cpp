@@ -24,7 +24,7 @@ void parse_reads(std::string fileReads, std::vector<std::vector<long long int>> 
 
     auto t0 = high_resolution_clock::now();
     char format = '@'; //a character to keep track of whether the input file is a fasta or a fastq
-    if (fileReads.substr(fileReads.size()-6,6) == ".fasta"){
+    if (fileReads.substr(fileReads.size()-6,6) == ".fasta" || fileReads.substr(fileReads.size()-3,3) == ".fa"){
         format = '>';
     }
 
@@ -82,6 +82,7 @@ void parse_reads(std::string fileReads, std::vector<std::vector<long long int>> 
             allreads[allreads.size()-1].sequence = Sequence(line);
         }
     }
+
     auto t1 = high_resolution_clock::now();
     cout << "Finished parsing all the reads in " << duration_cast<seconds>(t1-t0).count() << "s, for a total of " << sequenceID << " reads" << endl;
 }
@@ -89,43 +90,58 @@ void parse_reads(std::string fileReads, std::vector<std::vector<long long int>> 
 //function computing minimisers (one thread)
 void compute_minimizers(int k, int h, int w, std::vector <Read> &allreads, int thread_id, int num_threads){
 
+    auto t0 = high_resolution_clock::now();
+
     for (int r = thread_id ; r < allreads.size() ; r+=num_threads){
-        allreads[r].compute_minimisers(k, h, w);
+        Read &re = allreads[r];
+        re.compute_minimisers(k, h, w);
 
         if ((r-thread_id)%(100000*num_threads) == 0){
             cout << "Thread " << thread_id << " computed " << double(r)/double(allreads.size())*100 << "% of its minimizers" << endl;
         }
     }
 
+    auto t1 = high_resolution_clock::now();
+
+    cout << "Thread " << thread_id << " computed its minimizers in " << duration_cast<seconds>(t1-t0).count()<< "s" << endl;
 }
 
 //this function partially fills the index (kmers) with one thread
-void index_kmers(vector<vector<long int>> &kmers, vector <Read> &allreads, int thread_id, int num_threads){ //kmers is a vector of vector (and not vec of vec of vec) becuse we're focusing on 1 thread
+void index_kmers(int k, vector<vector<long int>> &kmers, vector <Read> &allreads, int thread_id, int num_threads){ //kmers is a vector of vector (and not vec of vec of vec) becuse we're focusing on 1 thread
 
-    double total_mini_time = 0;
+    std::mutex mutex;
+
     double total_read_time = 0;
     double expansion_kmers_time = 0;
-    long int count = 0;
+    long long int count = 0;
     auto t0 = high_resolution_clock::now();
+
+    int dividedsize = allreads.size()/num_threads;
+    int asize = allreads.size();
 
     //maps all minimizing kmers to their index in kmers
     unordered_map<Sequence,long long int, Sequence::HashFunction> index;
 
-    for (long int r = 0 ; r < allreads.size() ; r++){
+    for (long int rr = 0 ; rr < asize ; rr++){
+
+        int r = (rr + dividedsize*thread_id)%asize; //that is a line to encourage each thread to work on separate reads
 
          //here we split the work among all thread: this thread just takes care of a few minimizing kmers
 
+        vector<Sequence> minis;
+        Read &re = allreads[r]; //we will handle a reference to allreads[r] to avoid accessing allreads too much
+        re.get_minis_seq(k, minis, thread_id);
 
-        for (Sequence mini : allreads[r].get_minis_seq()[thread_id]){
-
+        for (Sequence mini : minis){
 
             auto tt0 = high_resolution_clock::now();
             if (index.find(mini) != index.end()){
                 auto ttt0 = high_resolution_clock::now();
                 long int place = index[mini];
-                allreads[r].new_mini(place, thread_id);
+                re.new_mini(place, thread_id);
 
-                kmers[place].push_back(allreads[r].barcode); //each kmer contains the set of all barcodes containing this kmer
+                kmers[place].push_back(re.barcode); //each kmer contains the set of all barcodes containing this kmer
+
                 auto ttt1 = high_resolution_clock::now();
                 expansion_kmers_time += duration_cast<nanoseconds>(ttt1 - ttt0).count();
             }
@@ -133,12 +149,16 @@ void index_kmers(vector<vector<long int>> &kmers, vector <Read> &allreads, int t
 
                 auto ttt0 = high_resolution_clock::now();
                 index[mini] = kmers.size();
-                allreads[r].new_mini(kmers.size(), thread_id);
+                mutex.lock();
+                re.new_mini(kmers.size(), thread_id);
+                mutex.unlock();
 
-                kmers.push_back({allreads[r].barcode});
+                kmers.push_back({re.barcode});
                 auto ttt1 = high_resolution_clock::now();
                 expansion_kmers_time += duration_cast<nanoseconds>(ttt1 - ttt0).count();
             }
+
+            re.reset_minis_seq_thread(thread_id);
 
             auto tt1 = high_resolution_clock::now();
             total_read_time += duration_cast<nanoseconds>(tt1 - tt0).count();
@@ -146,9 +166,10 @@ void index_kmers(vector<vector<long int>> &kmers, vector <Read> &allreads, int t
         }
 
         count ++;
-        if (count % 50000 == 0){
-            cout << "Thread " << thread_id << " processed " << double(count)/double(allreads.size())*100 << "% of all sequences" << endl;
+        if (count % (int(asize/100)+1) == 0){
+            cout << "Thread " << thread_id << " indexed " << double(count)/double(allreads.size())*100 << "% of all sequences" << endl;
         }
+
 
     }
 
@@ -157,6 +178,18 @@ void index_kmers(vector<vector<long int>> &kmers, vector <Read> &allreads, int t
     cout << "In thread " << thread_id << " of index_reads, handling the memory of kmers took me reads " << total_read_time/1000000000 << "s out of " << duration_cast<microseconds>(t1 - t0).count()/1000000 << "s in total" <<  endl;
 }
 
-//function returning all minimizers of a sequence and their positions knowing k and the windowsize
+//function eliminating all multiple entries of the index kmers (and keeping only the first c entries, so that repeated kmers do not take an insane amount of time)
+void convert_kmers(vector<vector<long int>>& res, vector<vector<long int>>& input, int c ){
+
+    for (int l = 0 , ls = input.size() ; l < ls ; l++){
+
+        set <long int> uniquek (input[l].begin(), input[l].end());
+        res[l] = vector <long int> (uniquek.begin(), uniquek.end());
+
+        if (res[l].size() > c){
+            res[l].erase(res[l].begin()+c , res[l].end()); //only keep the first c elements
+        }
+    }
+}
 
 

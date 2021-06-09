@@ -93,9 +93,8 @@ bool Sequence::compare_kmers(int start1, int start2, int k){
     return not lexicographical_compare(s.begin()+start1*2, s.begin()+(start1+k)*2,s.begin()+start2*2, s.begin()+(start2+k)*2);
 }
 
-//returns in a deterministic fashion at least w of the reads, on average 1 / 2^hardness
-//the algorithm looks if the first bit of a letter, the l
-void Sequence::minimisers(int hardness, int k, int w, vector<vector<Sequence>> &minis){
+//returns in a deterministic fashion at least one read in all windows w, on average 1 / 2^hardness read in total
+void Sequence::minimisers(int hardness, int k, int w, vector<vector<int>> &minis){
 
     int num_threads = minis.size();
 
@@ -125,9 +124,8 @@ void Sequence::minimisers(int hardness, int k, int w, vector<vector<Sequence>> &
 
                 if (good) { //found a minimiser !
 
-                   Sequence sub = this->subseq(i, k);
-                    minis[sub.hash()%num_threads].push_back(sub);
-
+                   //Sequence sub = this->subseq(i, k);
+                    minis[this->subseq(i,k).hash()%num_threads].push_back(i);
 
                     for (int j = std::max(lastM, i-w) ; j <= std::min(i, emptyWindowsSize) ; j++){
                         emptyWindows[j] = false;
