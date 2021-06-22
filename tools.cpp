@@ -97,6 +97,7 @@ void export_as_CSV(std::vector<std::vector<int>> &adj, std::string fileEdge, std
 
 		}
 	}
+
     ofstream out2(fileNode);
 
     out2 << "Id,Label,Cluster" << endl;

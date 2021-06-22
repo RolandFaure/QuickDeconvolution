@@ -18,10 +18,28 @@ using std::string;
 using std::array;
 using std::unordered_set;
 using std::set;
-//using namespace lemon;
+
+void thread_deconvolve(short minCommonKmers, unordered_map <string, long int> &tagIDs, const vector <vector<long long int>> &readClouds, std::vector <Read> &reads, const vector<vector<vector<long int>>> &kmers, int thread_id, int num_thread, string folderOut){
+
+    int count = 0;
+    for (robin_hood::pair<string, long int> p : tagIDs){
+
+        //a condition because we want each thread to work separately
+        if (p.second % num_thread == thread_id){
+            vector <int> clusters (readClouds[p.second].size(), -1);
+            build_graph(minCommonKmers, p.first, p.second, readClouds, reads, kmers, clusters, folderOut);
+            //cout << "Deconvolved " << p.second << endl;
+
+            if (count % 100 == 0) cout << "thread " << thread_id << " deconvolved " << count << " tags over " << readClouds.size() << " in total" << endl;
+            count ++;
+         }
+
+    }
+}
 
 //the function takes as an input the list of all reads having the same tag
-void build_graph(short minCommonKmers, string tag, long int tagCloud, const vector <vector<long long int>> &readClouds, const std::vector <Read> &reads, const vector<vector<long int>> &kmers, vector<int> &clusters, string folderOut){
+
+void build_graph(short minCommonKmers, string tag, long int tagCloud, const vector <vector<long long int>> &readClouds, std::vector <Read> &reads, const vector<vector<vector<long int>>> &kmers, vector<int> &clusters, string folderOut){
 	
 	auto t0 = high_resolution_clock::now();
 
@@ -29,11 +47,11 @@ void build_graph(short minCommonKmers, string tag, long int tagCloud, const vect
     vector<int> zeros (adjMatrixSize, 0);
     vector<vector<int>> adjMatrix (adjMatrixSize, zeros);
 		
-    build_adj_matrix(minCommonKmers, tagCloud, readClouds, reads, kmers, adjMatrix);
+   // build_adj_matrix(minCommonKmers, tagCloud, readClouds, reads, kmers, adjMatrix);
 
     auto t1 = high_resolution_clock::now();
 
-    cluster_graph_chinese_whispers(adjMatrix, clusters, tag);
+//    cluster_graph_chinese_whispers(adjMatrix, clusters, tag);
 
     auto t2 = high_resolution_clock::now();
 
@@ -41,24 +59,26 @@ void build_graph(short minCommonKmers, string tag, long int tagCloud, const vect
 
     auto t3 = high_resolution_clock::now();
 
-    cout << "Building adjacency matrix : " << duration_cast<microseconds>(t1-t0).count()/1000 << "ms, clustering the matrix : " << duration_cast<microseconds>(t2-t1).count()/1000 << "ms, fast clustering : " << duration_cast<microseconds>(t3-t2).count()/1000 << "ms" << endl;
+//    cout << "Building adjacency matrix : " << duration_cast<microseconds>(t1-t0).count()/1000 << "ms, clustering the matrix : " << duration_cast<microseconds>(t2-t1).count()/1000 << "ms, fast clustering : " << duration_cast<microseconds>(t3-t2).count()/1000 << "ms" << endl;
 	
-    if (adjMatrix.size()>700){
+
+    if (adjMatrix.size()>15000){
 
         if (folderOut[folderOut.size()-1] != '/'){
             folderOut += '/';
         }
 
-        string f = folderOut + "cluster_"+tag+"_droso_adj.csv";
-        string f2 = folderOut + "cluster_"+tag+"_droso_nodes.csv";
+        string f = folderOut + "cluster_"+tag+"_adj.csv";
+        string f2 = folderOut + "cluster_"+tag+"_nodes.csv";
         //cout << "exporting..."  << adjMatrix.size()  << " "<< clusters.size()<< endl;
+
         export_as_CSV(adjMatrix, f, f2, clusters);
 //        f = "/home/zaltabar/Documents/Ecole/X/4A/stage_M2/code/evalGraphs/cluster_"+tag+"_matching-tag.csv";
 //        export_as_CSV(matching_tags, f);
     }
 }
 
-void build_adj_matrix(short minCommonKmers, long int tagCloud, const vector <vector<long long int>> &readClouds, const std::vector <Read> &reads, const vector<vector<long int>> &kmers, vector<vector<int>> &adjMatrix){
+void build_adj_matrix(short minCommonKmers, long int tagCloud, const vector <vector<long long int>> &readClouds, std::vector <Read> &reads, const vector<vector<vector<long int>>> &kmers, vector<vector<int>> &adjMatrix){
 
     auto t0 = high_resolution_clock::now();
 
@@ -73,35 +93,31 @@ void build_adj_matrix(short minCommonKmers, long int tagCloud, const vector <vec
         unordered_map<long int, int> alreadySeen; //a map to keep track of how many times the read has already been attached to that tag: you need to have at least minCommonKmers common minimizer to attach a read to a tags
         long long int name = readClouds[tagCloud][r];
 
-        for (long int m : reads[name].minis){
+        vector<vector<long int>> &minis = reads[name].get_minis();
 
-            if (kmers[m].size() > 2){ //if the size is 1, it will be the tagCloud
+        for (short t = 0 ; t < kmers.size() ; t++){ //here, we iterate through all threads that built the index
+
+            for (long int m : /*reads[name].*/minis[t]){
 
                 int c = 0;
                 int cmax = 50;
 
-//                cout << "in3, " << kmers[m].size() << " " << m << " " << kmers.size() << endl;
-//                for (long int t : kmers[m]){cout << t << " ";}
-//                cout << endl << "inm3" << endl;
-
-                for (long int tag : kmers[m]){
-
+                for (long int tag : kmers[t][m]){
 
                     if (c < cmax){
 
                         auto tt0 = high_resolution_clock::now();
                         c++;
-                        alreadySeen[tag] += 1;
+                        //alreadySeen[tag] += 1;
 
-                        if (alreadySeen[tag] == minCommonKmers){ // it would be equivalent to put >= here, but a bit slower
-                            matching_tags[tag].emplace(r);
-                        }
+                        //if (alreadySeen[tag] == minCommonKmers){ // it would be equivalent to put >= here, but a bit slower
+                        matching_tags[tag].emplace(r);
+                        //}
                         auto tt1 = high_resolution_clock::now();
                         d += duration_cast<nanoseconds>(tt1-tt0).count();
                     }
                 }
-             }
-
+            }
         }
 
     }
@@ -133,66 +149,19 @@ void build_adj_matrix(short minCommonKmers, long int tagCloud, const vector <vec
     //cout << "While building adjMat, took me " << duration_cast<microseconds>(t1-t0).count() << "us to create matching tags, among it " << int(d/1000) << "us handling maps (against potentially "<< int(d2/1000) <<"us) " << duration_cast<microseconds>(t2-t1).count() << "us to build the adjMat " << endl;
 }
 
-void fast_clustering(long int tagCloud, const std::vector <std::vector<long long int>> &readClouds, const std::vector <Read> &reads, const std::vector<std::vector<long int>> &kmers, vector<int> &clusters){
+void fast_clustering(long int tagCloud, const std::vector <std::vector<long long int>> &readClouds, std::vector <Read> &reads, const vector<vector<vector<long int>>> &kmers, vector<int> &clusters){
 
     double time = 0;
-    int limit = 5; //how many tags two reads can share without considering they are linked
     int overlapLimit = 50; //limit of how many tags we look at for each kmer
     vector<int> clusterReps;
 
+    auto t0 = high_resolution_clock::now();
     unordered_map <long int, int> alreadySeenTags; //mapping all the already seen tag to the reps where they were seen
 
-    for(int r = 0, sizer = readClouds[tagCloud].size(); r<sizer ; r++){
+    find_reps(tagCloud, readClouds, reads, kmers, clusterReps, alreadySeenTags);
 
-        short known = 0; //bool keeping trace of with how many already seen barcodes the new read overlaps
-
-        long long int name = readClouds[tagCloud][r];
-
-        for (long int m : reads[name].minis){
-            if (known < limit){
-
-                known --; //that is because tagCloud will always be there as a common tag
-                for (long int tag : kmers[m]){
-
-                    if (known < limit){
-                        if (alreadySeenTags.find(tag) != alreadySeenTags.end()){
-                            known++;
-                        }
-                    }
-                    else{
-                        break;
-                    }
-                }
-            }
-            else{
-                break;
-            }
-        }
-
-        if (known < limit){ //then add the new tags to alreadySeenTags (only the 30 first, we don't have all night)
-
-            clusterReps.push_back(r);
-            int clustIdx = clusterReps.size()-1;
-            for (long int m : reads[name].minis){
-                short count = 0;
-                for (long int tag : kmers[m]){
-                    if (count<30){
-                        alreadySeenTags[tag] = clustIdx;
-                        count++;
-                    }
-                    else{
-                        break;
-                    }
-                }
-            }
-        }
-    }
-    cout << "Fast clustering, the reps are : ";
-    for (int i : clusterReps){
-        cout << i << " ";
-    }
-    cout << endl;
-
+    auto t1 = high_resolution_clock::now();
+    //cout << "Finding the reps took : " << duration_cast<milliseconds>(t1-t0).count() << "ms" << endl;
 
     //now that we have all the representants of the clusters, map each read to the best cluster
 
@@ -216,24 +185,27 @@ void fast_clustering(long int tagCloud, const std::vector <std::vector<long long
 
         long long int name = readClouds[tagCloud][r];
 
-         for (long int m : reads[name].minis){
+        vector<vector<long int>> &minis = reads[name].get_minis();
+        for (short t = 0 ; t < kmers.size() ; t++){
+             for (long int m : /*reads[name].*/minis[t]){
 
-             int index = 0;
-             for (auto tag : kmers[m]){
+                 int index = 0;
+                 for (auto tag : kmers[t][m]){
 
-                 if (index < overlapLimit){
-                     if (alreadySeenTags.find(tag) != alreadySeenTags.end()){
-                         clusterScores[alreadySeenTags[tag]] += 1;
+                     if (index < overlapLimit){
+                         if (alreadySeenTags.find(tag) != alreadySeenTags.end()){
+                             clusterScores[alreadySeenTags[tag]] += 1;
+                         }
+                         else if (newTags.size() < newTagsToAdd){
+                             newTags.emplace(tag);
+                         }
                      }
-                     else if (newTags.size() < newTagsToAdd){
-                         newTags.emplace(tag);
-                     }
+                     index++;
                  }
-                 index++;
-             }
 
-         }
-;
+             }
+        }
+
          //now find the cluster the read seems closest to
          int max = clusterScores[0];
          int idxmax = 0;
@@ -289,13 +261,6 @@ void fast_clustering(long int tagCloud, const std::vector <std::vector<long long
 
     }
 
-//    cout << "I would like to merge : ";
-//    for (auto i : fusionProposal) cout << i.first.first << "," << i.first.second << "," << i.second << " ; ";
-//    cout << endl;
-//    cout << "I merge : ";
-//    for (auto i : fusionDecided) cout << i.first << "," << i.second << " ; ";
-//    cout << endl;
-
     for (auto potential : fusionProposal){
             if (potential.first.first != potential.first.second){
                     if (potential.second > fusionProposal[std::make_pair(potential.first.first, potential.first.first)]+fusionProposal[std::make_pair(potential.first.second, potential.first.second)]){
@@ -315,9 +280,6 @@ void fast_clustering(long int tagCloud, const std::vector <std::vector<long long
         for (int c = 0 ; c < clusters.size() ; c++){
 
 
-//            cout << "Let's see : " << c << " " << clusters.size() << endl;
-//            cout << "Oulala : " << clusters[c] << " " << fusionCluster.size() << endl;
-
             if (fusionCluster[clusters[c]] != clusters[c]){
                 cont = true;
                 clusters[c] = fusionCluster[clusters[c]];
@@ -326,4 +288,66 @@ void fast_clustering(long int tagCloud, const std::vector <std::vector<long long
         }
     }
 
+    //now store the result in the reads
+    for (int r = 0 ; r < readClouds[tagCloud].size() ; r++ ){
+
+        reads[readClouds[tagCloud][r]].barcode_extension = clusters[r];
+
+    }
+
+}
+
+void find_reps(long int tagCloud, const std::vector <std::vector<long long int>> &readClouds, std::vector <Read> &reads, const vector<vector<vector<long int>>> &kmers, vector<int> &clusterReps, unordered_map <long int, int> &alreadySeenTags){
+
+    int limit = 5; //how many tags two reads can share without considering they are linked
+
+    for(int r = 0, sizer = readClouds[tagCloud].size(); r<sizer ; r++){
+
+        short known = 0; //bool keeping trace of with how many already seen barcodes the new read overlaps
+
+        long long int name = readClouds[tagCloud][r];
+        vector<vector<long int>> &minis = reads[name].get_minis();
+
+        for (short t = 0 ; t < kmers.size() ; t++){ //different kmers were indexed by different threads
+            for (long int m : /*reads[name].*/minis[t]){
+                if (known < limit){
+
+                    known --; //that is because tagCloud will always be there as a common tag
+                    for (long int tag : kmers[t][m]){
+
+                        if (known < limit){
+                            if (alreadySeenTags.find(tag) != alreadySeenTags.end()){
+                                known++;
+                            }
+                        }
+                        else{
+                            break;
+                        }
+                    }
+                }
+                else{
+                    break;
+                }
+            }
+        }
+
+        if (known < limit){ //then add the new tags to alreadySeenTags
+
+            clusterReps.push_back(r);
+            int clustIdx = clusterReps.size()-1;
+
+            for (short t = 0 ; t < kmers.size() ; t++){
+                for (long int m : /*reads[name].*/minis[t]){
+                    for (long int tag : kmers[t][m]){
+                          alreadySeenTags[tag] = clustIdx;
+                    }
+                }
+            }
+        }
+    }
+//    cout << "Fast clustering, the reps are : ";
+//    for (int i : clusterReps){
+//        cout << i << " ";
+//    }
+//    cout << endl;
 }
