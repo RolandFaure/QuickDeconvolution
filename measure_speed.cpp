@@ -29,7 +29,8 @@ float measure_graph_building_time(int k, int h, int w, int c, int num_threads, s
     unordered_map <string, long int> tagIDs;
 
     //first parse all the reads from the file
-    parse_reads(readsFile, readClouds, allreads, tagIDs, num_threads);
+    int min_length = w+k; //then minimum length of a read to have it deconvolved
+    parse_reads(readsFile, readClouds, allreads, tagIDs, min_length, num_threads);
 
 
     //then compute all the minimizers (parallely)

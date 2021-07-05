@@ -47,7 +47,8 @@ void build_graph(short minCommonKmers, string tag, long int tagCloud, const vect
     vector<int> zeros (adjMatrixSize, 0);
     vector<vector<int>> adjMatrix (adjMatrixSize, zeros);
 		
-   // build_adj_matrix(minCommonKmers, tagCloud, readClouds, reads, kmers, adjMatrix);
+    unordered_map<long int, unordered_set<int>> matching_tags; //maps to each tagID the index of the reads of the cloud aligning with this tag
+    build_adj_matrix(minCommonKmers, tagCloud, readClouds, reads, kmers, adjMatrix, matching_tags);
 
     auto t1 = high_resolution_clock::now();
 
@@ -62,7 +63,7 @@ void build_graph(short minCommonKmers, string tag, long int tagCloud, const vect
 //    cout << "Building adjacency matrix : " << duration_cast<microseconds>(t1-t0).count()/1000 << "ms, clustering the matrix : " << duration_cast<microseconds>(t2-t1).count()/1000 << "ms, fast clustering : " << duration_cast<microseconds>(t3-t2).count()/1000 << "ms" << endl;
 	
 
-    if (adjMatrix.size()>15000){
+    if (adjMatrix.size()>700){
 
         if (folderOut[folderOut.size()-1] != '/'){
             folderOut += '/';
@@ -70,21 +71,20 @@ void build_graph(short minCommonKmers, string tag, long int tagCloud, const vect
 
         string f = folderOut + "cluster_"+tag+"_adj.csv";
         string f2 = folderOut + "cluster_"+tag+"_nodes.csv";
-        //cout << "exporting..."  << adjMatrix.size()  << " "<< clusters.size()<< endl;
+        cout << "exporting..."  << adjMatrix.size()  << " "<< clusters.size()<< endl;
 
         export_as_CSV(adjMatrix, f, f2, clusters);
-//        f = "/home/zaltabar/Documents/Ecole/X/4A/stage_M2/code/evalGraphs/cluster_"+tag+"_matching-tag.csv";
-//        export_as_CSV(matching_tags, f);
+        f = "/home/zaltabar/Documents/Ecole/X/4A/stage_M2/code/evalGraphs/cluster_"+tag+"_matching-tag.csv";
+        export_as_CSV(matching_tags, f);
     }
 }
 
-void build_adj_matrix(short minCommonKmers, long int tagCloud, const vector <vector<long long int>> &readClouds, std::vector <Read> &reads, const vector<vector<vector<long int>>> &kmers, vector<vector<int>> &adjMatrix){
+void build_adj_matrix(short minCommonKmers, long int tagCloud, const vector <vector<long long int>> &readClouds, std::vector <Read> &reads, const vector<vector<vector<long int>>> &kmers, vector<vector<int>> &adjMatrix, unordered_map<long int, unordered_set<int>>& matching_tags){
 
     auto t0 = high_resolution_clock::now();
 
     double d = 0;
     double d2 = 0;
-    unordered_map<long int, unordered_set<int>> matching_tags; //maps to each tagID the index of the reads of the cloud aligning with this tag
 
     //int r = 0;
     for(int r = 0, sizer = readClouds[tagCloud].size(); r<sizer ; r++){
@@ -108,11 +108,11 @@ void build_adj_matrix(short minCommonKmers, long int tagCloud, const vector <vec
 
                         auto tt0 = high_resolution_clock::now();
                         c++;
-                        //alreadySeen[tag] += 1;
+                        alreadySeen[tag] += 1;
 
-                        //if (alreadySeen[tag] == minCommonKmers){ // it would be equivalent to put >= here, but a bit slower
-                        matching_tags[tag].emplace(r);
-                        //}
+                        if (alreadySeen[tag] == minCommonKmers){ // it would be equivalent to put >= here, but a bit slower
+                            matching_tags[tag].emplace(r);
+                        }
                         auto tt1 = high_resolution_clock::now();
                         d += duration_cast<nanoseconds>(tt1-tt0).count();
                     }

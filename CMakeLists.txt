@@ -18,6 +18,7 @@ set(TARGET_H
     robin_hood.h
     read.h
     output.h
+    clipp.h
    )
 
 # Local source files here

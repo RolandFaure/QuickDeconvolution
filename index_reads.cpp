@@ -20,7 +20,10 @@ using namespace std::chrono;
 //to compress sequencing data, reads and kmers are represented by vectors of bool (encapsulated in Sequence)
 
 //function parsing all the reads present in the file
-void parse_reads(std::string fileReads, std::vector<std::vector<long long int>> &readClouds, std::vector <Read> &allreads, unordered_map <string, long int> &tagIDs, int num_threads){
+void parse_reads(std::string fileReads, std::vector<std::vector<long long int>> &readClouds, std::vector <Read> &allreads, unordered_map <string, long int> &tagIDs, int min_length, int num_threads){
+
+    //a count to inform the user how many reads will not be deconvolved (either because they do not have a tag or are too short)
+    int totalNumberOfSequences = 0;
 
     auto t0 = high_resolution_clock::now();
     char format = '@'; //a character to keep track of whether the input file is a fasta or a fastq
@@ -46,6 +49,7 @@ void parse_reads(std::string fileReads, std::vector<std::vector<long long int>> 
         if (line[0] == format){
 
             Read r(num_threads);
+            totalNumberOfSequences ++;
 
             //here looking at the name of sequence and the tag
             nameofsequence = line.erase(0,1);
@@ -79,12 +83,19 @@ void parse_reads(std::string fileReads, std::vector<std::vector<long long int>> 
             //here looking at the sequence itself
             next = false;
 
-            allreads[allreads.size()-1].sequence = Sequence(line);
+            if (line.size() > min_length){
+                allreads[allreads.size()-1].sequence = Sequence(line);
+            }
+            else{ //if the read is too short, erase it from the deconvolution process
+                allreads.pop_back();
+                readClouds[tagID].pop_back();
+                sequenceID--;
+            }
         }
     }
 
     auto t1 = high_resolution_clock::now();
-    cout << "Finished parsing all the reads in " << duration_cast<seconds>(t1-t0).count() << "s, for a total of " << sequenceID << " reads" << endl;
+    cout << "Finished parsing all the reads in " << duration_cast<seconds>(t1-t0).count() << "s, for a total of " << sequenceID << " reads to deconvolve. " << totalNumberOfSequences - sequenceID << " reads will not be deconvolved, either because they are too short or do not have a tag" << endl;
 }
 
 //function computing minimisers (one thread)

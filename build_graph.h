@@ -17,7 +17,7 @@ void thread_deconvolve(short minCommonKmers, robin_hood::unordered_map <std::str
 void build_graph(short minCommonKmers, std::string tag, long int tagCloud, const std::vector<std::vector<long long int>> &readClouds, std::vector <Read> &reads, const std::vector<std::vector<std::vector<long int>>> &kmers, std::vector<int> &clusters, std::string folderOut);
 
 
-void build_adj_matrix(short minCommonKmers, long int tagCloud, const std::vector <std::vector<long long int>> &readClouds, std::vector <Read> &reads, const std::vector<std::vector<std::vector<long int>>> &kmers, std::vector<std::vector<int>> &adjMatrix);
+void build_adj_matrix(short minCommonKmers, long int tagCloud, const std::vector <std::vector<long long int>> &readClouds, std::vector <Read> &reads, const std::vector<std::vector<std::vector<long int>>> &kmers, std::vector<std::vector<int>> &adjMatrix, robin_hood::unordered_map<long int, std::unordered_set<int>>& matching_tags);
 
 void fast_clustering(long int tagCloud, const std::vector <std::vector<long long int>> &readClouds, std::vector <Read> &reads, const std::vector<std::vector<std::vector<long int>>> &kmers, std::vector<int> &clusters);
 void find_reps(long int tagCloud, const std::vector <std::vector<long long int>> &readClouds, std::vector <Read> &reads, const std::vector<std::vector<std::vector<long int>>> &kmers, std::vector<int> &clusterReps, robin_hood::unordered_map <long int, int> &alreadySeenTags);
