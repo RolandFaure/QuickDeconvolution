@@ -38,60 +38,70 @@ void parse_reads(std::string fileReads, std::vector<std::vector<long long int>> 
     long long int sequenceID = 0; //instead of storing the name of sequence in a string we're going to store them in long long int, it will be more efficient
 
     string tag;
-    bool next = false;
 
     long int tagID;
 
     string line;
-    bool notag = false; //bool alerting when there is no tag attached to a read
+    vector<string> buffer;
+
     while(getline(in, line)){
 
         if (line[0] == format){
 
-            Read r(num_threads);
+            //then first we append the last read we saw
+
+            if (to_deconvolve(buffer, format, min_length, tag)){
+                Read r(num_threads);
+
+                if (tagIDs.find(tag) == tagIDs.end()){ // if true, tag is not in the keys of tagIDs
+
+                    tagIDs[tag] = readClouds.size(); //from now on this tag ID will be associated to this tag
+                    tagID = readClouds.size();
+                    readClouds.push_back({sequenceID});
+
+                }
+                else{
+                    tagID = tagIDs[tag];
+                    readClouds[tagID].push_back(sequenceID);
+                }
+
+                r.sequence = buffer[1];
+                r.barcode = tagID;
+                allreads.push_back(r);
+                sequenceID ++;
+            }
+
+            //then we reset the buffer
+            buffer = {line};
+
             totalNumberOfSequences ++;
+        }
+        else {
+            buffer.push_back(line);
+        }
 
-            //here looking at the name of sequence and the tag
-            nameofsequence = line.erase(0,1);
-            tag = get_tag(nameofsequence, format); //this tag is a string, as contained in a fasta/q: we're going to convert it into a long int, this will be much more efficient
+    }
 
-            if (tag == ""){}
-            else if (tagIDs.find(tag) == tagIDs.end()){ // if true, tag is not in the keys of tagIDs
+    //parse the last read
+    if (to_deconvolve(buffer, format, min_length, tag)){
+        Read r(num_threads);
 
-                tagIDs[tag] = readClouds.size(); //from now on this tag ID will be associated to this tag
-                tagID = readClouds.size();
-                readClouds.push_back({sequenceID});
+        if (tagIDs.find(tag) == tagIDs.end()){ // if true, tag is not in the keys of tagIDs
 
-                r.barcode = tagID;
-                allreads.push_back(r);
-
-                sequenceID ++;
-                next = true;
-            }
-            else{
-                tagID = tagIDs[tag];
-                readClouds[tagID].push_back(sequenceID);
-                r.barcode = tagID;
-                allreads.push_back(r);
-
-                sequenceID ++;
-                next = true;
-            }
+            tagIDs[tag] = readClouds.size(); //from now on this tag ID will be associated to this tag
+            tagID = readClouds.size();
+            readClouds.push_back({sequenceID});
 
         }
-        else if (next) {
-            //here looking at the sequence itself
-            next = false;
-
-            if (line.size() > min_length){
-                allreads[allreads.size()-1].sequence = Sequence(line);
-            }
-            else{ //if the read is too short, erase it from the deconvolution process
-                allreads.pop_back();
-                readClouds[tagID].pop_back();
-                sequenceID--;
-            }
+        else{
+            tagID = tagIDs[tag];
+            readClouds[tagID].push_back(sequenceID);
         }
+
+        r.sequence = buffer[1];
+        r.barcode = tagID;
+        allreads.push_back(r);
+        sequenceID ++;
     }
 
     auto t1 = high_resolution_clock::now();

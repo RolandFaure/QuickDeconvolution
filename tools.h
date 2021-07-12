@@ -27,6 +27,7 @@ struct Hit{
 //    long int barcode;
 //};
 
+bool to_deconvolve(std::vector<std::string> &buffer, char format, int min_length, std::string &tag);
 
 std::string get_tag(std::string &s, char format);
 std::string get_true_tag(std::string &s);

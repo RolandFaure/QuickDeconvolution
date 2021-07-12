@@ -116,6 +116,9 @@ void build_adj_matrix(short minCommonKmers, long int tagCloud, const vector <vec
                         auto tt1 = high_resolution_clock::now();
                         d += duration_cast<nanoseconds>(tt1-tt0).count();
                     }
+                    else {
+
+                    }
                 }
             }
         }

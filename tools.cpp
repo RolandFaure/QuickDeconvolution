@@ -44,9 +44,28 @@ std::string get_tag(std::string &s, char format){
             }
         }
     }
+    else {
+        cout << "Did not recognize the input format of line " << s << ". Continuing ignoring this line. The input files should be in fasta or fastq format." << endl;
+    }
 
 
 	return tag;
+}
+
+// a function returning false if a read has no barcode or if it is too short to be deconvolved
+bool to_deconvolve(vector<string> &buffer, char format, int min_length ,string &tag){
+
+    if (buffer.size() < 2){
+        return false;
+    }
+
+    tag = get_tag(buffer[0], format);
+    if (tag==""){
+        return false;
+    }
+    else if (buffer[1].size() < min_length){
+        return false;
+    }
 }
 
 std::string get_true_tag(std::string &s){
