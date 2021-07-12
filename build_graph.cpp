@@ -74,7 +74,7 @@ void build_graph(short minCommonKmers, string tag, long int tagCloud, const vect
         cout << "exporting..."  << adjMatrix.size()  << " "<< clusters.size()<< endl;
 
         export_as_CSV(adjMatrix, f, f2, clusters);
-        f = "/home/zaltabar/Documents/Ecole/X/4A/stage_M2/code/evalGraphs/cluster_"+tag+"_matching-tag.csv";
+        f = folderOut + "cluster_"+tag+"_matching-tag.csv";
         export_as_CSV(matching_tags, f);
     }
 }
