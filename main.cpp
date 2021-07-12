@@ -24,22 +24,25 @@ int main(int argc, char *argv[])
 
     int num_threads = 2;
     //measure_graph_building_time(20,4,40,50, num_threads,"/home/zaltabar/Documents/Ecole/X/4A/stage_M2/code/eval/reads_10Mb_cov50_redundance4.fastq", "/home/zaltabar/Documents/Ecole/X/4A/stage_M2/code/evalGraphs/",  "/home/zaltabar/Documents/Ecole/X/4A/stage_M2/code/evalGraphs/output.tsv" );
-    measure_graph_building_time(20,3,40,50, num_threads,"/home/zaltabar/Documents/Ecole/X/4A/stage_M2/datasets/mock_metagenomes/mock6_lsq.R1.short.fastq", "/home/zaltabar/Documents/Ecole/X/4A/stage_M2/code/evalGraphs/", "/home/zaltabar/Documents/Ecole/X/4A/stage_M2/code/evalGraphs/output.tsv" );
+    //measure_graph_building_time(20,3,40,50, num_threads,"/home/zaltabar/Documents/Ecole/X/4A/stage_M2/datasets/mock_metagenomes/mock6_lsq.R1.short.fastq", "/home/zaltabar/Documents/Ecole/X/4A/stage_M2/code/evalGraphs/", "/home/zaltabar/Documents/Ecole/X/4A/stage_M2/code/evalGraphs/output.tsv" );
     //measure_graph_building_time(20,3,40,50, num_threads,"/home/zaltabar/Documents/Ecole/X/4A/stage_M2/datasets/trick_reads.fastq", "/home/zaltabar/Documents/Ecole/X/4A/stage_M2/code/evalGraphs/", "/home/zaltabar/Documents/Ecole/X/4A/stage_M2/code/evalGraphs/output.tsv" );
 
     int k = 20 , w = 40 , h = 4, c = 50, t = 1;
     string infile, outfolder, outfile;
     auto cli = (
-            value("input file to deconvolve", infile),
-            value("deconvolved output folder", outfolder),
-            value("deconvolved output file", outfile),
-            option("-k").set(k).doc("size of kmers"),
-            option("-w").set(w).doc("size of window guaranteed to contain at least one minimizing kmer"),
-            option("-h").set(h).doc("on average 1/2^ĥ kmers are minimizing kmers"),
-            option("-t").set(t).doc("number of threads")
+            required("-i", "--input-file") & opt_value("i", infile),
+            required("-f", "--output-folder") & opt_value("f", outfolder),
+            required("-o", "--output-file") & opt_value("o", outfile),
+            option("-k", "--kmers-length").doc("size of kmers") & opt_value("k", k),
+            option("-w", "--window-size").doc("size of window guaranteed to contain at least one minimizing kmer") & opt_value("w", w),
+            option("-d", "--density").doc("on average 1/2^d kmers are minimizing kmers") & opt_value("d", h),
+            option("-t", "--threads").doc("number of threads") & opt_value("t", t)
         );
 
-    if(!parse(argc, argv, cli)) cout << make_man_page(cli, argv[0]);
+    if(!parse(argc, argv, cli)) {
+        cout << "Could not parse the arguments" << endl;
+        cout << make_man_page(cli, argv[0]);
+    }
     else {
         measure_graph_building_time(k, h, w, c, t, infile, outfolder, outfile);
     }
