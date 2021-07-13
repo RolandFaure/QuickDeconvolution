@@ -23,10 +23,11 @@ int main(int argc, char *argv[])
     //rapid_check();
 
     int num_threads = 2;
-    //measure_graph_building_time(20,4,40,50, num_threads,"/home/zaltabar/Documents/Ecole/X/4A/stage_M2/code/eval/reads_10Mb_cov50_redundance4.fastq", "/home/zaltabar/Documents/Ecole/X/4A/stage_M2/code/evalGraphs/",  "/home/zaltabar/Documents/Ecole/X/4A/stage_M2/code/evalGraphs/output.tsv" );
-    measure_graph_building_time(20,3,40,50, num_threads,"/home/zaltabar/Documents/Ecole/X/4A/stage_M2/datasets/H_numata/barcoded.small.fastq", "/home/zaltabar/Documents/Ecole/X/4A/stage_M2/code/evalGraphs/", "/home/zaltabar/Documents/Ecole/X/4A/stage_M2/code/evalGraphs/output.tsv" );
+    //measure_graph_building_time(20,3,40,50, num_threads,"/home/zaltabar/Documents/Ecole/X/4A/stage_M2/code/eval/reads_10Mb_cov25_redundance4.fastq", "/home/zaltabar/Documents/Ecole/X/4A/stage_M2/code/evalGraphs/",  "/home/zaltabar/Documents/Ecole/X/4A/stage_M2/code/evalGraphs/output.tsv" );
+    //measure_graph_building_time(20,3,40,50, num_threads,"/home/zaltabar/Documents/Ecole/X/4A/stage_M2/datasets/H_numata/barcoded.tiny.fastq", "/home/zaltabar/Documents/Ecole/X/4A/stage_M2/code/evalGraphs/", "/home/zaltabar/Documents/Ecole/X/4A/stage_M2/code/evalGraphs/output.tsv" );
+    measure_graph_building_time(20,3,40,50, num_threads,"/home/zaltabar/Documents/Ecole/X/4A/stage_M2/datasets/mock_metagenomes/mock6_lsq.R1.small.fastq", "/home/zaltabar/Documents/Ecole/X/4A/stage_M2/code/evalGraphs/", "/home/zaltabar/Documents/Ecole/X/4A/stage_M2/code/evalGraphs/output.tsv" );
 
-    int k = 20 , w = 40 , h = 4, c = 50, t = 1;
+    int k = 20 , w = 40 , h = 3, c = 50, t = 1;
     string infile, outfolder, outfile;
     auto cli = (
             required("-i", "--input-file") & opt_value("i", infile),

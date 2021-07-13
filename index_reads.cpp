@@ -65,6 +65,9 @@ void parse_reads(std::string fileReads, std::vector<std::vector<long long int>> 
                     readClouds[tagID].push_back(sequenceID);
                 }
 
+                if (tag == "ATTAAATGGTTG-1" && readClouds[tagID].size() == 369){
+                    cout << "Sequence 368 of tag ATTAAATGGTTG-1 " << buffer[1] << " numbered in allreads: " << allreads.size() << ", tagID : " << tagID << endl;
+                }
                 r.sequence = buffer[1];
                 r.barcode = tagID;
                 allreads.push_back(r);
@@ -116,6 +119,14 @@ void compute_minimizers(int k, int h, int w, std::vector <Read> &allreads, int t
     for (int r = thread_id ; r < allreads.size() ; r+=num_threads){
         Read &re = allreads[r];
         re.compute_minimisers(k, h, w);
+//        if (r == 95310){
+//            cout << "computed minimizers of " << re.sequence.str() << " : " << endl;
+//            for (auto minit : re.get_pos_minis()){
+//                for (long int n : minit){
+//                    cout << " - " << re.sequence.subseq(n,k).str() << endl;
+//                }
+//            }
+//        }
 
         if ((r-thread_id)%(100000*num_threads) == 0){
             cout << "Thread " << thread_id << " computed " << double(r)/double(allreads.size())*100 << "% of its minimizers" << endl;
@@ -151,7 +162,19 @@ void index_kmers(int k, vector<vector<long int>> &kmers, vector <Read> &allreads
 
         vector<Sequence> minis;
         Read &re = allreads[r]; //we will handle a reference to allreads[r] to avoid accessing allreads too much
+
         re.get_minis_seq(k, minis, thread_id);
+
+//        if (thread_id == 0 && r == 95353){
+//            cout << "read 95353 (" << re.sequence.str() << "):";
+//            for (Sequence mini : minis) cout << mini.str() << ",";
+//            cout << endl;
+//        }
+//        if (thread_id == 1 && r == 95379){
+//            cout << "read 95352 (" << re.sequence.str() << "):";
+//            for (Sequence mini : minis) cout << mini.str() << ",";
+//            cout << endl;
+//        }
 
         for (Sequence mini : minis){
 
@@ -165,12 +188,13 @@ void index_kmers(int k, vector<vector<long int>> &kmers, vector <Read> &allreads
 
                 auto ttt1 = high_resolution_clock::now();
                 expansion_kmers_time += duration_cast<nanoseconds>(ttt1 - ttt0).count();
+
             }
             else {
 
                 auto ttt0 = high_resolution_clock::now();
-                index[mini] = kmers.size();
                 mutex.lock();
+                index[mini] = kmers.size();
                 re.new_mini(kmers.size(), thread_id);
                 mutex.unlock();
 
@@ -191,10 +215,15 @@ void index_kmers(int k, vector<vector<long int>> &kmers, vector <Read> &allreads
             cout << "Thread " << thread_id << " indexed " << double(count)/double(allreads.size())*100 << "% of all sequences" << endl;
         }
 
-
     }
 
     auto t1 = high_resolution_clock::now();
+
+    float totk = 0;
+    for (auto k : kmers){
+        totk += std::set<long int>( k.begin(), k.end() ).size();
+    }
+    cout << "On average, each kmers is contained in " << totk/kmers.size() << " barcodes" << endl;
 
     cout << "In thread " << thread_id << " of index_reads, handling the memory of kmers took me reads " << total_read_time/1000000000 << "s out of " << duration_cast<microseconds>(t1 - t0).count()/1000000 << "s in total" <<  endl;
 }

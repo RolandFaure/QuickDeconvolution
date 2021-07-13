@@ -20,6 +20,7 @@ public:
     void new_mini(long int idx, int thread_id);
     std::vector<std::vector<long int>> &get_minis();
     void get_minis_seq(int k, std::vector<Sequence> &res, int thread_id);
+    std::vector<std::vector<int>> get_pos_minis();
 
     void compute_minimisers(int k, int h, int w);
 

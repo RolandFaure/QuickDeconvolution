@@ -98,6 +98,7 @@ void Sequence::minimisers(int hardness, int k, int w, vector<vector<int>> &minis
 
     int num_threads = minis.size();
 
+    std::hash<vector<bool>> h;
     vector<bool> criterion (hardness, false);
     vector <bool> emptyWindows (this->size()-w+1, true);
     bool cont;
@@ -124,7 +125,6 @@ void Sequence::minimisers(int hardness, int k, int w, vector<vector<int>> &minis
 
                 if (good) { //found a minimiser !
 
-                   //Sequence sub = this->subseq(i, k);
                     minis[this->subseq(i,k).hash()%num_threads].push_back(i);
 
                     for (int j = std::max(lastM, i-w) ; j <= std::min(i, emptyWindowsSize) ; j++){
@@ -145,7 +145,7 @@ void Sequence::minimisers(int hardness, int k, int w, vector<vector<int>> &minis
         }
 
 
-        //update criterion by simple incrementing
+//        update criterion by simple incrementing
         bool extra = true;
         int pos = hardness-1;
         while (extra && pos>=0){

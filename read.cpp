@@ -45,6 +45,10 @@ void Read::get_minis_seq(int k, std::vector<Sequence> &res, int thread_id){
     minis_seq_rev[thread_id] = {};
 }
 
+std::vector<std::vector<int>> Read::get_pos_minis(){
+    return minis_seq;
+}
+
 void Read::reset_minis_seq_thread (int thread){
     minis_seq[thread] = {};
 }

@@ -72,8 +72,6 @@ float measure_graph_building_time(int k, int h, int w, int c, int num_threads, s
         it->join();
     }
 
-    cout << "First, allreads minis : " << allreads[0].get_minis()[0].size()<< endl;
-
     auto t1_5 = high_resolution_clock::now();
 
     cout << "In total, indexing reads took me " << duration_cast<seconds>(t1_5-t0).count() << "s, among which " << duration_cast<seconds>(t0_5-t0).count() << "s for parsing, " << duration_cast<seconds>(t1-t0_5).count() << "s for finding minimizers and " << duration_cast<seconds>(t1_5-t1).count() << "s for putting all that in an index"  << endl;

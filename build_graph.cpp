@@ -63,7 +63,7 @@ void build_graph(short minCommonKmers, string tag, long int tagCloud, const vect
 //    cout << "Building adjacency matrix : " << duration_cast<microseconds>(t1-t0).count()/1000 << "ms, clustering the matrix : " << duration_cast<microseconds>(t2-t1).count()/1000 << "ms, fast clustering : " << duration_cast<microseconds>(t3-t2).count()/1000 << "ms" << endl;
 	
 
-    if (adjMatrix.size()>700){
+    if (adjMatrix.size()>100){
 
         if (folderOut[folderOut.size()-1] != '/'){
             folderOut += '/';
@@ -95,9 +95,39 @@ void build_adj_matrix(short minCommonKmers, long int tagCloud, const vector <vec
 
         vector<vector<long int>> &minis = reads[name].get_minis();
 
+        if (tagCloud == 24246 && r==368){
+            cout << "Here are the overlappings of read 368 ("<< name << ") on thread 0 and 1 :" << endl;
+             for (long int m : minis[0]){
+                 cout << "[";
+                 for (long int tag : kmers[0][m]){
+                     cout << tag << ",";
+                 }
+                 cout << "] (" << m << ")" << endl;
+             }
+             cout << endl;
+             for (long int m : minis[1]){
+                 cout << "[";
+                 for (long int tag : kmers[1][m]){
+                     cout << tag << ",";
+                 }
+                 cout << "] (" << m << ")" << endl;
+             }
+        }
+
+//        if (tagCloud == 1755 && r==69){
+//            cout << "Here are the overlappings of read 69 ("<< name << ") on thread 1 :" << endl;
+//             for (long int m : minis[1]){
+//                 cout << "[";
+//                 for (long int tag : kmers[1][m]){
+//                     cout << tag << ",";
+//                 }
+//                 cout << "] (" << m << ")" << endl;
+//             }
+//        }
+
         for (short t = 0 ; t < kmers.size() ; t++){ //here, we iterate through all threads that built the index
 
-            for (long int m : /*reads[name].*/minis[t]){
+            for (long int m : minis[t]){
 
                 int c = 0;
                 int cmax = 50;
@@ -109,6 +139,18 @@ void build_adj_matrix(short minCommonKmers, long int tagCloud, const vector <vec
                         auto tt0 = high_resolution_clock::now();
                         c++;
                         alreadySeen[tag] += 1;
+
+//                        if (tagCloud == 1755 && tag==4){
+//                            if (r == 10){
+//                                cout << "10 got there because of kmer " << t << "," << m << endl;
+//                            }
+//                            if (r == 42){
+//                                cout << "42 got there because of kmer " << t << "," << m << endl;
+//                            }
+//                            if (r == 43){
+//                                cout << "43 got there because of kmer " << t << "," << m << endl;
+//                            }
+//                        }
 
                         if (alreadySeen[tag] == minCommonKmers){ // it would be equivalent to put >= here, but a bit slower
                             matching_tags[tag].emplace(r);
@@ -138,6 +180,12 @@ void build_adj_matrix(short minCommonKmers, long int tagCloud, const vector <vec
             int j = 0;
             for (int b : matchs.second){
 
+//                if (tagCloud == 1755 && a == 10 && b == 42){
+//                    cout << "With 42, common tag: " << matchs.first << endl;
+//                }
+//                if (tagCloud == 1755 && a == 10 && b == 43){
+//                    cout << "With 43, common tag: " << matchs.first << endl;
+//                }
                 if (j>i){
                     adjMatrix[a][b] += 1;
                     adjMatrix[b][a] += 1;
@@ -148,6 +196,11 @@ void build_adj_matrix(short minCommonKmers, long int tagCloud, const vector <vec
         }
     }
     auto t2 = high_resolution_clock::now();
+
+    // TagID of tag AGATCTGCAAATTCCG-1 is 1755
+//    if (tagCloud == 1755){
+//        cout << adjMatrix[10][42] << " " << adjMatrix[10][43] << endl;
+//    }
 
     //cout << "While building adjMat, took me " << duration_cast<microseconds>(t1-t0).count() << "us to create matching tags, among it " << int(d/1000) << "us handling maps (against potentially "<< int(d2/1000) <<"us) " << duration_cast<microseconds>(t2-t1).count() << "us to build the adjMat " << endl;
 }
