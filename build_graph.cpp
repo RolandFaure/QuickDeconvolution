@@ -52,18 +52,18 @@ void build_graph(short minCommonKmers, string tag, long int tagCloud, const vect
 
     auto t1 = high_resolution_clock::now();
 
-//    cluster_graph_chinese_whispers(adjMatrix, clusters, tag);
+    cluster_graph_chinese_whispers(adjMatrix, clusters, tag);
 
     auto t2 = high_resolution_clock::now();
 
-    fast_clustering(tagCloud, readClouds, reads, kmers, clusters);
+ //   fast_clustering(tagCloud, readClouds, reads, kmers, clusters);
 
     auto t3 = high_resolution_clock::now();
 
 //    cout << "Building adjacency matrix : " << duration_cast<microseconds>(t1-t0).count()/1000 << "ms, clustering the matrix : " << duration_cast<microseconds>(t2-t1).count()/1000 << "ms, fast clustering : " << duration_cast<microseconds>(t3-t2).count()/1000 << "ms" << endl;
 	
 
-    if (adjMatrix.size()>100){
+    if (adjMatrix.size()>700){
 
         if (folderOut[folderOut.size()-1] != '/'){
             folderOut += '/';
@@ -95,24 +95,24 @@ void build_adj_matrix(short minCommonKmers, long int tagCloud, const vector <vec
 
         vector<vector<long int>> &minis = reads[name].get_minis();
 
-        if (tagCloud == 24246 && r==368){
-            cout << "Here are the overlappings of read 368 ("<< name << ") on thread 0 and 1 :" << endl;
-             for (long int m : minis[0]){
-                 cout << "[";
-                 for (long int tag : kmers[0][m]){
-                     cout << tag << ",";
-                 }
-                 cout << "] (" << m << ")" << endl;
-             }
-             cout << endl;
-             for (long int m : minis[1]){
-                 cout << "[";
-                 for (long int tag : kmers[1][m]){
-                     cout << tag << ",";
-                 }
-                 cout << "] (" << m << ")" << endl;
-             }
-        }
+//        if (tagCloud == 24246 && r==368){
+//            cout << "Here are the overlappings of read 368 ("<< name << ") on thread 0 and 1 :" << endl;
+//             for (long int m : minis[0]){
+//                 cout << "[";
+//                 for (long int tag : kmers[0][m]){
+//                     cout << tag << ",";
+//                 }
+//                 cout << "] (" << m << ")" << endl;
+//             }
+//             cout << endl;
+//             for (long int m : minis[1]){
+//                 cout << "[";
+//                 for (long int tag : kmers[1][m]){
+//                     cout << tag << ",";
+//                 }
+//                 cout << "] (" << m << ")" << endl;
+//             }
+//        }
 
 //        if (tagCloud == 1755 && r==69){
 //            cout << "Here are the overlappings of read 69 ("<< name << ") on thread 1 :" << endl;
@@ -129,26 +129,21 @@ void build_adj_matrix(short minCommonKmers, long int tagCloud, const vector <vec
 
             for (long int m : minis[t]){
 
-                int c = 0;
-                int cmax = 50;
-
                 for (long int tag : kmers[t][m]){
 
-                    if (c < cmax){
-
                         auto tt0 = high_resolution_clock::now();
-                        c++;
                         alreadySeen[tag] += 1;
 
-//                        if (tagCloud == 1755 && tag==4){
-//                            if (r == 10){
-//                                cout << "10 got there because of kmer " << t << "," << m << endl;
+//                        if (tagCloud == 212564 && tag == 10212){
+
+//                            if (r == 59){
+//                                cout << "59 got there because of kmer " << t << "," << m << endl;
 //                            }
-//                            if (r == 42){
-//                                cout << "42 got there because of kmer " << t << "," << m << endl;
+//                            if (r == 61){
+//                                cout << "61 got there because of kmer " << t << "," << m << endl;
 //                            }
-//                            if (r == 43){
-//                                cout << "43 got there because of kmer " << t << "," << m << endl;
+//                            if (r == 63){
+//                                cout << "63 got there because of kmer " << t << "," << m << endl;
 //                            }
 //                        }
 
@@ -157,10 +152,6 @@ void build_adj_matrix(short minCommonKmers, long int tagCloud, const vector <vec
                         }
                         auto tt1 = high_resolution_clock::now();
                         d += duration_cast<nanoseconds>(tt1-tt0).count();
-                    }
-                    else {
-
-                    }
                 }
             }
         }
@@ -196,6 +187,7 @@ void build_adj_matrix(short minCommonKmers, long int tagCloud, const vector <vec
         }
     }
     auto t2 = high_resolution_clock::now();
+
 
     // TagID of tag AGATCTGCAAATTCCG-1 is 1755
 //    if (tagCloud == 1755){
@@ -252,7 +244,7 @@ void fast_clustering(long int tagCloud, const std::vector <std::vector<long long
                          if (alreadySeenTags.find(tag) != alreadySeenTags.end()){
                              clusterScores[alreadySeenTags[tag]] += 1;
                          }
-                         else if (newTags.size() < newTagsToAdd){
+                         else if (newTags.size() < newTagsToAdd && tag != tagCloud){
                              newTags.emplace(tag);
                          }
                      }
@@ -282,6 +274,7 @@ void fast_clustering(long int tagCloud, const std::vector <std::vector<long long
 
 
 
+         //merge clusters that are too close
          if (clusterScores.size()>1 && max<max2*2 && n<2*clusters.size()){ //if the clustering is not fully convincing
              clusters[r] = idxmax;
              //order.push_back(r);

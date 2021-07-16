@@ -65,8 +65,8 @@ void parse_reads(std::string fileReads, std::vector<std::vector<long long int>> 
                     readClouds[tagID].push_back(sequenceID);
                 }
 
-                if (tag == "ATTAAATGGTTG-1" && readClouds[tagID].size() == 369){
-                    cout << "Sequence 368 of tag ATTAAATGGTTG-1 " << buffer[1] << " numbered in allreads: " << allreads.size() << ", tagID : " << tagID << endl;
+                if (tag == "CAGACCTACCAC-1" && readClouds[tagID].size() == 1){
+                    cout << "tagID : " << tagID << endl;
                 }
                 r.sequence = buffer[1];
                 r.barcode = tagID;
@@ -229,17 +229,36 @@ void index_kmers(int k, vector<vector<long int>> &kmers, vector <Read> &allreads
 }
 
 //function eliminating all multiple entries of the index kmers (and keeping only the first c entries, so that repeated kmers do not take an insane amount of time)
-void convert_kmers(vector<vector<long int>>& res, vector<vector<long int>>& input, int c ){
+void convert_kmers(vector<vector<long int>>& res, vector<vector<long int>>& input){
+
+    // a count to keep track of, on average, how many entries there are per kmers
+    float coverage = 0;
+    int count = 0;
 
     for (int l = 0 , ls = input.size() ; l < ls ; l++){
 
         set <long int> uniquek (input[l].begin(), input[l].end());
         res[l] = vector <long int> (uniquek.begin(), uniquek.end());
 
-        if (res[l].size() > c){
-            res[l].erase(res[l].begin()+c , res[l].end()); //only keep the first c elements
+        int s = uniquek.size();
+        if (s > 5){
+            count++;
+            coverage += uniquek.size();
         }
     }
+
+    //now empty all the kmers that are anormally large (or else they will create false positives)
+    float averageCoverage = coverage/count;
+    int totrash = 0;
+    for (int l = 0 , ls = res.size() ; l < ls ; l++){
+
+        if (res[l].size() > 2*averageCoverage){
+            res[l] = {};
+            totrash ++;
+        }
+
+    }
+    cout << "Trashed " << totrash << " kmers out of " << count << " in total" << endl;
 }
 
 

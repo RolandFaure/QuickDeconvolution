@@ -11,7 +11,7 @@
 #include "index_reads.h"
 #include "output.h"
 
-float measure_graph_building_time(int k, int h, int w, int c, int num_threads, std::string readsFile, std::string folderOut, std::string fileOut);
+float measure_graph_building_time(int k, int h, int w, int num_threads, std::string readsFile, std::string folderOut, std::string fileOut);
 
 void systematic_times(int k);
 
