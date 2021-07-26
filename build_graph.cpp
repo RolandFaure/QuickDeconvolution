@@ -53,6 +53,12 @@ void build_graph(short minCommonKmers, string tag, long int tagCloud, const vect
     auto t1 = high_resolution_clock::now();
 
     cluster_graph_chinese_whispers(adjMatrix, clusters, tag);
+    //now store the result in the reads
+    for (int r = 0 ; r < readClouds[tagCloud].size() ; r++ ){
+
+        reads[readClouds[tagCloud][r]].barcode_extension = clusters[r];
+
+    }
 
     auto t2 = high_resolution_clock::now();
 
@@ -63,7 +69,7 @@ void build_graph(short minCommonKmers, string tag, long int tagCloud, const vect
 //    cout << "Building adjacency matrix : " << duration_cast<microseconds>(t1-t0).count()/1000 << "ms, clustering the matrix : " << duration_cast<microseconds>(t2-t1).count()/1000 << "ms, fast clustering : " << duration_cast<microseconds>(t3-t2).count()/1000 << "ms" << endl;
 	
 
-    if (adjMatrix.size()>700){
+    if (tag == "104"){
 
         if (folderOut[folderOut.size()-1] != '/'){
             folderOut += '/';

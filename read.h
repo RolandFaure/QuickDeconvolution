@@ -16,6 +16,7 @@ public:
     unsigned int barcode;
     short barcode_extension; //here a number to deconvolve the reads
     Sequence sequence;
+    Sequence sequence_paired; //if the read is paired, here is the other end
 
     void new_mini(long int idx, int thread_id);
     std::vector<std::vector<long int>> &get_minis();
@@ -31,9 +32,12 @@ private :
     // each long int represents the index of the minimizer in the index
     std::vector<std::vector<long int>> minis; //one vector for each thread (in the simplest case, juste a vector)
 
-    //each int is the position of the minimizer
+    //each int is the position of a minimizer on the sequence
     std::vector<std::vector<int>> minis_seq;
     std::vector<std::vector<int>> minis_seq_rev;
+
+    std::vector<std::vector<int>> minis_paired_seq;
+    std::vector<std::vector<int>> minis_paired_seq_rev;
 
 };
 

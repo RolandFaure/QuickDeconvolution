@@ -34,8 +34,8 @@ void parse_reads(std::string fileReads, std::vector<std::vector<long long int>> 
     ifstream in(fileReads);
     if (!in){cout << "problem reading files in index_reads, while trying to read " << fileReads << endl;}
 
-    string nameofsequence;
     long long int sequenceID = 0; //instead of storing the name of sequence in a string we're going to store them in long long int, it will be more efficient
+    string lastnameofsequence; //used to see if it's the same as the current name of sequence: if it is, reads are paired
 
     string tag;
 
@@ -50,28 +50,35 @@ void parse_reads(std::string fileReads, std::vector<std::vector<long long int>> 
 
             //then first we append the last read we saw
 
-            if (to_deconvolve(buffer, format, min_length, tag)){
-                Read r(num_threads);
+            if (to_deconvolve(buffer, format, min_length, tag)){ //to_deconvolve checks if the line should be deconvolved and if so returns the tag
 
-                if (tagIDs.find(tag) == tagIDs.end()){ // if true, tag is not in the keys of tagIDs
-
-                    tagIDs[tag] = readClouds.size(); //from now on this tag ID will be associated to this tag
-                    tagID = readClouds.size();
-                    readClouds.push_back({sequenceID});
-
+                if (buffer[0] == lastnameofsequence){ //if it has the same name as the previous read, it means it is paired
+                    allreads[allreads.size()-1].sequence_paired = buffer[1];
                 }
                 else{
-                    tagID = tagIDs[tag];
-                    readClouds[tagID].push_back(sequenceID);
+
+                    Read r(num_threads);
+
+                    if (tagIDs.find(tag) == tagIDs.end()){ // if true, tag is not in the keys of tagIDs
+
+                        tagIDs[tag] = readClouds.size(); //from now on this tag ID will be associated to this tag
+                        tagID = readClouds.size();
+                        readClouds.push_back({sequenceID});
+
+                    }
+                    else{
+                        tagID = tagIDs[tag];
+                        readClouds[tagID].push_back(sequenceID);
+                    }
+
+                    r.sequence = buffer[1];
+                    r.barcode = tagID;
+                    allreads.push_back(r);
+                    sequenceID ++;
+
+                    lastnameofsequence = buffer[0];
                 }
 
-                if (tag == "CAGACCTACCAC-1" && readClouds[tagID].size() == 1){
-                    cout << "tagID : " << tagID << endl;
-                }
-                r.sequence = buffer[1];
-                r.barcode = tagID;
-                allreads.push_back(r);
-                sequenceID ++;
             }
 
             //then we reset the buffer
@@ -87,24 +94,34 @@ void parse_reads(std::string fileReads, std::vector<std::vector<long long int>> 
 
     //parse the last read
     if (to_deconvolve(buffer, format, min_length, tag)){
-        Read r(num_threads);
 
-        if (tagIDs.find(tag) == tagIDs.end()){ // if true, tag is not in the keys of tagIDs
-
-            tagIDs[tag] = readClouds.size(); //from now on this tag ID will be associated to this tag
-            tagID = readClouds.size();
-            readClouds.push_back({sequenceID});
-
+        if (buffer[0] == lastnameofsequence){ //if it has the same name as the previous read, it means it is paired
+            allreads[allreads.size()-1].sequence_paired = buffer[1];
         }
         else{
-            tagID = tagIDs[tag];
-            readClouds[tagID].push_back(sequenceID);
+
+            Read r(num_threads);
+
+            if (tagIDs.find(tag) == tagIDs.end()){ // if true, tag is not in the keys of tagIDs
+
+                tagIDs[tag] = readClouds.size(); //from now on this tag ID will be associated to this tag
+                tagID = readClouds.size();
+                readClouds.push_back({sequenceID});
+
+            }
+            else{
+                tagID = tagIDs[tag];
+                readClouds[tagID].push_back(sequenceID);
+            }
+
+            r.sequence = buffer[1];
+            r.barcode = tagID;
+            allreads.push_back(r);
+            sequenceID ++;
+
+            lastnameofsequence = buffer[0];
         }
 
-        r.sequence = buffer[1];
-        r.barcode = tagID;
-        allreads.push_back(r);
-        sequenceID ++;
     }
 
     auto t1 = high_resolution_clock::now();

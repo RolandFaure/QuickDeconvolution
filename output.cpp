@@ -22,33 +22,63 @@ void output(string inputFile, string outputFile, vector<Read>& reads, int min_le
         cout << "I cannot open the output file, there may be a problem in the path of : " << outputFile << endl;
     }
 
-    string nameofsequence;
 
-    long int sequenceID;
+    long int sequenceID = 0;
 
-    vector<string> buffer;
     string tag;
 
+    string lastnameofsequence;
     string line;
-    while(getline(in, line)){
+    vector<string> buffer;
 
+    while(getline(in, line)){
 
         if (line[0] == format){
 
-            //here looking at the name of sequence and the tag
+            //then first we append the last read we saw
 
-            if (to_deconvolve(buffer, format, min_length, tag)){
-                nameofsequence = line.erase(0,1);
+            if (to_deconvolve(buffer, format, min_length, tag)){ //to_deconvolve checks if the line should be deconvolved and if so returns the tag
 
-                out << nameofsequence << "\t" << reads[sequenceID].barcode_extension << endl;
+                if (buffer[0] == lastnameofsequence){ //if it has the same name as the previous read, it means it is paired
+                    sequenceID --;
+                    out << buffer[0] << "\t" << reads[sequenceID].barcode_extension << endl;
+                }
+                else{
+                    out << buffer[0] << "\t" << reads[sequenceID].barcode_extension << endl;
 
+                    lastnameofsequence = buffer[0];
+                }
                 sequenceID++;
+
             }
 
+            //then we reset the buffer
+            buffer = {line};
+
         }
-        else{
+        else {
             buffer.push_back(line);
         }
+
+    }
+
+    //parse the last read
+    if (to_deconvolve(buffer, format, min_length, tag)){
+
+        if (buffer[0] == lastnameofsequence){ //if it has the same name as the previous read, it means it is paired
+            cout << "Outputting " << buffer[0] << " " << sequenceID << " " << reads[sequenceID].barcode << " " << reads[sequenceID].barcode_extension << endl;
+            out << buffer[0] << "\t" << reads[sequenceID].barcode_extension << endl;
+        }
+        else{
+
+            cout << "Outputting " << buffer[0] << " " << sequenceID << " " << reads[sequenceID].barcode << " " << reads[sequenceID].barcode_extension << endl;
+            out << buffer[0] << "\t" << reads[sequenceID].barcode_extension << endl;
+
+            sequenceID ++;
+
+            lastnameofsequence = buffer[0];
+        }
+
 
     }
 

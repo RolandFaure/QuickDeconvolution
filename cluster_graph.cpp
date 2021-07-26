@@ -80,6 +80,8 @@ void cluster_graph_chinese_whispers(vector<vector<int>> &adjMatrix, vector<int> 
 
     }
 
+
+
     //cout << "clustered in " << nb_of_iterations << " iterations, basic time : " << bas/1000 << " ms" << endl;
 
 }

@@ -45,7 +45,7 @@ std::string get_tag(std::string &s, char format){
         }
     }
     else {
-        cout << "Did not recognize the input format of line " << s << ". Continuing ignoring this line. The input files should be in fasta or fastq format." << endl;
+        cout << "Did not recognize the input format of line " << s << ". Continuing, ignoring the line in the input file. The input files should be in fasta or fastq format." << endl;
     }
 
 
