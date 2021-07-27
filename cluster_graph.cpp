@@ -80,7 +80,16 @@ void cluster_graph_chinese_whispers(vector<vector<int>> &adjMatrix, vector<int> 
 
     }
 
-
+    //now the clusters have very high id (like 639, 13 and 1008) -> let's renumber them 0, 1 and 2
+    unordered_map<int, int> indices;
+    short clustID = 0;
+    for (int i = 0 ; i < clusters.size() ; i++){
+        if (indices.find(clusters[i]) == indices.end()){
+            indices[clusters[i]] = clustID;
+            clustID++;
+        }
+        clusters[i] = indices[clusters[i]];
+    }
 
     //cout << "clustered in " << nb_of_iterations << " iterations, basic time : " << bas/1000 << " ms" << endl;
 

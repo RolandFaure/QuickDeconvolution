@@ -121,7 +121,7 @@ float measure_graph_building_time(int k, int h, int w, int num_threads, string r
 
     //now write the output
     cout << "Finished deconvolving, now writing to the output" << endl;
-    output(readsFile, fileOut, allreads, min_length);
+    fasta_output(readsFile, fileOut, allreads, min_length);
 
     auto t3 = high_resolution_clock::now();
 	

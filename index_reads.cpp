@@ -275,7 +275,7 @@ void convert_kmers(vector<vector<long int>>& res, vector<vector<long int>>& inpu
         }
 
     }
-    cout << "Trashed " << totrash << " kmers out of " << count << " in total" << endl;
+    cout << "Thread trashed " << totrash << " kmers out of " << count << " in total" << endl;
 }
 
 
