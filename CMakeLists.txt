@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.8)
 
-project(split10x)
+project(QuickDeconvolution)
 #add_executable(${PROJECT_NAME} "main.cpp")
 
 # Local header files here ONLY
@@ -38,8 +38,8 @@ set(TARGET_SRC
     )
 
 file(GLOB SOURCES "*.cpp")
-add_executable(split10x ${SOURCES})
+add_executable(QuickDeconvolution ${SOURCES})
 
-target_compile_options (split10x PRIVATE -std=c++11)
-target_compile_options (split10x PRIVATE -O3)
+target_compile_options (QuickDeconvolution PRIVATE -std=c++11)
+target_compile_options (QuickDeconvolution PRIVATE -O3)
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")

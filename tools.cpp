@@ -19,18 +19,19 @@ std::string get_tag(std::string &s, char format){
 	
     string tag;
 
-    if (format == '>'){
-        int t = 0;
-        for (int i = 0; i<s.size();i++){
-            if (s[i] == ' ' or s[i] == '\\'){
-                t += 1;
-            }
-            else if (t == 1){
-                tag += s[i];
-            }
-        }
-    }
-    else if (format == '@'){
+//    if (format == '>'){
+//        int t = 0;
+//        for (int i = 0; i<s.size();i++){
+//            if (s[i] == ' ' or s[i] == '\\'){
+//                t += 1;
+//            }
+//            else if (t == 1){
+//                tag += s[i];
+//            }
+//        }
+//    }
+
+    /*else */if (format == '@' || format == '>'){
         int t = 2;
         for (int i = 4; i<s.size();i++){
             if (s.substr(i-4,5) == "BX:Z:"){ //for fastq

@@ -180,7 +180,7 @@ void index_kmers(int k, vector<vector<long int>> &kmers, vector <Read> &allreads
         vector<Sequence> minis;
         Read &re = allreads[r]; //we will handle a reference to allreads[r] to avoid accessing allreads too much
 
-        re.get_minis_seq(k, minis, thread_id);
+        re.get_minis_seq(k, minis, thread_id); //this function only returns the kmers appropriate for this thread, they can all be appended
 
 //        if (thread_id == 0 && r == 95353){
 //            cout << "read 95353 (" << re.sequence.str() << "):";

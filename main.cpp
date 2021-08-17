@@ -19,7 +19,7 @@ using namespace clipp;
 int main(int argc, char *argv[])
 {
 
-    create_exps();
+    //create_exps();
     //rapid_check();
 
     int num_threads = 2;
@@ -35,9 +35,9 @@ int main(int argc, char *argv[])
             required("-o", "--output-file") & opt_value("o", outfile),
             option("-k", "--kmers-length").doc("size of kmers") & opt_value("k", k),
             option("-w", "--window-size").doc("size of window guaranteed to contain at least one minimizing kmer") & opt_value("w", w),
-            option("-d", "--density").doc("on average 1/2^d kmers are minimizing kmers") & opt_value("d", h),
+            option("-d", "--density").doc("on average 1/2^d kmers are sparse kmers") & opt_value("d", h),
             option("-t", "--threads").doc("number of threads") & opt_value("t", t),
-            option("-a", "--dropout").doc("do not try to deconvolve clouds smaller than this value [default:0]") & opt_value("a", a)
+            option("-a", "--dropout").doc("QD does not try to deconvolve clouds smaller than this value [default:0]") & opt_value("a", a)
         );
 
     if(!parse(argc, argv, cli)) {
