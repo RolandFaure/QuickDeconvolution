@@ -80,15 +80,22 @@ void cluster_graph_chinese_whispers(vector<vector<int>> &adjMatrix, vector<int> 
 
     }
 
-    //now the clusters have very high id (like 639, 13 and 1008) -> let's renumber them 0, 1 and 2
-    unordered_map<int, int> indices;
-    short clustID = 0;
+    //now the clusters have very high id (like 639, 13 and 1008) -> let's renumber them 1, 2 and 3
+    //also count the size of the clusters and consider too small clusters as non-identified reads and attach the barcode 0
+    unordered_map<int, pair<int,int>> indices;
+    short clustID = 1; //start with 1 because ID 0 is dedicated to reads we do not know how to cluster
     for (int i = 0 ; i < clusters.size() ; i++){
         if (indices.find(clusters[i]) == indices.end()){
-            indices[clusters[i]] = clustID;
+            indices[clusters[i]] = {clustID,1}; //the second memeber of the pair represents the number of reads in the cluster
             clustID++;
         }
-        clusters[i] = indices[clusters[i]];
+        clusters[i] = indices[clusters[i]].first;
+        indices[clusters[i]].second += 1;
+    }
+    for (int i = 0 ; i < clusters.size() ; i++){
+        if (indices[clusters[i]].second <= 2){
+            clusters[i] = 0;
+        }
     }
 
     //cout << "clustered in " << nb_of_iterations << " iterations, basic time : " << bas/1000 << " ms" << endl;

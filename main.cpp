@@ -19,15 +19,15 @@ using namespace clipp;
 int main(int argc, char *argv[])
 {
 
-    //create_exps();
+    create_exps();
     //rapid_check();
 
     int num_threads = 2;
-    measure_graph_building_time(20,3,40, num_threads,"/home/zaltabar/Documents/Ecole/X/4A/stage_M2/code/eval/reads_1Mb_cov25_redundance4.fastq", "/home/zaltabar/Documents/Ecole/X/4A/stage_M2/code/evalGraphs/",  "/home/zaltabar/Documents/Ecole/X/4A/stage_M2/code/evalGraphs/output.tsv" );
+    //measure_graph_building_time(20,3,40, num_threads,"/home/zaltabar/Documents/Ecole/X/4A/stage_M2/code/eval/reads_1Mb_cov25_redundance4.fastq", "/home/zaltabar/Documents/Ecole/X/4A/stage_M2/code/evalGraphs/",  "/home/zaltabar/Documents/Ecole/X/4A/stage_M2/code/evalGraphs/output.tsv" );
     //measure_graph_building_time(20,3,40, num_threads,"/home/zaltabar/Documents/Ecole/X/4A/stage_M2/datasets/H_numata/barcoded.tiny.fastq", "/home/zaltabar/Documents/Ecole/X/4A/stage_M2/code/evalGraphs/", "/home/zaltabar/Documents/Ecole/X/4A/stage_M2/code/evalGraphs/output.tsv" );
     //measure_graph_building_time(20,3,40, num_threads,"/home/zaltabar/Documents/Ecole/X/4A/stage_M2/datasets/mock_metagenomes/10M.data1_atgctgaaq.small.fq", "/home/zaltabar/Documents/Ecole/X/4A/stage_M2/code/evalGraphs/", "/home/zaltabar/Documents/Ecole/X/4A/stage_M2/code/evalGraphs/output.tsv" );
 
-    int k = 20 , w = 40 , h = 3, t = 1;
+    int k = 20 , w = 40 , h = 3, t = 1, a=0;
     string infile, outfolder, outfile;
     auto cli = (
             required("-i", "--input-file") & opt_value("i", infile),
@@ -36,7 +36,8 @@ int main(int argc, char *argv[])
             option("-k", "--kmers-length").doc("size of kmers") & opt_value("k", k),
             option("-w", "--window-size").doc("size of window guaranteed to contain at least one minimizing kmer") & opt_value("w", w),
             option("-d", "--density").doc("on average 1/2^d kmers are minimizing kmers") & opt_value("d", h),
-            option("-t", "--threads").doc("number of threads") & opt_value("t", t)
+            option("-t", "--threads").doc("number of threads") & opt_value("t", t),
+            option("-a", "--dropout").doc("do not try to deconvolve clouds smaller than this value [default:0]") & opt_value("a", a)
         );
 
     if(!parse(argc, argv, cli)) {
@@ -45,7 +46,7 @@ int main(int argc, char *argv[])
     }
     else {
         cout << "Launching deconvolution, with arguments : k=" <<k << " d=" << h << " w=" << w << " t=" << t << " infile=" << infile << " outfolder=" << outfolder << " outfile=" << outfile << endl;
-        measure_graph_building_time(k, h, w, t, infile, outfolder, outfile);
+        measure_graph_building_time(k, h, w, t,a, infile, outfolder, outfile);
     }
 
 

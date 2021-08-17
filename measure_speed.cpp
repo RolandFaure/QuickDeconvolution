@@ -17,7 +17,7 @@ using namespace std::chrono;
 
 
 
-float measure_graph_building_time(int k, int h, int w, int num_threads, string readsFile, string folderOut, string fileOut){
+float measure_graph_building_time(int k, int h, int w, int num_threads, int dropout, string readsFile, string folderOut, string fileOut){
 
     double timeGraph = 0;
     auto t0 = high_resolution_clock::now();
@@ -106,10 +106,10 @@ float measure_graph_building_time(int k, int h, int w, int num_threads, string r
 
     for (int i = 1 ; i < num_threads ; i++){
 
-        threads.push_back(thread(thread_deconvolve, 1, ref(tagIDs), ref(readClouds), ref(allreads), ref(kmersV), i, num_threads, folderOut));
+        threads.push_back(thread(thread_deconvolve, 1, ref(tagIDs), ref(readClouds), ref(allreads), ref(kmersV), i, num_threads, dropout, folderOut));
 
     }
-    thread_deconvolve(1, ref(tagIDs), ref(readClouds), ref(allreads), ref(kmersV), 0, num_threads, folderOut);
+    thread_deconvolve(1, ref(tagIDs), ref(readClouds), ref(allreads), ref(kmersV), 0, num_threads, dropout, folderOut);
 
     //now join all the threads
     for (vector<thread>::iterator it = threads.begin() ; it != threads.end() ; ++it)

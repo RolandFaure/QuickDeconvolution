@@ -13,7 +13,7 @@
 #include "read.h"
 #include "tools.h"
 
-void thread_deconvolve(short minCommonKmers, robin_hood::unordered_map <std::string, long int> &tagIDs, const std::vector <std::vector<long long int>> &readClouds, std::vector <Read> &reads, const std::vector<std::vector<std::vector<long int>>> &kmers, int thread_id, int num_thread, std::string folderOut);
+void thread_deconvolve(short minCommonKmers, robin_hood::unordered_map <std::string, long int> &tagIDs, const std::vector <std::vector<long long int>> &readClouds, std::vector <Read> &reads, const std::vector<std::vector<std::vector<long int>>> &kmers, int thread_id, int num_thread, int dropout, std::string folderOut);
 void build_graph(short minCommonKmers, std::string tag, long int tagCloud, const std::vector<std::vector<long long int>> &readClouds, std::vector <Read> &reads, const std::vector<std::vector<std::vector<long int>>> &kmers, std::vector<int> &clusters, std::string folderOut);
 
 

@@ -19,13 +19,13 @@ using std::array;
 using std::unordered_set;
 using std::set;
 
-void thread_deconvolve(short minCommonKmers, unordered_map <string, long int> &tagIDs, const vector <vector<long long int>> &readClouds, std::vector <Read> &reads, const vector<vector<vector<long int>>> &kmers, int thread_id, int num_thread, string folderOut){
+void thread_deconvolve(short minCommonKmers, unordered_map <string, long int> &tagIDs, const vector <vector<long long int>> &readClouds, std::vector <Read> &reads, const vector<vector<vector<long int>>> &kmers, int thread_id, int num_thread, int dropout, string folderOut){
 
     int count = 0;
     for (robin_hood::pair<string, long int> p : tagIDs){
 
         //a condition because we want each thread to work separately
-        if (p.second % num_thread == thread_id){
+        if (p.second % num_thread == thread_id && readClouds[p.second].size() > dropout){
             vector <int> clusters (readClouds[p.second].size(), -1);
             build_graph(minCommonKmers, p.first, p.second, readClouds, reads, kmers, clusters, folderOut);
             //cout << "Deconvolved " << p.second << endl;

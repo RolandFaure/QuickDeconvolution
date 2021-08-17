@@ -44,6 +44,4 @@ void chromosomes_to_file(int length, char alphabet[], int sizeAlphabet, int nbCh
         out << ">chr"<<i<<"\n"<<s<<endl;
     }
 
-
-
 }

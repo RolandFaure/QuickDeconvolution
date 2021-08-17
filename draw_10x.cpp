@@ -12,7 +12,7 @@ using std::string;
 using std::ifstream;
 using std::ofstream;
 
-void draw_fragments(int const read_size, int insert_size, int gen_coverage, float frag_coverage, int frag_size_min, int frag_size_max, float redundance, std::string fileGenome, std::string fileReads){
+void draw_fragments(int const read_size, int insert_size, int gen_coverage, float frag_coverage, int frag_size_min, int frag_size_max, float redundance, float errorRate, std::string fileGenome, std::string fileReads){
 	
 	ifstream in(fileGenome.c_str());
 	if (not in){
@@ -72,8 +72,24 @@ void draw_fragments(int const read_size, int insert_size, int gen_coverage, floa
 						
 			string quality = "";
 			for (int i = 0;i<read_size;i++){quality += 'A';} //the line indicating the quality of the read in fastq format
-			out << "@read"<< iread << "_TBX:" << ifragment << "\tBX:Z:" << num_tag << "\n" << chromosomes[num_chr].substr(start+i, read_size) << "\n+\n" << quality << endl;
-			out << "@read"<< iread << "_TBX:" << ifragment<<  "\tBX:Z:" << num_tag << "\n" << chromosomes[num_chr].substr(start+j, read_size) << "\n+\n" << quality << endl;
+
+            //introduce noise in the sequences
+            string alphabet = "ACGT";
+            string read1 = chromosomes[num_chr].substr(start+i, read_size);
+            for (int i = 0 ; i < read1.size() ; i ++){
+                if (rd()%1000 < errorRate*1000){
+                    read1[i] = alphabet[rd()%alphabet.size()];
+                }
+            }
+            string read2 = chromosomes[num_chr].substr(start+j, read_size);
+            for (int i = 0 ; i < read2.size() ; i ++){
+                if (rd()%1000 < errorRate*1000){
+                    read2[i] = alphabet[rd()%alphabet.size()];
+                }
+            }
+
+            out << "@read"<< iread << "_TBX:" << ifragment << "\tBX:Z:" << num_tag << "\n" << read1 << "\n+\n" << quality << endl;
+            out << "@read"<< iread << "_TBX:" << ifragment<<  "\tBX:Z:" << num_tag << "\n" << read2 << "\n+\n" << quality << endl;
 			
 			index_pr += 1;
 			iread += 1;
