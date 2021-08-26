@@ -101,36 +101,6 @@ void build_adj_matrix(short minCommonKmers, long int tagCloud, const vector <vec
 
         vector<vector<long int>> &minis = reads[name].get_minis();
 
-//        if (tagCloud == 24246 && r==368){
-//            cout << "Here are the overlappings of read 368 ("<< name << ") on thread 0 and 1 :" << endl;
-//             for (long int m : minis[0]){
-//                 cout << "[";
-//                 for (long int tag : kmers[0][m]){
-//                     cout << tag << ",";
-//                 }
-//                 cout << "] (" << m << ")" << endl;
-//             }
-//             cout << endl;
-//             for (long int m : minis[1]){
-//                 cout << "[";
-//                 for (long int tag : kmers[1][m]){
-//                     cout << tag << ",";
-//                 }
-//                 cout << "] (" << m << ")" << endl;
-//             }
-//        }
-
-//        if (tagCloud == 1755 && r==69){
-//            cout << "Here are the overlappings of read 69 ("<< name << ") on thread 1 :" << endl;
-//             for (long int m : minis[1]){
-//                 cout << "[";
-//                 for (long int tag : kmers[1][m]){
-//                     cout << tag << ",";
-//                 }
-//                 cout << "] (" << m << ")" << endl;
-//             }
-//        }
-
         for (short t = 0 ; t < kmers.size() ; t++){ //here, we iterate through all threads that built the index
 
             for (long int m : minis[t]){
@@ -139,19 +109,6 @@ void build_adj_matrix(short minCommonKmers, long int tagCloud, const vector <vec
 
                         auto tt0 = high_resolution_clock::now();
                         alreadySeen[tag] += 1;
-
-//                        if (tagCloud == 212564 && tag == 10212){
-
-//                            if (r == 59){
-//                                cout << "59 got there because of kmer " << t << "," << m << endl;
-//                            }
-//                            if (r == 61){
-//                                cout << "61 got there because of kmer " << t << "," << m << endl;
-//                            }
-//                            if (r == 63){
-//                                cout << "63 got there because of kmer " << t << "," << m << endl;
-//                            }
-//                        }
 
                         if (alreadySeen[tag] == minCommonKmers){ // it would be equivalent to put >= here, but a bit slower
                             matching_tags[tag].emplace(r);

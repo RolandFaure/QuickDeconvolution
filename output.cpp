@@ -52,6 +52,7 @@ void output(string inputFile, string outputFile, vector<Read>& reads, int min_le
 
             }
 
+
             //then we reset the buffer
             buffer = {line};
 
@@ -125,7 +126,7 @@ void fasta_output(string inputFile, string outputFile, vector<Read>& reads, int 
                 sequenceID++;
 
             }
-            else if (buffer.size()>1){
+            else if (buffer.size()>=1){
                 out << buffer[0] << endl;
             }
 

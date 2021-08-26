@@ -1,6 +1,6 @@
 # QuickDeconvolution
 
-Quick and scalable software to deconvolve read clouds from linked-reads experiments. When sevelal fragments of DNA have been sequenced with the same barcode, QuickDeconvolution provides the user with enhanced barcodes to distinguish the reads coming from the different fragments
+Quick and scalable software to deconvolve read clouds from linked-reads experiments. When several fragments of DNA have been sequenced with the same barcode, QuickDeconvolution provides the user with enhanced barcodes to distinguish the reads coming from the different fragments
 
 ## Usage
 
@@ -29,8 +29,12 @@ OPTIONS
 
 ### Input
 
-QuickDeconvolution takes as input a fasta or a fastq file containing barcoded reads with the tag `BX:Z` designating a barcode (this is the default output of [longranger basic](https://support.10xgenomics.com/genome-exome/software/pipelines/latest/advanced/other-pipelines)). For example
+QuickDeconvolution takes as input `-i` a fasta or a fastq file containing barcoded reads with the tag `BX:Z` designating a barcode (this is the default output of [longranger basic](https://support.10xgenomics.com/genome-exome/software/pipelines/latest/advanced/other-pipelines)). For example
 ```
 @read_456 cov:23.45 BX:Z:AAAACTGTAT
 ```
 If the reads are paired, provide QuickDeconvolution with an interleaved file where the two ends of the pairs have the same name, it will recognize it.
+
+### Output
+
+QuickDeconvolution
