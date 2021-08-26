@@ -16,7 +16,7 @@ using namespace std::chrono;
 //using std::atomic; //to use atomic types (multithreading)
 
 
-
+//main function of QD: organizes all steps the deconvolution
 float measure_graph_building_time(int k, int h, int w, int num_threads, int dropout, string readsFile, string folderOut, string fileOut){
 
     double timeGraph = 0;
@@ -29,7 +29,6 @@ float measure_graph_building_time(int k, int h, int w, int num_threads, int drop
     unordered_map <string, long int> tagIDs;
 
     //first parse all the reads from the file
-    cout << "Launching deconvolution" << endl;
     int min_length = w+k; //then minimum length of a read to have it deconvolved
     parse_reads(readsFile, readClouds, allreads, tagIDs, min_length, num_threads);
 

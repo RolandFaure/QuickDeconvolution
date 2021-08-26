@@ -31,8 +31,7 @@ int main(int argc, char *argv[])
     string infile, outfolder, outfile;
     auto cli = (
             required("-i", "--input-file") & opt_value("i", infile),
-            required("-f", "--output-folder") & opt_value("f", outfolder),
-            required("-o", "--output-file") & opt_value("o", outfile),
+            required("-o", "--output-file").doc("file to write the output") & opt_value("o", outfile),
             option("-k", "--kmers-length").doc("size of kmers") & opt_value("k", k),
             option("-w", "--window-size").doc("size of window guaranteed to contain at least one minimizing kmer") & opt_value("w", w),
             option("-d", "--density").doc("on average 1/2^d kmers are sparse kmers") & opt_value("d", h),
@@ -45,17 +44,20 @@ int main(int argc, char *argv[])
         cout << make_man_page(cli, argv[0]);
     }
     else {
-        cout << "Launching deconvolution, with arguments : k=" <<k << " d=" << h << " w=" << w << " t=" << t << " infile=" << infile << " outfolder=" << outfolder << " outfile=" << outfile << endl;
+        //now deduce the output folder from the output file
+        bool write = false;
+        for (int i = 1 ; i <= outfile.size() ; i++){
+            if (outfile[outfile.size()-i] == '/'){
+                write = true;
+            }
+            if (write){
+                outfolder = outfile[outfile.size()-i] + outfolder;
+            }
+        }
+
+        cout << "Launching deconvolution, with arguments : k=" <<k << " d=" << h << " w=" << w << " t=" << t << " infile=" << infile << " outfile=" << outfile << endl;
         measure_graph_building_time(k, h, w, t,a, infile, outfolder, outfile);
     }
 
-
-//    if (argc > 4){
-//        cout << "Launching deconvolution, with arguments : 20, 4, 40, 50," << std::stoi(argv[4]) << ", " << argv[1] << ", " << argv[2] << ", " << argv[3] << endl;
-//        measure_graph_building_time(20, 4, 40, 50, std::stoi(argv[4]), argv[1], argv[2], argv[3]);
-//    }
-//    else cout << "You must give as an argument the fastq file I will try to deconvolve, the path to output folder, path to output file and the number of threads" << endl;
-    //systematic_times(30);
-    //draw_fragments(150, 400, 25, 0.2, 20000, 5000, 4, "eval/genome_10Mb.fasta", "eval/reads_10Mb_cov25_redundance4.fasta");
     return 0;
 }

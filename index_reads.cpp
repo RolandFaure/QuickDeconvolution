@@ -24,15 +24,17 @@ void parse_reads(std::string fileReads, std::vector<std::vector<long long int>> 
 
     //a count to inform the user how many reads will not be deconvolved (either because they do not have a tag or are too short)
     int totalNumberOfSequences = 0;
-
     auto t0 = high_resolution_clock::now();
     char format = '@'; //a character to keep track of whether the input file is a fasta or a fastq
-    if (fileReads.substr(fileReads.size()-6,6) == ".fasta" || fileReads.substr(fileReads.size()-3,3) == ".fa"){
+    if ((fileReads.size()>6 && fileReads.substr(fileReads.size()-6,6) == ".fasta") || fileReads.substr(fileReads.size()-3,3) == ".fa"){
         format = '>';
     }
 
     ifstream in(fileReads);
-    if (!in){cout << "problem reading files in index_reads, while trying to read " << fileReads << endl;}
+    if (!in){
+        cout << "problem reading files in index_reads, while trying to read " << fileReads << endl;
+        throw std::invalid_argument( "Input file could not be read" );
+     }
 
     long long int sequenceID = 0; //instead of storing the name of sequence in a string we're going to store them in long long int, it will be more efficient
     string lastnameofsequence; //used to see if it's the same as the current name of sequence: if it is, reads are paired
