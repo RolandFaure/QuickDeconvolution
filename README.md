@@ -4,6 +4,17 @@ Quick and scalable software to deconvolve read clouds from linked-reads experime
 
 ## Installation
 
+You will need make and cmake to compile the sources. In the desired folder, run
+
+```
+git clone https://github.com/RolandFaure/QuickDeconvolution.git
+cd QuickDeconvolution/
+cmake ./
+make
+```
+
+An executable named QuickDeconvolution should appear in the folder.
+
 ## Usage
 
 ```bash
