@@ -19,21 +19,21 @@ An executable named QuickDeconvolution should appear in the folder.
 
 ```bash
 SYNOPSIS
-        ./QuickDeconvolution -i [<i>] -f [<f>] -o [<o>] [-k [<k>]] [-w
+        ./QuickDeconvolution -i [<input-file>] -o [<output-file>] [-k [<k>]] [-w
             [<w>]] [-d [<d>]] [-t [<t>]] [-a [<a>]]
 
 OPTIONS
         -k, --kmers-length
-                    size of kmers
+                    size of kmers [default:20]
 
         -w, --window-size
-                    size of window guaranteed to contain at least one minimizing kmer
+                    size of window guaranteed to contain at least one minimizing kmer [default:40]
 
         -d, --density
-                    on average 1/2^d kmers are sparse kmers
+                    on average 1/2^d kmers are sparse kmers [default:3]
 
         -t, --threads
-                    number of threads
+                    number of threads [default:1]
 
         -a, --dropout
                     QD does not try to deconvolve clouds smaller than this value [default:0]
