@@ -30,7 +30,7 @@ OPTIONS
                     size of window guaranteed to contain at least one minimizing kmer [default:40]
 
         -d, --density
-                    on average 1/2^d kmers are sparse kmers [default:3]
+                    on average 1/2^d kmers are indexed [default:3]
 
         -t, --threads
                     number of threads [default:1]
@@ -39,6 +39,8 @@ OPTIONS
                     QD does not try to deconvolve clouds smaller than this value [default:0]
 
 ```
+
+Parameters by default should run satisfactorily.
 
 ### Input
 
