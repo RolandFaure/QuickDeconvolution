@@ -127,7 +127,7 @@ void build_adj_matrix(short minCommonKmers, long int tagCloud, const vector <vec
     auto t1 = high_resolution_clock::now();
 
     //now build the interaction matrix between reads
-    for (robin_hood::pair<const long int, unordered_set<int>> matchs : matching_tags){
+    for (auto matchs : matching_tags){
 
 //		cout << "\nLet's look at what matched with tag " << matchs.first << endl;
         int i = 0;
