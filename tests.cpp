@@ -39,6 +39,7 @@ vector<vector<int>> true_adjMatrix(vector<long long int> cloud, vector <Read> al
 //		}
 //	}
 //	return adjMatrix;
+    return vector<vector<int>>();
 }
 
 void rapid_check(){

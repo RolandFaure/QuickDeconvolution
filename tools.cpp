@@ -67,6 +67,7 @@ bool to_deconvolve(vector<string> &buffer, char format, int min_length ,string &
     else if (buffer[1].size() < min_length){
         return false;
     }
+    return true;
 }
 
 std::string get_true_tag(std::string &s){

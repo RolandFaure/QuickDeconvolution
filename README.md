@@ -2,6 +2,8 @@
 
 Quick and scalable software to deconvolve read clouds from linked-reads experiments. When several fragments of DNA have been sequenced with the same barcode, QuickDeconvolution provides the user with enhanced barcodes to distinguish the reads coming from the different fragments
 
+## Installation
+
 ## Usage
 
 ```bash
@@ -37,4 +39,8 @@ If the reads are paired, provide QuickDeconvolution with an interleaved file whe
 
 ### Output
 
-QuickDeconvolution
+QuickDeconvolution outputs the fasta/q file given as input, with an additional tag (-0, -1, -2...) at the end of the line, so that the deconvolved reads look like 
+```
+@read_456 cov:23.45 BX:Z:AAAACTGTAT-1
+```
+Within each barcode, reads having the same tag come from the same fragment. WARNING: the -0 tag is a special tag, indicating reads that could not be deconvolved by the program.
