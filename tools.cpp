@@ -132,7 +132,7 @@ void export_as_CSV(robin_hood::unordered_map<long int, std::unordered_set<int>> 
 
     ofstream out(file);
 
-    for (robin_hood::pair<const long int, unordered_set<int>> p : matching_tags){
+    for (auto p : matching_tags){
 
         for (int r : p.second){
             out << std::to_string(p.first)<<"_tag,"<<r << endl;

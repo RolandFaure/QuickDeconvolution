@@ -13,6 +13,7 @@ using robin_hood::unordered_map;
 
 using namespace std::chrono;
 
+//takes an adjacency matrix and clusters it with the chinese-whispers algorithm
 void cluster_graph_chinese_whispers(vector<vector<int>> &adjMatrix, vector<int> &clusters, string &tag){
 
     long long unsigned int bas = 0;
