@@ -67,3 +67,7 @@ k is the length of the k-mers. Avoid decreasing k below 15.
 d is to monitor the density of sparse k-mers. On average 1/2^d k-mers will be sparse.
 While choosing sparse k-mers, the program is ensured to choose at least 1 k-mer in a window of size w.
 Decreasing w and/or d may in some cases increase precision at the expense of run-time. Keep w within the range [10,50] and d within range [1,5].
+
+## License
+
+QuickDeconvolution is distributed under the license GPL3
