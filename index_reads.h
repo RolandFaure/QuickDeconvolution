@@ -18,6 +18,6 @@ void compute_minimizers(int k, int h, int w, std::vector <Read> &allreads, int t
 
 void index_kmers(int k, std::vector<std::vector<long int>> &kmers, std::vector <Read> &allreads, int thread_id, int num_threads);
 
-void convert_kmers(std::vector<std::vector<long int>>& res, std::vector<std::vector<long int>>& input);
+void convert_kmers(std::vector<std::vector<long int>>& res, std::vector<std::vector<long int>>& input, bool metagenomic);
 
 #endif //INDEX_READS_INCLUDED

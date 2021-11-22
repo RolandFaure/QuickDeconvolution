@@ -28,6 +28,7 @@ int main(int argc, char *argv[])
     //measure_graph_building_time(20,3,40, num_threads,"/home/zaltabar/Documents/Ecole/X/4A/stage_M2/datasets/mock_metagenomes/10M.data1_atgctgaaq.small.fq", "/home/zaltabar/Documents/Ecole/X/4A/stage_M2/code/evalGraphs/", "/home/zaltabar/Documents/Ecole/X/4A/stage_M2/code/evalGraphs/output.tsv" );
 
     int k = 20 , w = 40 , h = 3, t = 1, a=0;
+    bool metagenomic = false;
     string infile, outfolder, outfile;
     auto cli = (
             required("-i", "--input-file") & opt_value("i", infile),
@@ -36,7 +37,8 @@ int main(int argc, char *argv[])
             option("-w", "--window-size").doc("size of window guaranteed to contain at least one minimizing kmer") & opt_value("w", w),
             option("-d", "--density").doc("on average 1/2^d kmers are sparse kmers") & opt_value("d", h),
             option("-t", "--threads").doc("number of threads") & opt_value("t", t),
-            option("-a", "--dropout").doc("QD does not try to deconvolve clouds smaller than this value [default:0]") & opt_value("a", a)
+            option("-a", "--dropout").doc("QD does not try to deconvolve clouds smaller than this value [default:0]") & opt_value("a", a),
+            option("-m", "--metagenome").set(metagenomic).doc("Use this option on metagenomic samples")
         );
 
     if(!parse(argc, argv, cli)) {
@@ -56,7 +58,7 @@ int main(int argc, char *argv[])
         }
 
         cout << "Launching deconvolution, with arguments : k=" <<k << " d=" << h << " w=" << w << " t=" << t << " infile=" << infile << " outfile=" << outfile << endl;
-        measure_graph_building_time(k, h, w, t,a, infile, outfolder, outfile);
+        measure_graph_building_time(k, h, w, t,a, metagenomic, infile, outfolder, outfile);
     }
 
     return 0;

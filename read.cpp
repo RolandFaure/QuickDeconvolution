@@ -17,12 +17,12 @@ Read::Read(int num_threads)
         minis_seq_rev.push_back({});
         minis_paired_seq_rev.push_back({});
     }
-    barcode_extension = -1;
+    barcode_extension = 0;
 }
 
 void Read::new_mini(long idx, int thread_id){
 
-    //lock the mutex : only one thread can appen to minis at the same time
+    // //lock the mutex : only one thread can appen to minis at the same time
     //mutex.lock();
 
     minis[thread_id].push_back(idx);
