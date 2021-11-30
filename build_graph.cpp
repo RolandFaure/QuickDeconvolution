@@ -70,20 +70,20 @@ void build_graph(short minCommonKmers, string tag, long int tagCloud, const vect
     //    cout << "Building adjacency matrix : " << duration_cast<microseconds>(t1-t0).count()/1000 << "ms, clustering the matrix : " << duration_cast<microseconds>(t2-t1).count()/1000 << "ms, fast clustering : " << duration_cast<microseconds>(t3-t2).count()/1000 << "ms" << endl;
 
 
-        if (adjMatrix.size() > 100){
+        // if (adjMatrix.size() > 100){
 
-            if (folderOut[folderOut.size()-1] != '/'){
-                folderOut += '/';
-            }
+        //     if (folderOut[folderOut.size()-1] != '/'){
+        //         folderOut += '/';
+        //     }
 
-            string f = folderOut + "cluster_"+tag+"_adj.csv";
-            string f2 = folderOut + "cluster_"+tag+"_nodes.csv";
-            cout << "exporting..."  << adjMatrix.size()  << " "<< clusters.size()<< endl;
+        //     string f = folderOut + "cluster_"+tag+"_adj.csv";
+        //     string f2 = folderOut + "cluster_"+tag+"_nodes.csv";
+        //     cout << "exporting..."  << adjMatrix.size()  << " "<< clusters.size()<< endl;
 
-            export_as_CSV(adjMatrix, f, f2, clusters);
-            f = folderOut + "cluster_"+tag+"_matching-tag.csv";
-            export_as_CSV(matching_tags, f);
-        }
+        //     export_as_CSV(adjMatrix, f, f2, clusters);
+        //     f = folderOut + "cluster_"+tag+"_matching-tag.csv";
+        //     export_as_CSV(matching_tags, f);
+        // }
 }
 
 //functions builds adjMatrix of one barcode, using the index
