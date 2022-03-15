@@ -1,6 +1,6 @@
 # QuickDeconvolution
 
-Quick and scalable software to deconvolve read clouds from linked-reads experiments. When several fragments of DNA have been sequenced with the same barcode, QuickDeconvolution provides the user with enhanced barcodes to distinguish the reads coming from the different fragments
+Quick and scalable software to deconvolve read clouds from linked-reads experiments without a reference genome. When several fragments of DNA have been sequenced with the same barcode, QuickDeconvolution provides the user with enhanced barcodes to distinguish the reads coming from the different fragments
 
 ## Installation
 
@@ -13,7 +13,7 @@ cmake ./
 make
 ```
 
-An executable named QuickDeconvolution should appear in the folder. A small test file "test.fastq", from a simulated sequencing experiment on a small synthetic genome, is provided to run the program.
+An executable named QuickDeconvolution should appear in the folder. A small test file "test.fastq", from a simulated sequencing experiment on a small synthetic genome, is provided to test the program.
 
 ## Usage
 

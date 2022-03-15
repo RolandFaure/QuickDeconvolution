@@ -56,7 +56,6 @@ void build_graph(short minCommonKmers, string tag, long int tagCloud, const vect
         cluster_graph_chinese_whispers(adjMatrix, clusters, tag);
         //now store the result in the reads
         for (int r = 0 ; r < readClouds[tagCloud].size() ; r++ ){
-
             reads[readClouds[tagCloud][r]].barcode_extension = clusters[r];
 
         }
@@ -78,7 +77,7 @@ void build_graph(short minCommonKmers, string tag, long int tagCloud, const vect
 
         //     string f = folderOut + "cluster_"+tag+"_adj.csv";
         //     string f2 = folderOut + "cluster_"+tag+"_nodes.csv";
-        //     cout << "exporting..."  << adjMatrix.size()  << " "<< clusters.size()<< endl;
+        //     cout << "exporting..."  << adjMatrix.size()  << " "<< clusters.size()<< " " << f << endl;
 
         //     export_as_CSV(adjMatrix, f, f2, clusters);
         //     f = folderOut + "cluster_"+tag+"_matching-tag.csv";
@@ -127,7 +126,7 @@ void build_adj_matrix(short minCommonKmers, long int tagCloud, const vector <vec
 
             for (long int m : minis[t]){
 
-                if (kmers[t][m].size() < 3*average_coverage){
+                if (kmers[t][m].size() < 3*average_coverage || !metagenomic){
                     for (long int tag : kmers[t][m]){
 
                             auto tt0 = high_resolution_clock::now();
@@ -155,10 +154,11 @@ void build_adj_matrix(short minCommonKmers, long int tagCloud, const vector <vec
     //now build the interaction matrix between reads
     for (auto matchs : matching_tags){
 
-//		cout << "\nLet's look at what matched with tag " << matchs.first << endl;
+		// cout << "\nLet's look at what matched with tag " << matchs.first << endl;
         int i = 0;
         for (int a  : matchs.second) {
 
+            // cout << a << "," << endl;
             int j = 0;
             for (int b : matchs.second){
 

@@ -34,7 +34,7 @@ std::string get_tag(std::string &s, char format){
     /*else */if (format == '@' || format == '>'){
         int t = 2;
         for (int i = 4; i<s.size();i++){
-            if (s.substr(i-4,5) == "BX:Z:"){ //for fastq
+            if (s.substr(i-4,5) == "BX:Z:" || s.substr(i-4,5) == "BC:Z:"){ //for fastq
                 t = 1;
             }
             else if (s[i] == ' ' or s[i] == '\\'){
