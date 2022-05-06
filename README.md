@@ -13,7 +13,11 @@ cmake ./
 make
 ```
 
-An executable named QuickDeconvolution should appear in the folder. A small test file "test.fastq", from a simulated sequencing experiment on a small synthetic genome, is provided to test the program.
+An executable named QuickDeconvolution should appear in the folder. A small test file "test.fastq", from a simulated sequencing experiment on a small synthetic genome, is provided in the folder "test_data" to test the program.
+```
+QuickDeconvolution -i test_data/test.fastq -o test_data/test_out.fastq
+```
+The program should run in less than a minute and output in test_out.fastq the reads, with barcode extensions (-1, -2,...). This is only intended as a test to see if QD is running: the deconvolution is expected to be very bad because the synthetic genome is very short (thus two long reads overlap with high probability).
 
 ## Usage
 
