@@ -1,8 +1,5 @@
 #include <stdio.h>
-#include "create_experiments.h"
 #include "measure_speed.h"
-#include "generate_random_sequence.h"
-#include "draw_10x.h"
 #include "tests.h"
 #include "cluster_graph.h"
 #include "clipp.h" //library to build command line interfaces
