@@ -64,7 +64,10 @@ QuickDeconvolution outputs the fasta/q file given as input, with an additional t
 ```
 @read_456 cov:23.45 BX:Z:AAAACTGTAT-1
 ```
-Within each barcode, reads having the same tag come from the same fragment. WARNING: the -0 tag is a special tag, indicating reads that could not be deconvolved by the program.
+Within each barcode, reads having the same tag come from the same fragment. WARNING: the -0 tag is a special tag, indicating reads that could not be deconvolved by the program. If a tag is already present, QuickDeconvolution will nonetheless append a new tag at the end of the barcode:
+```
+@read_456 cov:23.45 BX:Z:AAAACTGTAT-1-3
+```
 
 ### Options
 
