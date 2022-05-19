@@ -4,7 +4,12 @@ Quick and scalable software to deconvolve read clouds from linked-reads experime
 
 ## Installation
 
-QuickDeconvolution is quite straightforward to compile from source.
+You can install QuickDeconvolution through Bioconda
+```
+conda -c bioconda install quickdeconvolution
+```
+
+Alternatively, QuickDeconvolution is quite straightforward to compile from source.
 You will need make and cmake >= 2.8 to compile the sources. In the desired folder, run
 
 ```
@@ -19,12 +24,6 @@ An executable named QuickDeconvolution should appear in the folder. A small test
 QuickDeconvolution -i test_data/test.fastq -o test_data/test_out.fastq
 ```
 The program should run in less than a minute and output in test_out.fastq the reads, with barcode extensions (-1, -2,...). This is only intended as a test to see if QD is running: the deconvolution is expected to be very bad because the synthetic genome is very short (thus two long reads overlap with high probability).
-
-QuickDeconvolution will very soon be available through Bioconda
-```
-conda -c bioconda install quickdeconvolution
-```
-
 
 ## Usage
 
