@@ -6,7 +6,7 @@ Quick and scalable software to deconvolve read clouds from linked-reads experime
 
 You can install QuickDeconvolution through Bioconda
 ```
-conda -c bioconda install quickdeconvolution
+conda install -c bioconda quickdeconvolution
 ```
 
 Alternatively, QuickDeconvolution is quite straightforward to compile from source.
