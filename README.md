@@ -34,7 +34,7 @@ SYNOPSIS
 
 OPTIONS
         -k, --kmers-length
-                    size of kmers [default:20]
+                    size of kmers [default:21]
 
         -w, --window-size
                     size of window guaranteed to contain at least one minimizing kmer [default:40]
