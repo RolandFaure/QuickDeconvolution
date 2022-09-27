@@ -84,3 +84,9 @@ Decreasing w and/or d may in some cases increase precision at the expense of run
 ## License
 
 QuickDeconvolution is distributed under the license GPL3
+
+## Citation
+
+QuickDeconvolution is published in *Bioinformatics advances*. You can cite using:
+Faure, Roland, and Dominique Lavenier. “QuickDeconvolution: Fast and Scalable Deconvolution of Linked-Read Sequencing Data.” *Bioinformatics Advances*, September 26, 2022, vbac068. _https://doi.org/10.1093/bioadv/vbac068_.
+
