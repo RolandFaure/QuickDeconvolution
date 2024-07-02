@@ -85,7 +85,7 @@ void output(string inputFile, string outputFile, vector<Read>& reads, int min_le
 void fasta_output(string inputFile, string outputFile, vector<Read>& reads, int min_length){
 
     char format = '@'; //a character to keep track of whether the input file is a fasta or a fastq
-    if (inputFile.substr(inputFile.size()-6,6) == ".fasta" || inputFile.substr(inputFile.size()-3,3) == ".fa"){
+    if ((inputFile.size() > 5 && inputFile.substr(inputFile.size()-6,6) == ".fasta") || inputFile.substr(inputFile.size()-3,3) == ".fa"){
         format = '>';
     }
 
