@@ -58,7 +58,7 @@ QuickDeconvolution takes as input `-i` a fasta or a fastq file containing barcod
 ```
 If the reads are paired, provide QuickDeconvolution with an interleaved file where the two ends of the pairs have the same name, it will recognize it. To interleave two files, you can use this command line: 
 ```
-paste $1 $2 sequencing_reads_end_1.fastq sequencing_reads_end_2.fastq | paste - - - - | awk -v OFS="\n" -v FS="\t" '{print($1,$3,$5,$7,$2,$4,$6,$8)}' > sequencing_reads_interleaved.fastq
+paste -d '\n' <(awk '{if (NR%4==1){printf"\n";printf $0;} else{printf "((()))"$0;}}' reads_foward.fq) <(awk '{if (NR%4==1){printf"\n";printf $0;}else{ printf "((()))"$0;}}' reads_reverse.fq) | sed 's/((()))/\n/g' > sequencing_reads_interleaved.fastq
 ```
 
 ### Output
