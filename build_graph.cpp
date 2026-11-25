@@ -9,15 +9,15 @@ using namespace std::chrono;
 using std::cout;
 using std::endl;
 using std::vector;
-using std::list;
-using std::min;
+//using std::list;
+//using std::min;
 using robin_hood::unordered_map;
 using robin_hood::unordered_flat_map;
-using std::map;
+//using std::map;
 using std::string;
-using std::array;
+//using std::array;
 using std::unordered_set;
-using std::set;
+//using std::set;
 
 //function takes as input the reads and the index and deconvolves the barcodes the thread should deconvolve
 void thread_deconvolve(short minCommonKmers, unordered_map <string, long int> &tagIDs, const vector <vector<long long int>> &readClouds, std::vector <Read> &reads, const vector<vector<vector<long int>>> &kmers, int thread_id, int num_thread, int dropout, string folderOut, bool metagenomic){

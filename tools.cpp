@@ -4,12 +4,9 @@
 using std::cout;
 using std::endl;
 using std::vector;
-using std::list;
-using std::pair;
 using std::string;
 using std::ofstream;
 using std::ifstream;
-using std::set;
 using std::unordered_set;
 using robin_hood::unordered_map;
 using namespace std::chrono;

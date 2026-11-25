@@ -1,10 +1,13 @@
 #include "output.h"
 
+#include <boost/iostreams/filter/gzip.hpp>
+#include <boost/iostreams/filtering_stream.hpp>
+#include <stdexcept>
+
 using std::string;
 using std::vector;
 using std::ifstream;
 using std::ofstream;
-using std::cout;
 
 // add the deconvolution hyphen to the end of the BC or BX, wherever it is in the read
 static std::string extend_barcode(std::string header, int extension)
@@ -36,166 +39,117 @@ static std::string extend_barcode(std::string header, int extension)
     return header;
 }
 
-void output(string inputFile, string outputFile, vector<Read>& reads, int min_length){
+void output(
+    std::string inputFile,
+    std::string outputFile,
+    std::vector<Read>& reads,
+    int min_length)
+{
+    const char format = sequence_format(inputFile);
 
-    char format = '@'; //a character to keep track of whether the input file is a fasta or a fastq
-    if (inputFile.substr(inputFile.size()-6,6) == ".fasta" || inputFile.substr(inputFile.size()-3,3) == ".fa"){
-        format = '>';
-    }
+    std::ifstream input_file;
+    boost::iostreams::filtering_istream in;
+    open_sequence_input(inputFile, input_file, in);
 
-    ifstream in(inputFile);
-    if (!in){cout << "problem reading files in output_files, while trying to read " << inputFile << '\n';}
+    std::ofstream output_file;
+    boost::iostreams::filtering_ostream out;
+    open_sequence_output(outputFile, output_file, out);
 
-    ofstream out(outputFile);
-    if (!out){
-        cout << "I cannot open the output file, there may be a problem in the path of : " << outputFile << '\n';
-    }
+    std::size_t next_read_id = 0;
+    std::string previous_key;
+    std::string tag;
+    std::string line;
+    std::vector<std::string> buffer;
 
-
-    long int sequenceID = 0;
-
-    string tag;
-
-    string lastnameofsequence;
-    string line;
-    vector<string> buffer;
-
-    while(getline(in, line)){
-
-        if (line[0] == format){
-
-            //then first we append the last read we saw
-
-            //to_deconvolve checks if the line should be deconvolved and if so returns the tag
-            if (to_deconvolve(buffer, format, min_length, tag)){
-                const auto key = mate_key(buffer[0], format);
-
-                if (key == lastnameofsequence){ //if it has the same name as the previous read, it means it is paired
-                    --sequenceID;
-                }
-                else{
-                    lastnameofsequence = key;
-                }
-
-                const auto extension = reads[sequenceID].barcode_extension;
-                out << extend_barcode(buffer[0], extension)
-                    << '\t' << extension << '\n';
-                sequenceID++;
-
-            }
-
-            //then we reset the buffer
-            buffer = {line};
-
-        }
-        else {
-            buffer.push_back(line);
+    const auto write_record = [&]() {
+        if (!to_deconvolve(buffer, format, min_length, tag)) {
+            return;
         }
 
-    }
-
-    //parse the last read
-    if (to_deconvolve(buffer, format, min_length, tag)) {
         const auto key = mate_key(buffer[0], format);
-
-        if (key == lastnameofsequence) {
-            --sequenceID;
+        std::size_t read_id;
+        if (next_read_id > 0 && key == previous_key) {
+            read_id = next_read_id - 1;
         } else {
-            lastnameofsequence = key;
+            read_id = next_read_id++;
+            previous_key = key;
         }
 
-        const auto extension = reads[sequenceID].barcode_extension;
+        const auto extension = reads[read_id].barcode_extension;
         out << extend_barcode(buffer[0], extension)
             << '\t' << extension << '\n';
+    };
 
-        ++sequenceID;
-    }
-
-}
-
-void fasta_output(string inputFile, string outputFile, vector<Read>& reads, int min_length){
-
-    char format = '@'; //a character to keep track of whether the input file is a fasta or a fastq
-    if ((inputFile.size() > 5 && inputFile.substr(inputFile.size()-6,6) == ".fasta") || inputFile.substr(inputFile.size()-3,3) == ".fa"){
-        format = '>';
-    }
-
-    ifstream in(inputFile);
-    if (!in){cout << "problem reading files in output_files, while trying to read " << inputFile << '\n';}
-
-    ofstream out(outputFile);
-    if (!out){
-        cout << "I cannot open the output file, there may be a problem in the path of : " << outputFile << '\n';
-    }
-
-
-    long int sequenceID = 0;
-
-    string tag;
-
-    string lastnameofsequence;
-    string line;
-    vector<string> buffer;
-
-    while(getline(in, line)){
-
-        if (line[0] == format){
-
-            //then first we append the last read we saw
-
-            //to_deconvolve checks if the line should be deconvolved and if so returns the tag
-            if (to_deconvolve(buffer, format, min_length, tag)) {
-                const auto key = mate_key(buffer[0], format);
-
-                if (key == lastnameofsequence) {
-                    --sequenceID;
-                } else {
-                    lastnameofsequence = key;
-                }
-
-                out << extend_barcode(buffer[0], reads[sequenceID].barcode_extension) << '\n';
-                ++sequenceID;
-            } else if (buffer.size()>=1){
-                out << buffer[0] << '\n';
-            }
-
-            //output the rest of the lines too
-            for (int i = 1 ; i < buffer.size() ; i++){
-                out << buffer[i] << '\n';
-            }
-
-            //then we reset the buffer
+    while (std::getline(in, line)) {
+        if (!line.empty() && line[0] == format) {
+            write_record();
             buffer = {line};
-
-        }
-        else {
+        } else {
             buffer.push_back(line);
         }
-
     }
 
-    //parse the last read
-    if (to_deconvolve(buffer, format, min_length, tag)){ //to_deconvolve checks if the line should be deconvolved and if so returns the tag
+    write_record();
+    finish_sequence_output(outputFile, output_file, out);
+}
 
-        if (mate_key(buffer[0], format) == lastnameofsequence){ //if it has the same name as the previous read, it means it is paired
-            sequenceID --;
-            out << buffer[0] << "-" << reads[sequenceID].barcode_extension << '\n';
+void fasta_output(
+    std::string inputFile,
+    std::string outputFile,
+    std::vector<Read>& reads,
+    int min_length)
+{
+    const char format = sequence_format(inputFile);
+
+    std::ifstream input_file;
+    boost::iostreams::filtering_istream in;
+    open_sequence_input(inputFile, input_file, in);
+
+    std::ofstream output_file;
+    boost::iostreams::filtering_ostream out;
+    open_sequence_output(outputFile, output_file, out);
+
+    std::size_t next_read_id = 0;
+    std::string previous_key;
+    std::string tag;
+    std::string line;
+    std::vector<std::string> buffer;
+
+    const auto write_record = [&]() {
+        if (buffer.empty()) {
+            return;
         }
-        else {
-            out << buffer[0] << "-" << reads[sequenceID].barcode_extension << '\n';
 
-            lastnameofsequence = mate_key(buffer[0], format);
+        if (to_deconvolve(buffer, format, min_length, tag)) {
+            const auto key = mate_key(buffer[0], format);
+            std::size_t read_id;
+            if (next_read_id > 0 && key == previous_key) {
+                read_id = next_read_id - 1;
+            } else {
+                read_id = next_read_id++;
+                previous_key = key;
+            }
+
+            const auto extension = reads[read_id].barcode_extension;
+            out << extend_barcode(buffer[0], extension) << '\n';
+        } else {
+            out << buffer[0] << '\n';
         }
-        sequenceID++;
 
-    }
-    else if (buffer.size()>1){
-        out << buffer[0] << '\n';
+        for (std::size_t i = 1; i < buffer.size(); ++i) {
+            out << buffer[i] << '\n';
+        }
+    };
+
+    while (std::getline(in, line)) {
+        if (!line.empty() && line[0] == format) {
+            write_record();
+            buffer = {line};
+        } else {
+            buffer.push_back(line);
+        }
     }
 
-    //output the rest of the lines too
-    for (int i = 1 ; i < buffer.size() ; i++){
-        out << buffer[i] << '\n';
-    }
-
+    write_record();
+    finish_sequence_output(outputFile, output_file, out);
 }

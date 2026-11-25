@@ -1,4 +1,5 @@
-CMake*
+CMakeFiles/
+CMakeCache.txt
 cmake*
 QuickDeconvolution
 Makefile

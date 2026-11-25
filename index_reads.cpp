@@ -2,6 +2,10 @@
 
 #include <chrono>
 
+#include <boost/iostreams/filter/gzip.hpp>
+#include <boost/iostreams/filtering_stream.hpp>
+#include <stdexcept>
+
 using std::cout;
 using std::endl;
 using std::vector;
@@ -20,120 +24,85 @@ using namespace std::chrono;
 //to compress sequencing data, reads and kmers are represented by vectors of bool (encapsulated in Sequence)
 
 //function parsing all the reads present in the file
-void parse_reads(std::string fileReads, std::vector<std::vector<long long int>> &readClouds, std::vector <Read> &allreads, unordered_map <string, long int> &tagIDs, int min_length, int num_threads){
+void parse_reads(
+    std::string fileReads,
+    std::vector<std::vector<long long int>>& readClouds,
+    std::vector<Read>& allreads,
+    robin_hood::unordered_map<std::string, long int>& tagIDs,
+    int min_length,
+    int num_threads,
+    bool verbose)
+{
+    const auto started = std::chrono::steady_clock::now();
+    const char format = sequence_format(fileReads);
 
-    //a count to inform the user how many reads will not be deconvolved (either because they do not have a tag or are too short)
-    int totalNumberOfSequences = 0;
-    auto t0 = high_resolution_clock::now();
-    char format = '@'; //a character to keep track of whether the input file is a fasta or a fastq
-    if ((fileReads.size()>6 && fileReads.substr(fileReads.size()-6,6) == ".fasta") || fileReads.substr(fileReads.size()-3,3) == ".fa"){
-        format = '>';
-    }
+    std::ifstream input_file;
+    boost::iostreams::filtering_istream in;
+    open_sequence_input(fileReads, input_file, in);
 
-    ifstream in(fileReads);
-    if (!in){
-        cout << "problem reading files in index_reads, while trying to read " << fileReads << endl;
-        throw std::invalid_argument( "Input file could not be read" );
-     }
+    long long int sequence_id = 0;
+    long long int skipped_reads = 0;
+    std::string previous_key;
+    std::string tag;
+    std::string line;
+    std::vector<std::string> buffer;
 
-    long long int sequenceID = 0; //instead of storing the name of sequence in a string we're going to store them in long long int, it will be more efficient
-    string lastnameofsequence; //used to see if it's the same as the current name of sequence: if it is, reads are paired
-
-    string tag;
-
-    long int tagID;
-
-    string line;
-    vector<string> buffer;
-
-    while(getline(in, line)){
-
-        if (line[0] == format){
-
-            //then first we append the last read we saw
-
-            if (to_deconvolve(buffer, format, min_length, tag)){ //to_deconvolve checks if the line should be deconvolved and if so returns the tag
-
-                if (mate_key(buffer[0], format) == lastnameofsequence){ //if it has the same name as the previous read, it means it is paired
-                    allreads[allreads.size()-1].sequence_paired = buffer[1];
-                    totalNumberOfSequences--;
-                }
-                else{
-
-                    Read r(num_threads);
-
-                    if (tagIDs.find(tag) == tagIDs.end()){ // if true, tag is not in the keys of tagIDs
-
-                        tagIDs[tag] = readClouds.size(); //from now on this tag ID will be associated to this tag
-                        tagID = readClouds.size();
-                        readClouds.push_back({sequenceID});
-
-                    }
-                    else{
-                        tagID = tagIDs[tag];
-                        readClouds[tagID].push_back(sequenceID);
-                    }
-
-                    r.sequence = buffer[1];
-                    r.barcode = tagID;
-                    allreads.push_back(r);
-                    sequenceID ++;
-
-                    lastnameofsequence = mate_key(buffer[0], format);
-
-                }
-
-            }
-
-            //then we reset the buffer
-            buffer = {line};
-
-            totalNumberOfSequences ++;
+    const auto parse_record = [&]() {
+        if (buffer.empty()) {
+            return;
         }
-        else {
+        if (!to_deconvolve(buffer, format, min_length, tag)) {
+            ++skipped_reads;
+            return;
+        }
+
+        const auto key = mate_key(buffer[0], format);
+        if (sequence_id > 0 && key == previous_key) {
+            allreads.back().sequence_paired = buffer[1];
+            return;
+        }
+
+        const auto existing_tag = tagIDs.find(tag);
+        long int tag_id;
+        if (existing_tag == tagIDs.end()) {
+            tag_id = static_cast<long int>(readClouds.size());
+            tagIDs[tag] = tag_id;
+            readClouds.push_back({sequence_id});
+        } else {
+            tag_id = existing_tag->second;
+            readClouds[tag_id].push_back(sequence_id);
+        }
+
+        Read read(num_threads);
+        read.sequence = buffer[1];
+        read.barcode = tag_id;
+        allreads.push_back(read);
+
+        previous_key = key;
+        ++sequence_id;
+    };
+
+    while (std::getline(in, line)) {
+        if (!line.empty() && line[0] == format) {
+            parse_record();
+            buffer = {line};
+        } else {
             buffer.push_back(line);
         }
-
     }
+    parse_record();
 
-    //parse the last read
-    if (to_deconvolve(buffer, format, min_length, tag)){
-
-        if (mate_key(buffer[0], format) == lastnameofsequence){ //if it has the same name as the previous read, it means it is paired
-            allreads[allreads.size()-1].sequence_paired = buffer[1];
-        }
-        else{
-
-            Read r(num_threads);
-
-            if (tagIDs.find(tag) == tagIDs.end()){ // if true, tag is not in the keys of tagIDs
-
-                tagIDs[tag] = readClouds.size(); //from now on this tag ID will be associated to this tag
-                tagID = readClouds.size();
-                readClouds.push_back({sequenceID});
-
-            }
-            else{
-                tagID = tagIDs[tag];
-                readClouds[tagID].push_back(sequenceID);
-            }
-
-            r.sequence = buffer[1];
-            r.barcode = tagID;
-            allreads.push_back(r);
-            sequenceID ++;
-
-            lastnameofsequence = mate_key(buffer[0], format);
-        }
-
+    const auto elapsed = std::chrono::duration_cast<std::chrono::seconds>(
+        std::chrono::steady_clock::now() - started).count();
+    if(verbose){
+        std::cout << "Finished parsing in " << elapsed << "s. "
+                  << sequence_id << " read entries to deconvolve, "
+                  << skipped_reads << " records skipped.\n";
     }
-
-    auto t1 = high_resolution_clock::now();
-    cout << "Finished parsing all the reads in " << duration_cast<seconds>(t1-t0).count() << "s, for a total of " << sequenceID << " reads to deconvolve. " << totalNumberOfSequences - sequenceID << " reads will not be deconvolved, either because they are too short or do not have a tag" << endl;
 }
 
 //function computing minimisers of some reads(one thread)
-void compute_minimizers(int k, int h, int w, std::vector <Read> &allreads, int thread_id, int num_threads){
+void compute_minimizers(int k, int h, int w, std::vector <Read> &allreads, int thread_id, int num_threads, bool verbose){
 
     auto t0 = high_resolution_clock::now();
 
@@ -150,18 +119,20 @@ void compute_minimizers(int k, int h, int w, std::vector <Read> &allreads, int t
     //        }
     //    }
 
-        if ((r-thread_id)%(100000*num_threads) == 0){
+        if ((r-thread_id)%(100000*num_threads) == 0 && verbose){
             cout << "Thread " << thread_id << " computed " << double(r)/double(allreads.size())*100 << "% of its minimizers" << endl;
         }
     }
 
     auto t1 = high_resolution_clock::now();
 
-    cout << "Thread " << thread_id << " computed its minimizers in " << duration_cast<seconds>(t1-t0).count()<< "s" << endl;
+    if(verbose){
+        cout << "Thread " << thread_id << " computed its minimizers in " << duration_cast<seconds>(t1-t0).count()<< "s" << endl;
+    }
 }
 
 //this function partially fills the index (kmers) with one thread
-void index_kmers(int k, vector<vector<long int>> &kmers, vector <Read> &allreads, int thread_id, int num_threads){ //kmers is a vector of vector (and not vec of vec of vec) becuse we're focusing on 1 thread
+void index_kmers(int k, vector<vector<long int>> &kmers, vector <Read> &allreads, int thread_id, int num_threads, bool verbose){ //kmers is a vector of vector (and not vec of vec of vec) becuse we're focusing on 1 thread
 
     std::mutex mutex;
 
@@ -236,7 +207,7 @@ void index_kmers(int k, vector<vector<long int>> &kmers, vector <Read> &allreads
 
 
             count ++;
-            if (count % (int(asize/100)+1) == 0){
+            if (count % (int(asize/100)+1) == 0 && verbose){
                 cout << "Thread " << thread_id << " indexed " << double(count)/double(allreads.size())*100 << "% of its sequences" << endl;
             }
     }
@@ -247,13 +218,14 @@ void index_kmers(int k, vector<vector<long int>> &kmers, vector <Read> &allreads
     for (auto k : kmers){
         totk += std::set<long int>( k.begin(), k.end() ).size();
     }
-    cout << "On average, each kmers is contained in " << totk/kmers.size() << " barcodes" << endl;
-
-    cout << "In thread " << thread_id << " of index_reads, handling the memory of kmers took me reads " << total_read_time/1000000000 << "s out of " << duration_cast<microseconds>(t1 - t0).count()/1000000 << "s in total" <<  endl;
+    if(verbose){
+        cout << "On average, each kmers is contained in " << totk/kmers.size() << " barcodes" << endl;
+        cout << "In thread " << thread_id << " of index_reads, handling the memory of kmers took me reads " << total_read_time/1000000000 << "s out of " << duration_cast<microseconds>(t1 - t0).count()/1000000 << "s in total" <<  endl;
+    }
 }
 
 //function eliminating all kmers that are abnormally often represented (more than twice the average). Also eliminate extra copies of barcodes present multiple times in one kmer
-void convert_kmers(vector<vector<long int>>& res, vector<vector<long int>>& input, bool metagenomic){
+void convert_kmers(vector<vector<long int>>& res, vector<vector<long int>>& input, bool metagenomic, bool verbose){
 
     // a count to keep track of, on average, how many entries there are per kmers
     float coverage = 0;
@@ -283,6 +255,8 @@ void convert_kmers(vector<vector<long int>>& res, vector<vector<long int>>& inpu
             }
 
         }
-        cout << "Eliminating for the classification all kmers present more than twice the average, i.e. " << 2*averageCoverage <<" times. Thread trashed " << totrash << " kmers out of " << count << " in total." << endl;
+        if(verbose){
+            cout << "Eliminating for the classification all kmers present more than twice the average, i.e. " << 2*averageCoverage <<" times. Thread trashed " << totrash << " kmers out of " << count << " in total." << endl;
+        }
     }
 }

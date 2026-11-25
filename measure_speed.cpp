@@ -3,21 +3,16 @@
 using std::cout;
 using std::endl;
 using std::vector;
-using std::list;
 using std::string;
-using std::array;
-using std::set;
-using robin_hood::pair;
 using robin_hood::unordered_map;
 using std::thread;
 using std::ref; //to pass references in threads
-using std::this_thread::sleep_for; //to pause the program
 using namespace std::chrono;
 //using std::atomic; //to use atomic types (multithreading)
 
 
 //main function of QD: organizes all steps the deconvolution
-float measure_graph_building_time(int k, int h, int w, int num_threads, int dropout, bool metagenomic, string readsFile, string folderOut, string fileOut){
+float measure_graph_building_time(int k, int h, int w, int num_threads, int dropout, bool metagenomic, string readsFile, string folderOut, string fileOut, bool verbose){
 
     double timeGraph = 0;
     auto t0 = high_resolution_clock::now();
@@ -30,7 +25,7 @@ float measure_graph_building_time(int k, int h, int w, int num_threads, int drop
 
     //first parse all the reads from the file
     int min_length = w+k; //then minimum length of a read to have it deconvolved
-    parse_reads(readsFile, readClouds, allreads, tagIDs, min_length, num_threads);
+    parse_reads(readsFile, readClouds, allreads, tagIDs, min_length, num_threads, verbose);
 
 
     //then compute all the minimizers (parallely)
@@ -40,10 +35,10 @@ float measure_graph_building_time(int k, int h, int w, int num_threads, int drop
 
     for (int i = 1 ; i < num_threads ; i++){
 
-        threadsMini.push_back(thread(compute_minimizers, k, h, w, ref(allreads), i, num_threads));
+        threadsMini.push_back(thread(compute_minimizers, k, h, w, ref(allreads), i, num_threads, verbose));
 
     }
-    compute_minimizers(k,h,w, ref(allreads), 0, num_threads); //also use the main thread, no reason to wait
+    compute_minimizers(k,h,w, ref(allreads), 0, num_threads, verbose); //also use the main thread, no reason to wait
 
         //now join all the threads
     for (vector<thread>::iterator it = threadsMini.begin() ; it != threadsMini.end() ; ++it)
@@ -59,10 +54,10 @@ float measure_graph_building_time(int k, int h, int w, int num_threads, int drop
 
     for (int i = 1 ; i < num_threads ; i++){
 
-        threadsIdx.push_back(thread(index_kmers,k, ref(kmers[i]), ref(allreads), i, num_threads));
+        threadsIdx.push_back(thread(index_kmers,k, ref(kmers[i]), ref(allreads), i, num_threads, verbose));
 
     }
-    index_kmers(k, kmers[0], allreads, 0, num_threads);
+    index_kmers(k, kmers[0], allreads, 0, num_threads, verbose);
 
 
         //now join all the threads
@@ -73,7 +68,9 @@ float measure_graph_building_time(int k, int h, int w, int num_threads, int drop
 
     auto t1_5 = high_resolution_clock::now();
 
-    cout << "In total, indexing reads took me " << duration_cast<seconds>(t1_5-t0).count() << "s, among which " << duration_cast<seconds>(t0_5-t0).count() << "s for parsing, " << duration_cast<seconds>(t1-t0_5).count() << "s for finding minimizers and " << duration_cast<seconds>(t1_5-t1).count() << "s for putting all that in an index"  << endl;
+    if(verbose){
+        cout << "In total, indexing reads took me " << duration_cast<seconds>(t1_5-t0).count() << "s, among which " << duration_cast<seconds>(t0_5-t0).count() << "s for parsing, " << duration_cast<seconds>(t1-t0_5).count() << "s for finding minimizers and " << duration_cast<seconds>(t1_5-t1).count() << "s for putting all that in an index"  << endl;
+    }
 
     //for now kmers[t][i] may contain replicate (i.e. the same barcode contains several times the same kmer), get rid of them to iterate faster. Also, remove the kmers that are present much more than expected, they will create false positive links
 
@@ -83,11 +80,11 @@ float measure_graph_building_time(int k, int h, int w, int num_threads, int drop
     for (int t = 1 ; t < num_threads ; t++){
 
         kmersV[t] = vector<vector<long int>> (kmers[t].size());
-        threadsConvert.push_back(thread(convert_kmers,ref(kmersV[t]), ref(kmers[t]), metagenomic));
+        threadsConvert.push_back(thread(convert_kmers,ref(kmersV[t]), ref(kmers[t]), metagenomic, verbose));
 
     }
     kmersV[0] = vector<vector<long int>> (kmers[0].size());
-    convert_kmers(kmersV[0], kmers[0], metagenomic);
+    convert_kmers(kmersV[0], kmers[0], metagenomic, verbose);
 
         //now join all the threads
     for (vector<thread>::iterator it = threadsConvert.begin() ; it != threadsConvert.end() ; ++it)
@@ -115,16 +112,20 @@ float measure_graph_building_time(int k, int h, int w, int num_threads, int drop
     {
         it->join();
     }
-	
+
 	auto t2 = high_resolution_clock::now();
 
     //now write the output
-    cout << "Finished deconvolving, now writing to the output" << endl;
+    if(verbose){
+        cout << "Finished deconvolving, now writing to the output" << endl;
+    }
     fasta_output(readsFile, fileOut, allreads, min_length);
 
     auto t3 = high_resolution_clock::now();
-	
-    cout << "Indexation time : " << duration_cast<seconds>(t1_5 - t0).count() << "s, conversion time "<< duration_cast<seconds>(t10 - t1_5).count() <<"s, alignment time " << duration_cast<milliseconds>(t2 - t10).count()/1000 << "s, output time " << duration_cast<milliseconds>(t3 - t2).count()/1000 << "s" << endl;
+
+    if(verbose){
+        cout << "Indexation time : " << duration_cast<seconds>(t1_5 - t0).count() << "s, conversion time "<< duration_cast<seconds>(t10 - t1_5).count() <<"s, alignment time " << duration_cast<milliseconds>(t2 - t10).count()/1000 << "s, output time " << duration_cast<milliseconds>(t3 - t2).count()/1000 << "s" << endl;
+    }
 	return duration_cast<seconds>(t2 - t0).count();
 
 }

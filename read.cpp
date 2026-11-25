@@ -1,8 +1,6 @@
 #include "read.h"
 
 using std::vector;
-using std::cout;
-using std::endl;
 
 Read::Read(int num_threads)
 {

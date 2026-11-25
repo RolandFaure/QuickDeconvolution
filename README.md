@@ -9,17 +9,47 @@ You can install QuickDeconvolution through Bioconda
 conda install -c bioconda quickdeconvolution
 ```
 
-Alternatively, QuickDeconvolution is quite straightforward to compile from source.
-You will need make and cmake >= 2.8 to compile the sources. In the desired folder, run
+## Build from source
 
-```
-git clone https://github.com/RolandFaure/QuickDeconvolution.git
-cd QuickDeconvolution/
-cmake ./
-make
+QuickDeconvolution requires CMake 3.20 or newer, a C++11-capable compiler,
+and Boost.Iostreams with gzip support. Install the build dependencies for
+your platform before running CMake.
+<details>
+<summary>
+    Installing boost
+</summary>
+
+**Linux**
+```bash
+# Ubuntu or Debian-derived systems
+sudo apt update
+sudo apt install build-essential cmake libboost-iostreams-dev
+
+# Arch Linux
+sudo pacman -S base-devel cmake boost
 ```
 
-An executable named QuickDeconvolution should appear in the folder. A small test file "test.fastq", from a simulated sequencing experiment on a small synthetic genome, is provided in the folder "test_data" to test the program.
+**macOS with Homebrew**
+
+Install the Xcode Command Line Tools with `xcode-select --install` if you
+haven’t already, then run:
+
+```bash
+brew install cmake boost
+```
+</details>
+
+### Compile
+
+```bash
+git clone https://github.com/BLinkseq/QuickDeconvolution.git
+cd QuickDeconvolution
+cmake -S . -B build
+cmake --build build --parallel
+```
+
+An executable named QuickDeconvolution should appear in the folder. A small test file "test.fastq.gz", from a
+simulated sequencing experiment on a small synthetic genome, is provided in the folder "test_data" to test the program.
 ```
 QuickDeconvolution -i test_data/test.fastq -o test_data/test_out.fastq
 ```
@@ -29,25 +59,29 @@ The program should run in less than a minute and output in test_out.fastq the re
 
 ```bash
 SYNOPSIS
-        ./QuickDeconvolution -i [<input-file>] -o [<output-file>] [-k [<k>]] [-w
-            [<w>]] [-d [<d>]] [-t [<t>]] [-a [<a>]]
+    ./QuickDeconvolution -i [<input-file>] -o [<output-file>] [-k [<k>]] [-w
+        [<w>]] [-d [<d>]] [-t [<t>]] [-a [<a>]]
 
 OPTIONS
-        -k, --kmers-length
-                    size of kmers [default:21]
-
-        -w, --window-size
-                    size of window guaranteed to contain at least one minimizing kmer [default:40]
-
-        -d, --density
-                    on average 1/2^d kmers are indexed [default:3]
-
-        -t, --threads
-                    number of threads [default:1]
-
-        -a, --dropout
-                    QD does not try to deconvolve clouds smaller than this value [default:0]
-
+    -k, --kmers-length
+        size of kmers [default:21]
+    
+    -w, --window-size
+        size of window guaranteed to contain at least one minimizing kmer [default:40]
+    
+    -d, --density
+        on average 1/2^d kmers are indexed [default:3]
+    
+    -t, --threads
+        number of threads [default:1]
+    
+    -a, --dropout
+        QD does not try to deconvolve clouds smaller than this value [default:0]
+    -m, --metagenome
+        Use this option on metagenomic samples
+    
+    -v, --verbose
+        Log run information to stderr
 ```
 
 ### Input
@@ -92,4 +126,3 @@ QuickDeconvolution is distributed under the license GPL3
 
 QuickDeconvolution is published in *Bioinformatics advances*. You can cite using:
 Faure, Roland, and Dominique Lavenier. “QuickDeconvolution: Fast and Scalable Deconvolution of Linked-Read Sequencing Data.” *Bioinformatics Advances*, September 26, 2022, vbac068. _https://doi.org/10.1093/bioadv/vbac068_.
-
