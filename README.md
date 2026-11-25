@@ -63,7 +63,7 @@ The program should run in less than a minute and output in test_out.fastq the re
 ```bash
 SYNOPSIS
     ./QuickDeconvolution -i [<input-file>] -o [<output-file>] [-k [<k>]] [-w
-        [<w>]] [-d [<d>]] [-t [<t>]] [-a [<a>]]
+        [<w>]] [-d [<d>]] [-t [<t>]] [-a [<a>]] [-m] [-v]
 
 OPTIONS
     -k, --kmers-length
