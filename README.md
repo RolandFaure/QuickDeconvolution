@@ -18,6 +18,7 @@ your platform before running CMake.
 <summary>
     Installing boost
 </summary>
+
 ---
 
 **Linux**
