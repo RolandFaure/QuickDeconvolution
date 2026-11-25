@@ -2,13 +2,13 @@
 #include <random>
 #include <set>
 
-using std::cout;
-using std::endl;
+//using std::cout;
+//using std::endl;
 using std::vector;
-using std::list;
+//using std::list;
 using std::string;
 using robin_hood::pair;
-using std::unordered_set;
+//using std::unordered_set;
 using robin_hood::unordered_map;
 
 using namespace std::chrono;
@@ -36,7 +36,6 @@ void cluster_graph_chinese_whispers(vector<vector<int>> &adjMatrix, vector<int> 
         auto t0 = high_resolution_clock::now();
 
         std::random_shuffle(order.begin(), order.end()); //define the random order with which to look at the node
-
 
         for (int node : order){ //go through the nodes in a random order
 

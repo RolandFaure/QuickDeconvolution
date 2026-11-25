@@ -39,6 +39,11 @@ set(TARGET_SRC
 
 file(GLOB SOURCES "*.cpp")
 add_executable(QuickDeconvolution ${SOURCES})
+set_target_properties(QuickDeconvolution PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+)
+find_package(Boost REQUIRED COMPONENTS iostreams)
+target_link_libraries(QuickDeconvolution PRIVATE Boost::iostreams)
 
 target_compile_options (QuickDeconvolution PRIVATE -std=c++11)
 target_compile_options (QuickDeconvolution PRIVATE -O3)

@@ -6,9 +6,6 @@
 
 using std::cout;
 using std::endl;
-using std::vector;
-using std::list;
-using std::pair;
 using std::string;
 using robin_hood::unordered_map;
 using namespace clipp;
@@ -26,6 +23,7 @@ int main(int argc, char *argv[])
 
     int k = 21 , w = 40 , h = 3, t = 1, a=0;
     bool metagenomic = false;
+    bool verbose = false;
     string infile, outfolder, outfile;
     auto cli = (
             required("-i", "--input-file").doc("input file (mandatory)") & opt_value("i", infile),
@@ -35,7 +33,9 @@ int main(int argc, char *argv[])
             option("-d", "--density").doc("on average 1/2^d kmers are sparse kmers [default:3]") & opt_value("d", h),
             option("-t", "--threads").doc("number of threads [default:1]") & opt_value("t", t),
             option("-a", "--dropout").doc("QD does not try to deconvolve clouds smaller than this value [default:0]") & opt_value("a", a),
-            option("-m", "--metagenome").set(metagenomic).doc("Use this option on metagenomic samples")
+            option("-m", "--metagenome").set(metagenomic).doc("Use this option on metagenomic samples"),
+            option("-v", "--verbose").set(verbose).doc("Log run information to stderr")
+
         );
 
     if(!parse(argc, argv, cli)) {
@@ -54,8 +54,10 @@ int main(int argc, char *argv[])
             }
         }
 
-        cout << "Launching deconvolution, with arguments : k=" <<k << " d=" << h << " w=" << w << " t=" << t << " infile=" << infile << " outfile=" << outfile << endl;
-        measure_graph_building_time(k, h, w, t,a, metagenomic, infile, outfolder, outfile);
+        if(verbose) {
+            cout << "Launching deconvolution, with arguments : k=" <<k << " d=" << h << " w=" << w << " t=" << t << " infile=" << infile << " outfile=" << outfile << endl;
+        }
+        measure_graph_building_time(k, h, w, t,a, metagenomic, infile, outfolder, outfile, verbose);
     }
 
     return 0;
