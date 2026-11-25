@@ -89,37 +89,52 @@ OPTIONS
 
 ### Input
 
-QuickDeconvolution takes as input `-i` a fasta or a fastq file containing barcoded reads with the tag `BX:Z` designating a barcode (this is the default output of [longranger basic](https://support.10xgenomics.com/genome-exome/software/pipelines/latest/advanced/other-pipelines)). For example
+QuickDeconvolution takes as input `-i` a fasta or a fastq file containing barcoded reads with the tag `BX:Z`
+designating a barcode. A gzipped file is supported. For example:
 ```
-@read_456 cov:23.45 BX:Z:AAAACTGTAT
+@read_456 1:N:2:ATGAGA BX:Z:AAAACTGTAT
 ```
-If the reads are paired, provide QuickDeconvolution with an interleaved file where the two ends of the pairs have the same name, it will recognize it. To interleave two files, you can use this command line: 
-```
+If the reads are paired, provide QuickDeconvolution with an **interleaved** file where the two ends of the pairs
+have the same name, it will recognize it. To interleave two files, you can use this command line: 
+```bash
+seqtk mergepe file.R1.fq file.R2.fq > file.R12.fq
+
+# or manually
 paste -d '\n' <(awk '{if (NR%4==1){printf"\n";printf $0;} else{printf "((()))"$0;}}' reads_foward.fq) <(awk '{if (NR%4==1){printf"\n";printf $0;}else{ printf "((()))"$0;}}' reads_reverse.fq) | sed 's/((()))/\n/g' > sequencing_reads_interleaved.fastq
 ```
 
 ### Output
 
-QuickDeconvolution outputs the fasta/q file given as input, with an additional tag (-0, -1, -2...) at the end of the line, so that the deconvolved reads look like 
+QuickDeconvolution outputs the fasta/q file given as input, with an additional tag (-0, -1, -2...)
+at the end of the BX or BC barcode tag. If the output filename ends with `.gz`, it will be gzip compressed.
+The deconvolved reads will look like: 
 ```
-@read_456 cov:23.45 BX:Z:AAAACTGTAT-1
+@read_456 1:N:2:ATGAGA BX:Z:AAAACTGTAT-1
 ```
-Within each barcode, reads having the same tag come from the same fragment. WARNING: the -0 tag is a special tag, indicating reads that could not be deconvolved by the program. If a tag is already present, QuickDeconvolution will nonetheless append a new tag at the end of the barcode:
+Within each barcode, reads having the same tag come from the same fragment.
+If a tag is already present, QuickDeconvolution
+will nonetheless append a new tag at the end of the barcode:
 ```
-@read_456 cov:23.45 BX:Z:AAAACTGTAT-1-3
+@read_456 1:N:2:ATGAGA BX:Z:AAAACTGTAT-1-3
 ```
+**WARNING**: the -0 tag is a special tag, indicating reads that could not be
+deconvolved by the program. 
 
 ### Options
 
-Option -a is the dropout option: the program disregard all clouds containing fewer reads than this value. You may want to use the option if you know you'll need clouds of a certain size for your downstream analyses, in which case it might be a waste of time to deconvolve the smallest clouds.
+- `-a` is the dropout option: the program disregard all clouds containing fewer reads than this value.
+You may want to use the option if you know you'll need clouds of a certain size for your downstream analyses,
+in which case it might be a waste of time to deconvolve the smallest clouds.
 
-Option -t is the number of threads to launch simultaneously on the program. Wall-clock time decreases and RAM usage increases with the number of threads.
+- `-t` is the number of threads to launch simultaneously on the program. Wall-clock time decreases and
+RAM usage increases with the number of threads.
 
-Options k, w and d are parameters of the alignment within QuickDeconvolution. The deconvolution should not be very sensitive to these values. 
-k is the length of the k-mers. Avoid decreasing k below 15. 
-d is to monitor the density of sparse k-mers. On average 1/2^d k-mers will be sparse.
-While choosing sparse k-mers, the program is ensured to choose at least 1 k-mer in a window of size w.
-Decreasing w and/or d may in some cases increase precision at the expense of run-time. Keep w within the range [10,50] and d within range [1,5].
+Options `k`, `w` and `d` are parameters of the alignment within QuickDeconvolution. The deconvolution should
+not be very sensitive to these values. 
+- `k` is the length of the k-mers. Avoid decreasing k below `15`. 
+- `d` is to monitor the density of sparse k-mers. On average 1/2^d k-mers will be sparse.
+While choosing sparse k-mers, the program is ensured to choose at least 1 k-mer in a window of size `w`.
+Decreasing `w` and/or `d` may in some cases increase precision at the expense of run-time. Keep `w` within the range `[10,50]` and d within range `[1,5]`.
 
 ## License
 
