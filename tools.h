@@ -35,6 +35,7 @@ void export_as_SIF(std::vector<std::vector<int>> adj, std::string file);
 void export_as_CSV(std::vector<std::vector<int>> &adj, std::string file,  std::string fileNode, std::vector<int> &clusters);
 void export_as_CSV(robin_hood::unordered_map<long int, std::unordered_set<int>> matching_tags, std::string file);
 std::string reverse_complement(std::string &s);
+std::string mate_key(const std::string& header, char format);
 
 std::ostream& operator<< (std::ostream& out, const std::vector<int>& v);
 void minimisers(Sequence& seq, short k, short w, std::vector<Sequence> &res);

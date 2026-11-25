@@ -54,7 +54,7 @@ void parse_reads(std::string fileReads, std::vector<std::vector<long long int>> 
 
             if (to_deconvolve(buffer, format, min_length, tag)){ //to_deconvolve checks if the line should be deconvolved and if so returns the tag
 
-                if (buffer[0] == lastnameofsequence){ //if it has the same name as the previous read, it means it is paired
+                if (mate_key(buffer[0], format) == lastnameofsequence){ //if it has the same name as the previous read, it means it is paired
                     allreads[allreads.size()-1].sequence_paired = buffer[1];
                     totalNumberOfSequences--;
                 }
@@ -79,7 +79,7 @@ void parse_reads(std::string fileReads, std::vector<std::vector<long long int>> 
                     allreads.push_back(r);
                     sequenceID ++;
 
-                    lastnameofsequence = buffer[0];
+                    lastnameofsequence = mate_key(buffer[0], format);
 
                 }
 
@@ -99,7 +99,7 @@ void parse_reads(std::string fileReads, std::vector<std::vector<long long int>> 
     //parse the last read
     if (to_deconvolve(buffer, format, min_length, tag)){
 
-        if (buffer[0] == lastnameofsequence){ //if it has the same name as the previous read, it means it is paired
+        if (mate_key(buffer[0], format) == lastnameofsequence){ //if it has the same name as the previous read, it means it is paired
             allreads[allreads.size()-1].sequence_paired = buffer[1];
         }
         else{
@@ -123,7 +123,7 @@ void parse_reads(std::string fileReads, std::vector<std::vector<long long int>> 
             allreads.push_back(r);
             sequenceID ++;
 
-            lastnameofsequence = buffer[0];
+            lastnameofsequence = mate_key(buffer[0], format);
         }
 
     }
@@ -286,5 +286,3 @@ void convert_kmers(vector<vector<long int>>& res, vector<vector<long int>>& inpu
         cout << "Eliminating for the classification all kmers present more than twice the average, i.e. " << 2*averageCoverage <<" times. Thread trashed " << totrash << " kmers out of " << count << " in total." << endl;
     }
 }
-
-

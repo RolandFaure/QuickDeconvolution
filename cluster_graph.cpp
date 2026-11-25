@@ -37,7 +37,6 @@ void cluster_graph_chinese_whispers(vector<vector<int>> &adjMatrix, vector<int> 
 
         std::random_shuffle(order.begin(), order.end()); //define the random order with which to look at the node
 
-
         for (int node : order){ //go through the nodes in a random order
 
             //compute the frequencies of the clusters in the vicinity
