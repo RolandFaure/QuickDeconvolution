@@ -18,6 +18,7 @@ your platform before running CMake.
 <summary>
     Installing boost
 </summary>
+---
 
 **Linux**
 ```bash
@@ -37,6 +38,7 @@ haven’t already, then run:
 ```bash
 brew install cmake boost
 ```
+---
 </details>
 
 ### Compile
